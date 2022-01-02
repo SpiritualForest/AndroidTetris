@@ -1,23 +1,21 @@
 package com.androidtetris
 
-import com.androidtetris.game.CoordinatesChangedEventArgs
-import com.androidtetris.game.Event
-import com.androidtetris.game.EventDispatcher
-import com.androidtetris.game.Point
+import com.androidtetris.game.*
 import org.junit.Assert.*
 import org.junit.Test
 
 class EventDispatcherUnitTest {
     var functionCalled = false
+    val dispatcher = EventDispatcher()
 
     @Test
     fun testAddCallbackDispatchEvent() {
-        val dispatcher = EventDispatcher()
+        // Add a callback and dispatch its event
         dispatcher.addCallback(Event.CoordinatesChanged, ::displayCoordinates)
         dispatcher.dispatch(
             Event.CoordinatesChanged, CoordinatesChangedEventArgs(arrayOf(Point(0, 0)), arrayOf(
                 Point(1, 1)
-            ))
+            ), TetrominoCode.I)
         )
         // Assert that the function was called
         assertTrue(functionCalled)
@@ -34,13 +32,12 @@ class EventDispatcherUnitTest {
 
     @Test
     fun testDeleteCallback() {
-        val dispatcher = EventDispatcher()
         dispatcher.deleteCallback(Event.CoordinatesChanged, ::displayCoordinates)
         // Dispatch the event. The function should NOT be called, because it was removed.
         dispatcher.dispatch(
             Event.CoordinatesChanged, CoordinatesChangedEventArgs(arrayOf(Point(0, 0)), arrayOf(
                 Point(1, 1)
-            ))
+            ), TetrominoCode.I)
         )
         // Assert that the function was NOT called
         assertFalse(functionCalled)

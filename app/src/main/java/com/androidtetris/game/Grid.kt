@@ -43,6 +43,7 @@ class Grid(val width: Int, val height: Int) {
         val y = (n-x) / length
         return Point(x, y)
     }
+
     fun convertCoordinatesMap(map: Array<Int>, tWidth: Int): Array<Point> {
         /* Converts the given coordinates map to (x, y) positions */
         // I block: arrayOf(0, 1, 2, 3)

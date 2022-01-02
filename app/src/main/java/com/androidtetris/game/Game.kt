@@ -43,12 +43,14 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     fun startGame() {
         gameRunning = true
         startMovementTimer()
+        eventDispatcher.dispatch(Event.GameStart)
     }
 
     fun endGame() {
         // Stop the movement timer and clear out the grid.
         mTimer?.cancel()
         grid.clear()
+        eventDispatcher.dispatch(Event.GameEnd)
     }
 
     private fun getRandomTetromino(): TetrominoCode {
@@ -76,9 +78,8 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         // Create a new automatic movement timer
         // Cancel the existing one first
         mTimer?.cancel()
-        mTimer = object : CountDownTimer((gridHeight-1)*dropSpeed.toLong(), dropSpeed.toLong()) {
+        mTimer = object: CountDownTimer((gridHeight-1)*dropSpeed.toLong(), dropSpeed.toLong()) {
             override fun onFinish() {
-                println("Done")
             }
             override fun onTick(millisUntilFinished: Long) {
                 move(Direction.Down)
@@ -148,7 +149,8 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
          */
         val oldCoordinates = currentTetromino.coordinates.copyOf()
         currentTetromino.coordinates = moved
-        eventDispatcher.dispatch(Event.CoordinatesChanged, CoordinatesChangedEventArgs(oldCoordinates, moved))
+        eventDispatcher.dispatch(Event.CoordinatesChanged,
+            CoordinatesChangedEventArgs(oldCoordinates, moved, currentTetromino.tetrominoCode))
     }
 
     fun rotate() {
@@ -167,7 +169,8 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         // And dispatch the CoordinatesChanged event
         val oldCoordinates = currentTetromino.coordinates.copyOf()
         currentTetromino.coordinates = rotation
-        eventDispatcher.dispatch(Event.CoordinatesChanged, CoordinatesChangedEventArgs(oldCoordinates, rotation))
+        eventDispatcher.dispatch(Event.CoordinatesChanged,
+            CoordinatesChangedEventArgs(oldCoordinates, rotation, currentTetromino.tetrominoCode))
     }
 
     /* Grid handling functions */
@@ -201,7 +204,8 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
             // Dispatch the LinesCompleted event
             eventDispatcher.dispatch(Event.LinesCompleted, LinesCompletedEventArgs(completedLines.toList()))
         }
-        // Now spawn the next upcoming tetromino
+        // Now spawn the next upcoming tetromino and restart auto-move
         spawnNextTetromino()
+        startMovementTimer()
     }
 }

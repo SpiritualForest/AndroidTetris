@@ -38,23 +38,6 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         paint.strokeWidth = 1f
         paint.color = canvasBackgroundColor
         canvas.drawRect(1f, 1f, (width - 1).toFloat(), (height - 1).toFloat(), paint)
-
-        // Experimental. Draw squares
-        drawSquaresOnGrid()
-    }
-
-    fun drawSquaresOnGrid() {
-        // size is how many squares can fit horizontally (x axis)
-        val rows = 22
-        val columns = 10 // y, x
-        val size = dpToPx(dpWidth / columns) // Square size in pixels
-        for (y in 0 until rows) {
-            println(y)
-            for (x in 0 until columns) {
-                // x and y *size because convert to pixels
-                drawSquare(x * size, y * size, size, Color.RED)
-            }
-        }
     }
 
     private fun drawSquare(x: Int, y: Int, size: Int, color: Int) {
