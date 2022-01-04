@@ -1,9 +1,11 @@
 package com.androidtetris
 
+import android.os.CountDownTimer
 import org.junit.Test
 import org.junit.Assert.*
 
 import com.androidtetris.game.*
+import io.mockk.*
 
 class GameSimulationTest {
     // Create a game with the default parameters and set it to run in test mode
@@ -20,6 +22,12 @@ class GameSimulationTest {
 
     @Test
     fun testDropTetromino() {
+        val timer = mockk<CountDownTimer>()
+        every { timer.start() } returns object: CountDownTimer(100.toLong(), 10.toLong()) {
+            override fun onFinish() {}
+            override fun onTick(millisUntilFinished: Long) {}
+        }
+        gameObj.mTimer = timer
         gameObj.setTetromino(TetrominoCode.I)
         // I's initial coordinates are:
         // (3, 0), (4, 0), (5, 0), (6, 0)
@@ -42,6 +50,12 @@ class GameSimulationTest {
 
     @Test
     fun testLineCompletion() {
+        val timer = mockk<CountDownTimer>()
+        every { timer.start() } returns object: CountDownTimer(100.toLong(), 10.toLong()) {
+            override fun onFinish() {}
+            override fun onTick(millisUntilFinished: Long) {}
+        }
+        gameObj.mTimer = timer
         gameObj.setTetromino(TetrominoCode.I)
         // I's initial coordinates are:
         // (3, 0), (4, 0), (5, 0), (6, 0)

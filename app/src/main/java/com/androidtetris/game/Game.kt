@@ -22,7 +22,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     lateinit var currentTetromino: Tetromino
         private set
     private var dropSpeed = 1000 // 1 second interval is the default value, at level 1
-    private var mTimer: CountDownTimer? = null
+    var mTimer: CountDownTimer? = null
     var lines = 0
         private set
     private var downwardsCollisionCount = 0
@@ -206,6 +206,6 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         }
         // Now spawn the next upcoming tetromino and restart auto-move
         spawnNextTetromino()
-        startMovementTimer()
+        //startMovementTimer()
     }
 }
