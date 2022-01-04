@@ -22,7 +22,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     lateinit var currentTetromino: Tetromino
         private set
     private var dropSpeed = 1000 // 1 second interval is the default value, at level 1
-    var mTimer: CountDownTimer? = null
+    private var mTimer: CountDownTimer? = null
     var lines = 0
         private set
     private var downwardsCollisionCount = 0
@@ -40,13 +40,13 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
     }
 
-    fun startGame() {
+    internal fun startGame() {
         gameRunning = true
         startMovementTimer()
         eventDispatcher.dispatch(Event.GameStart)
     }
 
-    fun endGame() {
+    internal fun endGame() {
         // Stop the movement timer and clear out the grid.
         mTimer?.cancel()
         grid.clear()
@@ -58,7 +58,8 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         val codeIndex = (codes.indices).random()
         return codes[codeIndex]
     }
-    private fun spawnNextTetromino() {
+    
+	private fun spawnNextTetromino() {
         // Spawn the upcoming tetromino and then remove it from the list
         val tCode = tetrominoes[0]
         val t = this.tetrominoReferences[tCode]
@@ -68,13 +69,13 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         currentTetromino = t?.invoke(grid)!!
     }
 
-    fun getNextTetromino(n: Int = 1): List<TetrominoCode> {
+    internal fun getNextTetromino(n: Int = 1): List<TetrominoCode> {
         // Returns a list of the N upcoming tetrominoes to be spawned by the game
         // This is intended to be used by the API, not internally.
         return tetrominoes.slice(0 until n).toList()
     }
 
-    private fun startMovementTimer() {
+    internal fun startMovementTimer() {
         // Create a new automatic movement timer
         // Cancel the existing one first
         mTimer?.cancel()
@@ -88,7 +89,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     }
 
     /* Functions that are only used when running the game in test mode */
-    fun setTetromino(tetrominoCode: TetrominoCode) {
+    internal fun setTetromino(tetrominoCode: TetrominoCode) {
         if (!runInTestMode) {
             println("Can't set tetromino manually when not in test mode")
             return
@@ -116,7 +117,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         return temp
     }
 
-    fun move(direction: Direction) {
+    internal fun move(direction: Direction) {
         // Move the block on the grid
         val moved = moveCoordinates(direction, currentTetromino.coordinates)
         if (grid.isCollision(moved)) {
@@ -153,7 +154,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
             CoordinatesChangedEventArgs(oldCoordinates, moved, currentTetromino.tetrominoCode))
     }
 
-    fun rotate() {
+    internal fun rotate() {
         // Rotate the block
         val rotations = currentTetromino.rotations
         val rotation = rotations[currentTetromino.currentRotation]
@@ -175,7 +176,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
 
     /* Grid handling functions */
 
-    fun dropTetromino() {
+    internal fun dropTetromino() {
         // This adds the current tetromino's coordinates to the grid after a downwards collision,
         // and then checks if lines were completed
 
@@ -206,6 +207,6 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         }
         // Now spawn the next upcoming tetromino and restart auto-move
         spawnNextTetromino()
-        //startMovementTimer()
+        startMovementTimer()
     }
 }
