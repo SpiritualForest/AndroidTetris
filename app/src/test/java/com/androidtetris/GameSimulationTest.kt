@@ -1,10 +1,10 @@
 package com.androidtetris
 
-import android.os.CountDownTimer
 import org.junit.Test
 import org.junit.Assert.*
 
 import com.androidtetris.game.*
+import com.androidtetris.game.event.*
 import io.mockk.*
 
 class GameSimulationTest {
@@ -37,7 +37,7 @@ class GameSimulationTest {
         val nextTetrominoCode = gameObj.getNextTetromino()[0]
         gameObj.dropTetromino()
         for(x in 3 until 7) {
-            assertEquals(TetrominoCode.I, gameObj.grid.grid[21][x])
+            assertEquals(TetrominoCode.I, gameObj.grid.grid[21]?.get(x))
         }
         // Now assert that the new tetromino was spawned and set as the current one
         assertEquals(nextTetrominoCode, gameObj.currentTetromino.tetrominoCode)
@@ -69,12 +69,14 @@ class GameSimulationTest {
          Line y 21 should be the completed one.
          */
         gameObj.dropTetromino()
-        assertEquals(0, gameObj.grid.filledLinePositions[gameObj.gridHeight-2])
-        assertEquals(2, gameObj.grid.filledLinePositions[gameObj.gridHeight-1])
+        assertNull(gameObj.grid.grid[gameObj.gridHeight-2])
+        assertEquals(2, gameObj.grid.grid[gameObj.gridHeight-1]?.count())
         // Assert that only the two right-most positions on y 21 are occupied
-        for(x in 0 until 2) { assertEquals(TetrominoCode.O, gameObj.grid.grid[gameObj.gridHeight-1][x+gameObj.gridWidth-2]) }
+        for(x in 0 until 2) { assertEquals(TetrominoCode.O,
+            gameObj.grid.grid[gameObj.gridHeight-1]?.get(x+gameObj.gridWidth-2)
+        ) }
         for(x in 0 until gameObj.gridWidth-2) {
-            assertNull(gameObj.grid.grid[gameObj.gridHeight-1][x])
+            assertNull(gameObj.grid.grid[gameObj.gridHeight-1]?.get(x))
         }
         assertTrue(linesCompletedCalled)
         gameObj.grid.clear()

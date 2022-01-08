@@ -42,7 +42,7 @@ class GridUnitTest {
         assertTrue(grid.isCollision(arrayOf(Point(-1, 0))))
         assertTrue(grid.isCollision(arrayOf(Point(0, grid.height))))
         // Now add some random coordinates to the grid and check that they trigger a collision
-        grid.grid[10][9] = TetrominoCode.Z
+        grid.grid[10] = hashMapOf(9 to TetrominoCode.Z)
         assertTrue(grid.isCollision(arrayOf(Point(10, 9))))
         // Now test that no collisions occur when a position is unoccupied
         assertFalse(grid.isCollision(arrayOf(Point(0, 0))))
@@ -52,21 +52,28 @@ class GridUnitTest {
     fun test_pushLines() {
         grid.clear()
         // Fill the last line with I
-        grid.grid[grid.height-1] = Array(grid.width) { TetrominoCode.I }
-        grid.filledLinePositions[grid.height-1] = grid.width
-        grid.grid[0] = Array(grid.width) { TetrominoCode.O }
-        grid.filledLinePositions[0] = grid.width
+        grid.grid[grid.height-1] = lineFiller(grid.width, TetrominoCode.I)
+        grid.grid[0] = lineFiller(grid.width, TetrominoCode.O)
         // Now call pushLines, should push all the O downwards
         grid.clearLine(grid.height-1)
         grid.pushLines(grid.height-1)
         val y = grid.height-1
+        // Assert that line 0 was removed from the grid after being pushed downwards
+        assertNull(grid.grid[0])
+        // Assert that the lowest line exists
+        assertNotNull(grid.grid[y])
         for(x in 0 until grid.width) {
-            // Assert that the lowest line is all full
-            assertNotNull(grid.grid[y][x])
-            // And that the highest (0) has been cleared
-            assertNull(grid.grid[0][x])
+            // Assert that x positions 0 to 9 are TetrominoCode.O
+            assertEquals(TetrominoCode.O, grid.grid[y]?.get(x))
         }
-        assertEquals(grid.filledLinePositions[0], 0)
-        assertEquals(grid.filledLinePositions[y], grid.width)
+    }
+
+    private fun lineFiller(width: Int, tetrominoCode: TetrominoCode): HashMap<Int, TetrominoCode> {
+        // Helper function
+        val m: HashMap<Int, TetrominoCode> = hashMapOf()
+        for(x in 0 until width) {
+            m[x] = tetrominoCode
+        }
+        return m
     }
 }

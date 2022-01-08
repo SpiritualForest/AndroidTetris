@@ -1,6 +1,7 @@
 package com.androidtetris.game
 
 import android.os.CountDownTimer
+import com.androidtetris.game.event.*
 
 // https://developer.android.com/reference/kotlin/android/os/CountDownTimer
 
@@ -32,9 +33,10 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     /* Game object and API functions */
     init {
         // Create 100 random tetrominoes for spawning
-		for (i in 0 until 100) {
+        for (i in 0 until 100) {
 		    this.tetrominoes.add(getRandomTetromino())
 		}
+        // Instantiate the first tetromino
         spawnNextTetromino()
         // Set the game drop speed (how fast the tetrominoes move downwards)
         dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
@@ -81,6 +83,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         mTimer?.cancel()
         mTimer = object: CountDownTimer((gridHeight-1)*dropSpeed.toLong(), dropSpeed.toLong()) {
             override fun onFinish() {
+                dropTetromino()
             }
             override fun onTick(millisUntilFinished: Long) {
                 move(Direction.Down)
@@ -203,7 +206,12 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         if (completedLines.count() > 0) {
             grid.pushLines(lowestLine)
             // Dispatch the LinesCompleted event
-            eventDispatcher.dispatch(Event.LinesCompleted, LinesCompletedEventArgs(completedLines.toList()))
+            eventDispatcher.dispatch(Event.LinesCompleted,
+                LinesCompletedEventArgs(completedLines.toList(), grid.grid.toMap()))
+        }
+        else {
+            // No lines were completed. Trigger the GridChanged event
+            eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(grid.grid.toMap()))
         }
         // Now spawn the next upcoming tetromino and restart auto-move
         spawnNextTetromino()

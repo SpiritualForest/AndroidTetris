@@ -17,14 +17,14 @@ class Grid(val width: Int, val height: Int) {
     // Create 2D array of rows,columns
     // All elements are set to null by default.
     // A TetrominoCode value instead of null means the position is occupied.
-    var grid = Array(height) { Array<TetrominoCode?>(width) { null } }
-    var filledLinePositions = Array(height) { 0 } // To track line completions
+    //var grid = Array(height) { Array<TetrominoCode?>(width) { null } }
+    var grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
 
-    fun getCenter(tWidth: Int): Int {
+    internal fun getCenter(tWidth: Int): Int {
         /* Get the center x position in the grid based on
         the tetromino's width
          */
-        return (width / 2) - (tWidth / 2).toInt()
+        return (width / 2) - (tWidth / 2)
     }
 
     private fun findArrayPosition(n: Int, length: Int): Point {
@@ -44,7 +44,7 @@ class Grid(val width: Int, val height: Int) {
         return Point(x, y)
     }
 
-    fun convertCoordinatesMap(map: Array<Int>, tWidth: Int): Array<Point> {
+    internal fun convertCoordinatesMap(map: Array<Int>, tWidth: Int): Array<Point> {
         /* Converts the given coordinates map to (x, y) positions */
         // I block: arrayOf(0, 1, 2, 3)
         val coordinates = Array(map.size) { Point(0, 0) }
@@ -62,7 +62,7 @@ class Grid(val width: Int, val height: Int) {
         return coordinates
     }
 
-    fun isCollision(coordinates: Array<Point>): Boolean {
+    internal fun isCollision(coordinates: Array<Point>): Boolean {
         for(point in coordinates) {
             val x = point.x
             val y = point.y
@@ -74,7 +74,7 @@ class Grid(val width: Int, val height: Int) {
                 // y out of bounds
                 return true
             }
-            else if (grid[y][x] != null) {
+            else if ((y in grid) && (x in grid[y]!!)) {
                 // Position occupied in grid
                 return true
             }
@@ -83,39 +83,38 @@ class Grid(val width: Int, val height: Int) {
         return false
     }
 
-    fun isLineFull(y: Int): Boolean {
-        return filledLinePositions[y] == width
-    }
-
     fun clear() {
         // Clear the whole grid
-        grid = Array(height) { Array<TetrominoCode?>(width) { null } }
-    }
-
-    fun fillPosition(x: Int, y: Int, tetrominoCode: TetrominoCode) {
-        // Fill the position at grid[y][x].
-        // Tetromino code is a number from 1-7 which represents the tetromino.
-        // We're doing this in case the UI wants to use a different colour for each tetromino,
-        // so it could distinguish between them.
-        // 0 means the position is empty.
-        grid[y][x] = tetrominoCode
-        filledLinePositions[y]++
+        grid.clear()
     }
 
     fun clearLine(y: Int) {
-        // Reset all the positions on this line to null
-        grid[y] = Array<TetrominoCode?>(width) { null }
-        filledLinePositions[y] = 0
+        grid.remove(y)
+    }
+
+    fun fillPosition(x: Int, y: Int, tetrominoCode: TetrominoCode) {
+        // Add a coordinate point to the grid
+        if (y !in grid) {
+            // new y
+            grid[y] = hashMapOf(x to tetrominoCode)
+        }
+        else {
+            // this y exists, extend it
+            val subMap = grid[y]
+            subMap?.put(x, tetrominoCode)
+        }
     }
 
     fun pushLines(lowestLine: Int) {
         // Push all the lines downwards after a line (or more) were completed.
-        var highest = 0
-        for((i, x) in filledLinePositions.withIndex()) {
-            if (x > 0) {
-                highest = i
-                break
-            }
+        // "Lowest" and "highest" refer to their visual position on the grid,
+        // not their actual numerical values. The higher a line is visually in the grid,
+        // the lower its value is, because it's closer to 0. The "highest" line is at 0.
+        val highest = grid.keys.toList().minOrNull()
+        if (highest == null) {
+            // Some error? Why was this function called?
+            println("pushLines($lowestLine) called erroneously when the grid is empty.")
+            return
         }
         var step = 0
         for(y in lowestLine downTo highest) {
@@ -123,12 +122,16 @@ class Grid(val width: Int, val height: Int) {
             // If the line's filled positions count is 0, we skip it
             // Otherwise we copy the array and place it <step> steps down,
             // and then clear the line.
-            if (filledLinePositions[y] == 0) { step++ }
+            if (y !in grid) { step++ }
             else {
-                grid[y+step] = grid[y].copyOf()
-                filledLinePositions[y+step] = filledLinePositions[y]
-                clearLine(y)
+                grid[y+step] = grid[y]!!
+                grid.remove(y)
             }
         }
+    }
+
+    fun isLineFull(y: Int): Boolean {
+        if (y !in grid) { return false }
+        return grid[y]!!.count() == width
     }
 }

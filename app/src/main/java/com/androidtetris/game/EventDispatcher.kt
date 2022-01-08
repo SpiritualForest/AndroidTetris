@@ -1,15 +1,7 @@
 package com.androidtetris.game
 
 import kotlin.reflect.*
-
-enum class Event {
-    CoordinatesChanged, Collision, LinesCompleted,
-    GameStart, GameEnd, GamePause, GameUnpause,
-}
-
-data class CoordinatesChangedEventArgs(val old: Array<Point>, val new: Array<Point>, val tetromino: TetrominoCode)
-data class CollisionEventArgs(val coordinates: Array<Point>, val direction: Direction)
-data class LinesCompletedEventArgs(val lines: List<Int>)
+import com.androidtetris.game.event.*
 
 class EventDispatcher {
     private val callbacks: HashMap<Event, MutableList<KFunction<Unit>>> = hashMapOf()

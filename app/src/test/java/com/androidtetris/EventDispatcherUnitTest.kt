@@ -1,8 +1,10 @@
 package com.androidtetris
 
+import com.androidtetris.game.event.*
 import com.androidtetris.game.*
 import org.junit.Assert.*
 import org.junit.Test
+
 
 class EventDispatcherUnitTest {
     var functionCalled = false

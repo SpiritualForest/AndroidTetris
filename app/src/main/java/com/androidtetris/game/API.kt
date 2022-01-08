@@ -1,27 +1,44 @@
 package com.androidtetris.game
 import kotlin.reflect.* // for KFunction
+import com.androidtetris.game.event.Event
 
 class API {
-    private var gameObj: Game? = null
+    private val gameObj = Game()
 
     fun startGame(gameLevel: Int = 1, gridWidth: Int = 10, gridHeight: Int = 22) {
         // Start a new game
-        gameObj = Game(gameLevel = gameLevel, gridWidth = gridWidth, gridHeight = gridHeight)
+        gameObj.startGame()
     }
 
     fun addCallback(event: Event, func: KFunction<Unit>) {
-        gameObj?.eventDispatcher?.addCallback(event, func)
+        gameObj.eventDispatcher.addCallback(event, func)
+    }
+
+    fun deleteCallback(event: Event, func: KFunction<Unit>) {
+        gameObj.eventDispatcher.deleteCallback(event, func)
     }
 
     fun move(direction: Direction) {
-        gameObj?.move(direction)
+        gameObj.move(direction)
     }
 
     fun rotate() {
-        gameObj?.rotate()
+        gameObj.rotate()
     }
 
     fun endGame() {
-        gameObj?.endGame()
+        gameObj.endGame()
+    }
+
+    fun getGridSize(): Point {
+        return Point(gameObj.gridWidth, gameObj.gridHeight)
+    }
+
+    fun getGrid(): Map<Int, HashMap<Int, TetrominoCode>> {
+        return gameObj.grid.grid
+    }
+
+    fun getCurrentTetromino(): TetrominoCode {
+        return gameObj.currentTetromino.tetrominoCode
     }
 }
