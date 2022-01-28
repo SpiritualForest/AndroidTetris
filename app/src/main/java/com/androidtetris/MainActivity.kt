@@ -1,14 +1,17 @@
 package com.androidtetris
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var tetris: Tetris
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val canvasView = findViewById<GridCanvas>(R.id.gridCanvas)
-        tetris = Tetris(canvasView)
+        val startGame = findViewById<Button>(R.id.btn_startgame)
+        val tetrisIntent = Intent(this, TetrisActivity::class.java)
+
+        startGame.setOnClickListener { startActivity(tetrisIntent) }
     }
 }

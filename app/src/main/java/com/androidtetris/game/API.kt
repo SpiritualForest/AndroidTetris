@@ -41,4 +41,12 @@ class API {
     fun getCurrentTetromino(): TetrominoCode {
         return gameObj.currentTetromino.tetrominoCode
     }
+
+    fun lines(): Int {
+        return gameObj.lines
+    }
+
+    fun level(): Int {
+        return gameObj.gameLevel
+    }
 }

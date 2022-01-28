@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AndroidTetris</string>
+    <string name="rotation_direction">Rotation Direction:</string>
+    <string name="rdb_clockwise">Clockwise</string>
+    <string name="rdb_counterclockwise">Counter clockwise</string>
+    <string name="btn_startgame">Start game!</string>
 </resources>

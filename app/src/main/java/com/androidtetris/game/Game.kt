@@ -69,6 +69,11 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         // Now add a new one to the list
         this.tetrominoes.add(getRandomTetromino())
         currentTetromino = t?.invoke(grid)!!
+        if (grid.isCollision(currentTetromino.coordinates)) {
+            // Top line reached, end the game.
+            mTimer?.cancel()
+            eventDispatcher.dispatch(Event.GameEnd)
+        }
     }
 
     internal fun getNextTetromino(n: Int = 1): List<TetrominoCode> {
@@ -136,7 +141,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
                 */
                 downwardsCollisionCount++
                 if (downwardsCollisionCount == 2) {
-                    downwardsCollisionCount = 0
+                    // downwardsCollisionCount is reset to 0 in dropTetromino()
                     dropTetromino()
                 }
             }
@@ -213,6 +218,8 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
             // No lines were completed. Trigger the GridChanged event
             eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(grid.grid.toMap()))
         }
+        // Reset the downwards collisions count for the next tetromino
+        downwardsCollisionCount = 0
         // Now spawn the next upcoming tetromino and restart auto-move
         spawnNextTetromino()
         startMovementTimer()
