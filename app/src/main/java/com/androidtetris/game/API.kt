@@ -35,7 +35,7 @@ class API {
     }
 
     fun getGrid(): Map<Int, HashMap<Int, TetrominoCode>> {
-        return gameObj.grid.grid
+        return gameObj.grid.grid.toMap()
     }
 
     fun getCurrentTetromino(): TetrominoCode {

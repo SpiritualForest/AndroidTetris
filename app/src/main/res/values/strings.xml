@@ -4,4 +4,6 @@
     <string name="rdb_clockwise">Clockwise</string>
     <string name="rdb_counterclockwise">Counter clockwise</string>
     <string name="btn_startgame">Start game!</string>
+    <string name="btn_settings">Settings</string>
+    <string name="btn_aigame">AI Game (not yet implemented)</string>
 </resources>

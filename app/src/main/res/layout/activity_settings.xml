@@ -6,4 +6,84 @@
     android:layout_height="match_parent"
     tools:context=".SettingsActivity">
 
+    <Button
+        android:id="@+id/btn_tetrominoColors"
+        android:layout_width="381dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="14dp"
+        android:text="Tetromino colors"
+        app:layout_constraintBottom_toTopOf="@+id/txt_rotationDirection"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txt_rotationDirection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="278dp"
+        android:layout_marginBottom="13dp"
+        android:text="@string/rotation_direction"
+        app:layout_constraintBottom_toTopOf="@+id/radioGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_tetrominoColors" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="382dp"
+        android:layout_height="98dp"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="13dp"
+        android:layout_marginEnd="21dp"
+        android:layout_marginBottom="23dp"
+        app:layout_constraintBottom_toTopOf="@+id/txt_gameLevel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_rotationDirection">
+
+        <RadioButton
+            android:id="@+id/rdbtn_rotation_clockwise"
+            android:layout_width="142dp"
+            android:layout_height="wrap_content"
+            android:text="@string/rdb_clockwise" />
+
+        <RadioButton
+            android:id="@+id/rdbtn_counter_clockwise"
+            android:layout_width="277dp"
+            android:layout_height="wrap_content"
+            android:text="@string/rdb_counterclockwise" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/txt_gameLevel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="23dp"
+        android:layout_marginEnd="46dp"
+        android:text="Game level:"
+        app:layout_constraintEnd_toStartOf="@+id/editText_gameLevel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
+    <EditText
+        android:id="@+id/editText_gameLevel"
+        android:layout_width="151dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="69dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txt_gameLevel"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,6 +8,7 @@ import android.widget.Button
 import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
+import android.util.Log
 
 class TetrisActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,19 +34,29 @@ class Tetris(private val canvas: GridCanvas) {
     init {
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
+		api.addCallback(Event.Collision, ::collision)
+		api.addCallback(Event.LinesCompleted, ::linesCompleted)
         api.startGame()
     }
 
     fun coordinatesChanged(args: CoordinatesChangedEventArgs) {
-        val tetrominoCode = api.getCurrentTetromino()
-        val squares: MutableList<Square> = mutableListOf()
-        for(point in args.new) {
-            squares.add(Square(point, tetrominoCode))
-        }
-        canvas.drawTetromino(squares.toList())
+        canvas.drawTetromino(args.old.toList(), args.new.toList(), api.getCurrentTetromino())
     }
 
     fun gridChanged(args: GridChangedEventArgs) {
-        canvas.drawGrid(api.getGrid())
+        canvas.drawGrid(args.grid)
     }
+
+	fun collision(args: CollisionEventArgs) {
+		val direction = args.direction
+		Log.d("CollisionEvent", "Collision event occurred: $direction")
+		val tetromino = api.getCurrentTetromino()
+		Log.d("CollisionEvent", "Colliding tetromino: $tetromino")
+		val grid = api.getGrid()
+		Log.d("CollisionEvent", "Grid at time of collision: $grid")
+	}
+
+	fun linesCompleted(args: LinesCompletedEventArgs) {
+		// TODO
+	}
 }
