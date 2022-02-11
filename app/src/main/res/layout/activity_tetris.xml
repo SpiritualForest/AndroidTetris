@@ -18,62 +18,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btn_left"
-        android:layout_width="47dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="224dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="188dp"
-        android:text="L"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn_down"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_rotate" />
-
-    <Button
-        android:id="@+id/btn_right"
-        android:layout_width="47dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="55dp"
-        android:layout_marginTop="47dp"
-        android:layout_marginEnd="29dp"
-        android:layout_marginBottom="188dp"
-        android:text="R"
+    <com.androidtetris.CircleButton
+        android:id="@+id/circleButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="195dp"
+        android:layout_marginTop="43dp"
+        android:layout_marginEnd="166dp"
+        android:layout_marginBottom="182dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/btn_left"
-        app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
-
-    <Button
-        android:id="@+id/btn_down"
-        android:layout_width="47dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="281dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="83dp"
-        android:layout_marginBottom="152dp"
-        android:text="D"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_rotate" />
-
-    <Button
-        android:id="@+id/btn_rotate"
-        android:layout_width="70dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="273dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="83dp"
-        android:layout_marginBottom="37dp"
-        android:text="Ro"
-        app:layout_constraintBottom_toTopOf="@+id/btn_down"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
 

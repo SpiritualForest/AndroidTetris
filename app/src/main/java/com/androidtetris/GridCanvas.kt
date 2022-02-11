@@ -6,9 +6,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
-import android.util.Log
 import com.androidtetris.game.Point
 import com.androidtetris.game.TetrominoCode
+import com.androidtetris.game.event.LinesCompletedEventArgs
 
 // https://stackoverflow.com/questions/17596053/cannot-call-custom-draw-method-from-another-class-in-android
 
@@ -37,7 +37,7 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         return (dp * (dpi / 160f))
     }
 
-	fun setGridSize(width: Int, height: Int) {
+    fun setGridSize(width: Int, height: Int) {
 		// Set the grid size in squares
 		if ((this.width / width) != (this.height / height)) {
 			/* Let's say our canvas size in pixels is 200x440.
@@ -81,7 +81,7 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
 		}
 		// Now fill the rest with the background colour
 		paint.color = canvasBackgroundColor
-		canvas.drawRect(0f, 0f, width.toFloat()-1, height.toFloat()-1, paint)
+		canvas.drawRect(1f, 1f, width.toFloat()-1, height.toFloat()-1, paint)
 
 		// Draw the grid
 		val (dpWidth, dpHeight) = getSizeDp()
@@ -137,5 +137,11 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
 			this.grid[y] = subMap
 		}
         this.invalidate()
+    }
+
+    fun linesCompleted(args: LinesCompletedEventArgs) {
+        // Line clear animation, etc. TODO.
+        // For now, just redraw the grid when this function is called.
+        drawGrid(args.grid)
     }
 }

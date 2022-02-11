@@ -16,21 +16,11 @@ class TetrisActivity : AppCompatActivity() {
         setContentView(R.layout.activity_tetris)
         val canvas = findViewById<GridCanvas>(R.id.gridCanvas)
         val tetris = Tetris(canvas)
-
-        val left = findViewById<Button>(R.id.btn_left)
-        left.setOnClickListener { tetris.api.move(Direction.Left) }
-        val right = findViewById<Button>(R.id.btn_right)
-        right.setOnClickListener { tetris.api.move(Direction.Right) }
-        val down = findViewById<Button>(R.id.btn_down)
-        down.setOnClickListener { tetris.api.move(Direction.Down) }
-        val rotate = findViewById<Button>(R.id.btn_rotate)
-        rotate.setOnClickListener { tetris.api.rotate() }
     }
 }
 
 class Tetris(private val canvas: GridCanvas) {
     val api = API()
-    val gridSize = api.getGridSize()
     init {
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
@@ -57,6 +47,6 @@ class Tetris(private val canvas: GridCanvas) {
 	}
 
 	fun linesCompleted(args: LinesCompletedEventArgs) {
-		// TODO
+		canvas.linesCompleted(args)
 	}
 }
