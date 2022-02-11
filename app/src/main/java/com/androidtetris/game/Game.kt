@@ -24,18 +24,18 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         private set
     private var dropSpeed = 1000 // 1 second interval is the default value, at level 1
     private var mTimer: CountDownTimer? = null
-    var lines = 0
-        private set
     private var downwardsCollisionCount = 0
     val eventDispatcher = EventDispatcher()
     private var gameRunning = false // Game is not running by default
+    var lines = 0
+        private set
 
     /* Game object and API functions */
     init {
         // Create 100 random tetrominoes for spawning
         for (i in 0 until 100) {
-		    this.tetrominoes.add(getRandomTetromino())
-		}
+            this.tetrominoes.add(getRandomTetromino())
+        }
         // Instantiate the first tetromino
         spawnNextTetromino()
         // Set the game drop speed (how fast the tetrominoes move downwards)
@@ -61,7 +61,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         return codes[codeIndex]
     }
     
-	private fun spawnNextTetromino() {
+    private fun spawnNextTetromino() {
         // Spawn the upcoming tetromino and then remove it from the list
         val tCode = tetrominoes[0]
         val t = this.tetrominoReferences[tCode]
@@ -197,11 +197,10 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
             if (grid.isLineFull(y)) {
                 grid.clearLine(y)
                 if (y !in completedLines) { completedLines.add(y) }
-                lines++
                 if (y > lowestLine) {
                     lowestLine = y
                 }
-                // Increase level every 10 lines
+                lines++
                 if (lines % 10 == 0) {
                     gameLevel++
                     dropSpeed -= 50

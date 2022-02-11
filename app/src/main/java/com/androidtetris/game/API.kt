@@ -30,10 +30,6 @@ class API {
         gameObj.endGame()
     }
 
-    fun getGridSize(): Point {
-        return Point(gameObj.gridWidth, gameObj.gridHeight)
-    }
-
     fun getGrid(): Map<Int, HashMap<Int, TetrominoCode>> {
         return gameObj.grid.grid.toMap()
     }

@@ -24,8 +24,8 @@ class Tetris(private val canvas: GridCanvas) {
     init {
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
-		api.addCallback(Event.Collision, ::collision)
-		api.addCallback(Event.LinesCompleted, ::linesCompleted)
+        api.addCallback(Event.Collision, ::collision)
+        api.addCallback(Event.LinesCompleted, ::linesCompleted)
         api.startGame()
     }
 
@@ -37,16 +37,16 @@ class Tetris(private val canvas: GridCanvas) {
         canvas.drawGrid(args.grid)
     }
 
-	fun collision(args: CollisionEventArgs) {
-		val direction = args.direction
-		Log.d("CollisionEvent", "Collision event occurred: $direction")
-		val tetromino = api.getCurrentTetromino()
-		Log.d("CollisionEvent", "Colliding tetromino: $tetromino")
-		val grid = api.getGrid()
-		Log.d("CollisionEvent", "Grid at time of collision: $grid")
-	}
+    fun collision(args: CollisionEventArgs) {
+        val direction = args.direction
+        Log.d("CollisionEvent", "Collision event occurred: $direction")
+        val tetromino = api.getCurrentTetromino()
+        Log.d("CollisionEvent", "Colliding tetromino: $tetromino")
+        val grid = api.getGrid()
+        Log.d("CollisionEvent", "Grid at time of collision: $grid")
+    }
 
-	fun linesCompleted(args: LinesCompletedEventArgs) {
-		canvas.linesCompleted(args)
-	}
+    fun linesCompleted(args: LinesCompletedEventArgs) {
+        canvas.linesCompleted(args)
+    }
 }
