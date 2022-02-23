@@ -2,13 +2,17 @@ package com.androidtetris
 
 // Our actual game's UI activity
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
+import android.os.Message
+import android.util.Log
+import android.view.MotionEvent
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
-import android.util.Log
+import java.lang.Thread
+import android.os.Looper
 
 class TetrisActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,6 +20,35 @@ class TetrisActivity : AppCompatActivity() {
         setContentView(R.layout.activity_tetris)
         val canvas = findViewById<GridCanvas>(R.id.gridCanvas)
         val tetris = Tetris(canvas)
+
+        // Movement and rotation buttons
+        val down = findViewById<CircleButton>(R.id.btn_down)
+        val rotate = findViewById<CircleButton>(R.id.btn_rotate)
+        val left = findViewById<CircleButton>(R.id.btn_left)
+        val right = findViewById<CircleButton>(R.id.btn_right)
+        
+        var executeRunnable = false
+        down.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(v: View, ev: MotionEvent): Boolean {
+                val thread = Thread(Runnable {
+                    while(executeRunnable) {
+                        tetris.api.move(Direction.Down)
+                        Thread.sleep(50)
+                    }
+                })
+                when(ev.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        executeRunnable = true
+                        thread.start()
+                    }
+                    MotionEvent.ACTION_UP -> { 
+                        executeRunnable = false
+                        thread.join()
+                    }
+                }
+                return v.onTouchEvent(ev)
+            }
+        })
     }
 }
 

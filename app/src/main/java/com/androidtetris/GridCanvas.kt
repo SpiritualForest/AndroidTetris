@@ -45,7 +45,9 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
              * because each square will have a width and height of 20 pixels (200 / 10 == 20, 440 / 22 == 20).
              * But if the grid width and height do not equally align with the canvas's size,
              * an unequal size of pixels is obtained. This is a problem, because then the square is no longer a square,
-             * but rather some other rectangle.
+             * but rather some other rectangle. This means that, since we want to draw a square, 
+             * some axis (x or y) on the display will not be completely full. There will be a small empty space left
+             * due to the missing pixels.
              * Say if we wanted to set the grid size to 8x22 squares, and the canvas is still 200x440 pixels.
              * This results in an unequal amount of pixels. 200 / 8 == 25, but 440 / 22 is 20.
              * This is why we must perform this check. */
@@ -101,7 +103,7 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     }
 
     fun drawTetromino(old: List<Point>, new: List<Point>, tetrominoCode: TetrominoCode) {
-        // First, overwrite the old squares with the Canvas's background colour 
+        // First, remove the tetromino's old coordinates
         for(point in old) {
             var y = point.y
             var x = point.x
@@ -112,7 +114,7 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
                 }
             }
         }
-        // Now draw the new ones
+        // Now add the new ones
         for(point in new) {
             var y = point.y
             var x = point.x

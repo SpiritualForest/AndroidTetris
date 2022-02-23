@@ -12,23 +12,64 @@
         android:id="@+id/gridCanvas"
         android:layout_width="200dp"
         android:layout_height="440dp"
+        android:layout_marginStart="166dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="35dp"
+        android:layout_marginBottom="316dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.924"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.13" />
 
     <com.androidtetris.CircleButton
-        android:id="@+id/circleButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="195dp"
-        android:layout_marginTop="43dp"
-        android:layout_marginEnd="166dp"
-        android:layout_marginBottom="182dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/btn_rotate"
+        android:layout_width="52dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="258dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginEnd="130dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
 
+    <com.androidtetris.CircleButton
+        android:id="@+id/btn_left"
+        android:layout_width="52dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="201dp"
+        android:layout_marginTop="109dp"
+        android:layout_marginEnd="59dp"
+        android:layout_marginBottom="151dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_right"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
+
+    <com.androidtetris.CircleButton
+        android:id="@+id/btn_down"
+        android:layout_width="52dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="260dp"
+        android:layout_marginTop="90dp"
+        android:layout_marginEnd="128dp"
+        android:layout_marginBottom="79dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_rotate" />
+
+    <com.androidtetris.CircleButton
+        android:id="@+id/btn_right"
+        android:layout_width="52dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="59dp"
+        android:layout_marginTop="109dp"
+        android:layout_marginEnd="76dp"
+        android:layout_marginBottom="151dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_left"
+        app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
 </androidx.constraintlayout.widget.ConstraintLayout>
