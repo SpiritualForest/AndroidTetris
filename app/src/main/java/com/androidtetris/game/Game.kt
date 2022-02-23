@@ -1,9 +1,8 @@
 package com.androidtetris.game
 
-import android.os.CountDownTimer
+import java.lang.Thread
+import android.util.Log
 import com.androidtetris.game.event.*
-
-// https://developer.android.com/reference/kotlin/android/os/CountDownTimer
 
 // Movement directions
 enum class Direction { Left, Right, Down }
@@ -22,11 +21,11 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     )
     lateinit var currentTetromino: Tetromino
         private set
-    private var dropSpeed = 1000 // 1 second interval is the default value, at level 1
-    private var mTimer: CountDownTimer? = null
+    private var dropSpeed = 1000 // How fast the tetrominoes move downwards automatically. Defaults to 1 sec (1000ms)
     private var downwardsCollisionCount = 0
     val eventDispatcher = EventDispatcher()
     private var gameRunning = false // Game is not running by default
+    private var timerThread: Thread? = null
     var lines = 0
         private set
 
@@ -36,21 +35,32 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         for (i in 0 until 100) {
             this.tetrominoes.add(getRandomTetromino())
         }
-        // Instantiate the first tetromino
-        spawnNextTetromino()
         // Set the game drop speed (how fast the tetrominoes move downwards)
         dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
+        startGame()
     }
 
     internal fun startGame() {
+        /* Start the game, spawn the first tetromino,
+         * and create our automatic movement thread. */
         gameRunning = true
-        startMovementTimer()
+        spawnNextTetromino()
+        val mAction = object : Runnable {
+            override fun run() {
+                while(gameRunning) {
+                    move(Direction.Down)
+                    Thread.sleep(dropSpeed.toLong())
+                }
+            }
+        }
+        timerThread = Thread(mAction)
+        timerThread!!.start() 
         eventDispatcher.dispatch(Event.GameStart)
     }
 
     internal fun endGame() {
         // Stop the movement timer and clear out the grid.
-        mTimer?.cancel()
+        timerThread?.join()
         grid.clear()
         eventDispatcher.dispatch(Event.GameEnd)
     }
@@ -68,32 +78,26 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         this.tetrominoes.removeAt(0)
         // Now add a new one to the list
         this.tetrominoes.add(getRandomTetromino())
-        currentTetromino = t?.invoke(grid)!!
-        if (grid.isCollision(currentTetromino.coordinates)) {
+        val temp = t?.invoke(grid)!! // First we must check if the game can even continue
+        if (grid.isCollision(temp.coordinates)) {
             // Top line reached, end the game.
-            mTimer?.cancel()
+            // FIXME: cancel the movement timer thread
             eventDispatcher.dispatch(Event.GameEnd)
+            return
         }
+        // Game continues, set the "permanent" currentTetromino
+        currentTetromino = temp
+        /* Now we have to also dispatch the CoordinatesChanged event,
+         * otherwise the UI won't draw the tetromino's initial coordinates.
+         * It will only draw them after move() has been called once. */
+         eventDispatcher.dispatch(Event.CoordinatesChanged, 
+         CoordinatesChangedEventArgs(currentTetromino.coordinates, currentTetromino.coordinates, tCode))
     }
 
     internal fun getNextTetromino(n: Int = 1): List<TetrominoCode> {
         // Returns a list of the N upcoming tetrominoes to be spawned by the game
         // This is intended to be used by the API, not internally.
         return tetrominoes.slice(0 until n).toList()
-    }
-
-    internal fun startMovementTimer() {
-        // Create a new automatic movement timer
-        // Cancel the existing one first
-        mTimer?.cancel()
-        mTimer = object: CountDownTimer((gridHeight-1)*dropSpeed.toLong(), dropSpeed.toLong()) {
-            override fun onFinish() {
-                dropTetromino()
-            }
-            override fun onTick(millisUntilFinished: Long) {
-                move(Direction.Down)
-            }
-        }.start()
     }
 
     /* Functions that are only used when running the game in test mode */
@@ -187,7 +191,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     internal fun dropTetromino() {
         // This adds the current tetromino's coordinates to the grid after a downwards collision,
         // and then checks if lines were completed
-
+        Log.d("AndroidTetrisGame", "dropTetromino() called")
         var lowestLine = 0
         val completedLines: MutableList<Int> = mutableListOf()
         for(coordinatePoint in currentTetromino.coordinates) {
@@ -221,6 +225,5 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         downwardsCollisionCount = 0
         // Now spawn the next upcoming tetromino and restart auto-move
         spawnNextTetromino()
-        startMovementTimer()
     }
 }

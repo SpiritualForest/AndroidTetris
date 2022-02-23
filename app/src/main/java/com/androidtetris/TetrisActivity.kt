@@ -12,9 +12,12 @@ import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
 import java.lang.Thread
-import android.os.Looper
+import kotlin.reflect.*
 
 class TetrisActivity : AppCompatActivity() {
+    
+    private var executeRunnable = false // For the threads that repeatedly call tetris.api.move()
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tetris)
@@ -27,29 +30,46 @@ class TetrisActivity : AppCompatActivity() {
         val left = findViewById<CircleButton>(R.id.btn_left)
         val right = findViewById<CircleButton>(R.id.btn_right)
         
-        var executeRunnable = false
-        down.setOnTouchListener(object: View.OnTouchListener {
+        down.setOnTouchListener(getOnTouchListener(tetris, Direction.Down))
+        left.setOnTouchListener(getOnTouchListener(tetris, Direction.Left))
+        right.setOnTouchListener(getOnTouchListener(tetris, Direction.Right))
+        rotate.setOnTouchListener(getOnTouchListener(tetris, null))
+    }
+
+    private fun getOnTouchListener(tetrisObj: Tetris, direction: Direction?): View.OnTouchListener {
+        // Creates a new OnTouchListener and gives it a runnable that executes tetris.api.move(direction)
+        // If the direction is null, it executes the rotate() function instead.
+        val listener = object : View.OnTouchListener {
             override fun onTouch(v: View, ev: MotionEvent): Boolean {
                 val thread = Thread(Runnable {
                     while(executeRunnable) {
-                        tetris.api.move(Direction.Down)
-                        Thread.sleep(50)
+                        if (direction != null) {
+                            // move()
+                            tetrisObj.api.move(direction)
+                        }
+                        else { 
+                            // Rotate
+                            tetrisObj.api.rotate()
+                        }
+                        Thread.sleep(100)
                     }
                 })
-                when(ev.action) {
+                when (ev.action) {
                     MotionEvent.ACTION_DOWN -> {
                         executeRunnable = true
                         thread.start()
                     }
-                    MotionEvent.ACTION_UP -> { 
+                    MotionEvent.ACTION_UP -> {
                         executeRunnable = false
                         thread.join()
                     }
                 }
                 return v.onTouchEvent(ev)
             }
-        })
+        }
+        return listener
     }
+
 }
 
 class Tetris(private val canvas: GridCanvas) {
@@ -59,6 +79,7 @@ class Tetris(private val canvas: GridCanvas) {
         api.addCallback(Event.GridChanged, ::gridChanged)
         api.addCallback(Event.Collision, ::collision)
         api.addCallback(Event.LinesCompleted, ::linesCompleted)
+        api.addCallback(Event.GameEnd, ::gameEnd)
         api.startGame()
     }
 
@@ -81,5 +102,9 @@ class Tetris(private val canvas: GridCanvas) {
 
     fun linesCompleted(args: LinesCompletedEventArgs) {
         canvas.linesCompleted(args)
+    }
+
+    fun gameEnd() {
+        println("Game ends")
     }
 }
