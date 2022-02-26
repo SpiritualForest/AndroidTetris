@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
-import java.lang.Thread
 import android.os.Handler
 import android.os.Looper
 
