@@ -45,12 +45,10 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
          * and create our automatic movement thread. */
         gameRunning = true
         spawnNextTetromino()
-        val mAction = object : Runnable {
-            override fun run() {
-                while(gameRunning) {
-                    move(Direction.Down)
-                    Thread.sleep(dropSpeed.toLong())
-                }
+        val mAction = Runnable {
+            while(gameRunning) {
+                move(Direction.Down)
+                Thread.sleep(dropSpeed.toLong())
             }
         }
         timerThread = Thread(mAction)
@@ -60,6 +58,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
 
     internal fun endGame() {
         // Stop the movement timer and clear out the grid.
+        gameRunning = false
         timerThread?.join()
         grid.clear()
         eventDispatcher.dispatch(Event.GameEnd)
@@ -81,8 +80,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         val temp = t?.invoke(grid)!! // First we must check if the game can even continue
         if (grid.isCollision(temp.coordinates)) {
             // Top line reached, end the game.
-            // FIXME: cancel the movement timer thread
-            eventDispatcher.dispatch(Event.GameEnd)
+            endGame()
             return
         }
         // Game continues, set the "permanent" currentTetromino

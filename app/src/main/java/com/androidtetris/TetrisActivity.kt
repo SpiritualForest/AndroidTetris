@@ -3,7 +3,6 @@ package com.androidtetris
 // Our actual game's UI activity
 
 import android.os.Bundle
-import android.os.Message
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -12,67 +11,79 @@ import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
 import java.lang.Thread
-import kotlin.reflect.*
+import android.os.Handler
+import android.os.Looper
 
 class TetrisActivity : AppCompatActivity() {
     
-    private var executeRunnable = false // For the threads that repeatedly call tetris.api.move()
-    
+    private lateinit var mTetris: Tetris
+    private lateinit var mHandler: Handler
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tetris)
-        val canvas = findViewById<GridCanvas>(R.id.gridCanvas)
-        val tetris = Tetris(canvas)
+        val gameCanvas = findViewById<GridCanvas>(R.id.gridCanvas)
+        val nextTetrominoCanvas = findViewById<GridCanvas>(R.id.nextTetrominoCanvas)
+        mTetris = Tetris(gameCanvas, nextTetrominoCanvas)
 
         // Movement and rotation buttons
         val down = findViewById<CircleButton>(R.id.btn_down)
         val rotate = findViewById<CircleButton>(R.id.btn_rotate)
         val left = findViewById<CircleButton>(R.id.btn_left)
         val right = findViewById<CircleButton>(R.id.btn_right)
+
+        // Our handler for the touch event runnables
+        mHandler = Handler(Looper.getMainLooper())
         
-        down.setOnTouchListener(getOnTouchListener(tetris, Direction.Down))
-        left.setOnTouchListener(getOnTouchListener(tetris, Direction.Left))
-        right.setOnTouchListener(getOnTouchListener(tetris, Direction.Right))
-        rotate.setOnTouchListener(getOnTouchListener(tetris, null))
+        // Custom OnTouchListeners for each button
+        down.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.move(Direction.Down) })))
+        left.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.move(Direction.Left) })))
+        right.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.move(Direction.Right) })))
+        // Rotate gets 60ms delay instead of the default 50ms
+        rotate.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.rotate() }, 60L)))
     }
 
-    private fun getOnTouchListener(tetrisObj: Tetris, direction: Direction?): View.OnTouchListener {
-        // Creates a new OnTouchListener and gives it a runnable that executes tetris.api.move(direction)
-        // If the direction is null, it executes the rotate() function instead.
-        val listener = object : View.OnTouchListener {
-            override fun onTouch(v: View, ev: MotionEvent): Boolean {
-                val thread = Thread(Runnable {
-                    while(executeRunnable) {
-                        if (direction != null) {
-                            // move()
-                            tetrisObj.api.move(direction)
-                        }
-                        else { 
-                            // Rotate
-                            tetrisObj.api.rotate()
-                        }
-                        Thread.sleep(100)
-                    }
-                })
-                when (ev.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        executeRunnable = true
-                        thread.start()
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        executeRunnable = false
-                        thread.join()
-                    }
+    private fun getOnTouchListener(r: TetrisRunnable): View.OnTouchListener {
+        // Creates a new OnTouchListener that executes the provided runnable with a 50ms delay
+        val listener = View.OnTouchListener { v, ev ->
+            when (ev.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    // Button is down, post the runnable to the handler with a 50ms delay
+                    mHandler.postDelayed(r, r.delay)
                 }
-                return v.onTouchEvent(ev)
+                MotionEvent.ACTION_UP -> {
+                    // Button released, remove the runnable from the handler's message queue
+                    mHandler.removeCallbacks(r)
+                }
             }
+            v.onTouchEvent(ev)
         }
         return listener
     }
-
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        mTetris.api.endGame()
+    }
 }
 
-class Tetris(private val canvas: GridCanvas) {
+class TetrisRunnable(handler: Handler, lambda: () -> Unit, delay: Long = 50L) : Runnable {
+    private val mHandler = handler
+    private val lambda = lambda // The lambda that the runnable will run
+    val delay = delay
+
+    override fun run() {
+        /* We want to execute this runnable repeatedly as long as the button
+         * it is attached to is pressed.
+         * The runnable will be removed from the handler's message queue
+         * when the button is released.
+         * See the getOnTouchListener() function in the activity class. */
+        lambda()
+        mHandler.postDelayed(this, delay)
+    }
+}
+
+class Tetris(private val gameCanvas: GridCanvas, private val nextTetrominoCanvas: GridCanvas) {
     val api = API()
     init {
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
@@ -84,11 +95,11 @@ class Tetris(private val canvas: GridCanvas) {
     }
 
     fun coordinatesChanged(args: CoordinatesChangedEventArgs) {
-        canvas.drawTetromino(args.old.toList(), args.new.toList(), api.getCurrentTetromino())
+        gameCanvas.drawTetromino(args.old.toList(), args.new.toList(), api.getCurrentTetromino())
     }
 
     fun gridChanged(args: GridChangedEventArgs) {
-        canvas.drawGrid(args.grid)
+        gameCanvas.drawGrid(args.grid)
     }
 
     fun collision(args: CollisionEventArgs) {
@@ -101,7 +112,7 @@ class Tetris(private val canvas: GridCanvas) {
     }
 
     fun linesCompleted(args: LinesCompletedEventArgs) {
-        canvas.linesCompleted(args)
+        gameCanvas.linesCompleted(args)
     }
 
     fun gameEnd() {

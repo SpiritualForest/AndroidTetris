@@ -15,11 +15,12 @@ class CircleButton(context: Context?, attrs: AttributeSet?) : View(context, attr
     private val upColor = Color.BLACK // Default when up
     private val downColor = Color.GRAY // When pressed
     private var currentColor = upColor
+    //private val center = Point(width / 2, height / 2)
 
     override fun onDraw(canvas: Canvas) {
         // Draw a circle that spans as close as possible to the canvas's size
-        val center = Point(width / 2, height / 2)
         paint.color = currentColor
+        val center = Point(width / 2, height / 2)
         val radius = min(center.x, center.y)
         canvas.drawCircle(center.x.toFloat(), center.y.toFloat(), radius.toFloat(), paint)
     }
@@ -45,9 +46,5 @@ class CircleButton(context: Context?, attrs: AttributeSet?) : View(context, attr
 
     fun drawButtonUp(canvas: Canvas) {
         // Draw the animation when the button is released
-    }
-
-    fun drawArrow(canvas: Canvas) {
-        // Draw the arrow
     }
 }
