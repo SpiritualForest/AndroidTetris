@@ -45,4 +45,8 @@ class API {
     fun level(): Int {
         return gameObj.gameLevel
     }
+
+    fun getNextTetromino(n: Int = 1): List<TetrominoCode> {
+        return gameObj.getNextTetromino(n)
+    }
 }

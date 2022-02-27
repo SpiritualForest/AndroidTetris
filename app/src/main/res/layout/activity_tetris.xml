@@ -74,7 +74,7 @@
         app:layout_constraintStart_toEndOf="@+id/btn_left"
         app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
 
-    <com.androidtetris.GridCanvas
+    <com.androidtetris.NextTetrominoCanvas
         android:id="@+id/nextTetrominoCanvas"
         android:layout_width="120dp"
         android:layout_height="120dp"
@@ -97,12 +97,15 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="95dp"
         android:layout_marginBottom="4dp"
-        android:text="@string/txt_lines"
+        android:text="&quot;Lines:&quot;"
+        android:textColor="@color/black"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/txtScore"
         app:layout_constraintEnd_toStartOf="@+id/gridCanvas"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nextTetrominoCanvas" />
+        app:layout_constraintTop_toBottomOf="@+id/nextTetrominoCanvas"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/txtScore"

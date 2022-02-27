@@ -22,7 +22,7 @@ class TetrisActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tetris)
         val gameCanvas = findViewById<GridCanvas>(R.id.gridCanvas)
-        val nextTetrominoCanvas = findViewById<GridCanvas>(R.id.nextTetrominoCanvas)
+        val nextTetrominoCanvas = findViewById<NextTetrominoCanvas>(R.id.nextTetrominoCanvas)
         mTetris = Tetris(gameCanvas, nextTetrominoCanvas)
 
         // Movement and rotation buttons
@@ -43,11 +43,11 @@ class TetrisActivity : AppCompatActivity() {
     }
 
     private fun getOnTouchListener(r: TetrisRunnable): View.OnTouchListener {
-        // Creates a new OnTouchListener that executes the provided runnable with a 50ms delay
+        // Creates a new OnTouchListener that executes the provided runnable with a delay
         val listener = View.OnTouchListener { v, ev ->
             when (ev.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    // Button is down, post the runnable to the handler with a 50ms delay
+                    // Button is down, post the runnable to the handler
                     mHandler.postDelayed(r, r.delay)
                 }
                 MotionEvent.ACTION_UP -> {
@@ -82,7 +82,7 @@ class TetrisRunnable(handler: Handler, lambda: () -> Unit, delay: Long = 50L) : 
     }
 }
 
-class Tetris(private val gameCanvas: GridCanvas, private val nextTetrominoCanvas: GridCanvas) {
+class Tetris(private val gameCanvas: GridCanvas, private val nextTetrominoCanvas: NextTetrominoCanvas) {
     val api = API()
     init {
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
@@ -90,11 +90,18 @@ class Tetris(private val gameCanvas: GridCanvas, private val nextTetrominoCanvas
         api.addCallback(Event.Collision, ::collision)
         api.addCallback(Event.LinesCompleted, ::linesCompleted)
         api.addCallback(Event.GameEnd, ::gameEnd)
+        api.addCallback(Event.GameStart, ::gameStart)
         api.startGame()
     }
 
     fun coordinatesChanged(args: CoordinatesChangedEventArgs) {
         gameCanvas.drawTetromino(args.old.toList(), args.new.toList(), api.getCurrentTetromino())
+        
+        // Get the first 3 upcoming tetrominoes
+        val upcoming = api.getNextTetromino(3).toMutableList()
+        upcoming.reverse()
+        nextTetrominoCanvas.upcoming = upcoming
+        nextTetrominoCanvas.invalidate()
     }
 
     fun gridChanged(args: GridChangedEventArgs) {
@@ -116,5 +123,9 @@ class Tetris(private val gameCanvas: GridCanvas, private val nextTetrominoCanvas
 
     fun gameEnd() {
         println("Game ends")
+    }
+
+    fun gameStart() {
+        println("Game starts")
     }
 }

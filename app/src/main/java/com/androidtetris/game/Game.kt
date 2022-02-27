@@ -1,13 +1,13 @@
 package com.androidtetris.game
 
-import java.lang.Thread
+import android.os.CountDownTimer
 import android.util.Log
 import com.androidtetris.game.event.*
 
 // Movement directions
 enum class Direction { Left, Right, Down }
 
-class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int = 22, val runInTestMode: Boolean = false) {
+class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int = 22, val rotationClockwise: Boolean = false, val runInTestMode: Boolean = false) {
     val grid = Grid(gridWidth, gridHeight) // Default is x 10, y 22
     private var tetrominoes = mutableListOf<TetrominoCode>()
     private val tetrominoReferences = hashMapOf(
@@ -21,15 +21,14 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     )
     lateinit var currentTetromino: Tetromino
         private set
-    private var dropSpeed = 1000 // How fast the tetrominoes move downwards automatically. Defaults to 1 sec (1000ms)
+    private var dropSpeed: Long = 1000L // How fast the tetrominoes move downwards automatically. Defaults to 1 sec (1000ms)
     private var downwardsCollisionCount = 0
     val eventDispatcher = EventDispatcher()
     private var gameRunning = false // Game is not running by default
-    private var timerThread: Thread? = null
+    private var mTimer: CountDownTimer? = null
     var lines = 0
         private set
 
-    /* Game object and API functions */
     init {
         // Create 100 random tetrominoes for spawning
         for (i in 0 until 100) {
@@ -39,27 +38,33 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
         startGame()
     }
+    
+    internal fun startMovementTimer() {
+        // Creates a CountDownTimer that automatically moves the tetromino downwards every <dropSpeed> milliseconds
+        mTimer?.cancel()
+        mTimer = object : CountDownTimer(dropSpeed*21L, dropSpeed) {
+            override fun onTick(millisInFuture: Long) {
+                move(Direction.Down)
+            }
+            override fun onFinish() {
+                dropTetromino()
+            }
+        }.start()
+    }
 
     internal fun startGame() {
         /* Start the game, spawn the first tetromino,
          * and create our automatic movement thread. */
         gameRunning = true
         spawnNextTetromino()
-        val mAction = Runnable {
-            while(gameRunning) {
-                move(Direction.Down)
-                Thread.sleep(dropSpeed.toLong())
-            }
-        }
-        timerThread = Thread(mAction)
-        timerThread!!.start() 
+        startMovementTimer()
         eventDispatcher.dispatch(Event.GameStart)
     }
 
     internal fun endGame() {
         // Stop the movement timer and clear out the grid.
         gameRunning = false
-        timerThread?.join()
+        mTimer?.cancel()
         grid.clear()
         eventDispatcher.dispatch(Event.GameEnd)
     }
@@ -143,7 +148,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
                 */
                 downwardsCollisionCount++
                 if (downwardsCollisionCount == 2) {
-                    // downwardsCollisionCount is reset to 0 in dropTetromino()
+                    downwardsCollisionCount = 0
                     dropTetromino()
                 }
             }
@@ -223,5 +228,6 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         downwardsCollisionCount = 0
         // Now spawn the next upcoming tetromino and restart auto-move
         spawnNextTetromino()
+        startMovementTimer()
     }
 }
