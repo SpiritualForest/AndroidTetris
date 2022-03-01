@@ -28,7 +28,7 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
     var upcoming: MutableList<TetrominoCode> = mutableListOf()
     private val paint = Paint()
     private var grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
-    private val squareSize = 10 // In dps
+    private val squareSize = 15 // In dps
     
     private fun dpToPx(dp: Float): Float {
         val dpi = resources.displayMetrics.densityDpi
@@ -50,10 +50,11 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
     }
 
     fun getCoordinates(tetromino: TetrominoCode, pushDownwards: Int): List<Point> {
+        // Converts the "coordinates map" of each tetromino to Point(x, y) dp coordinates
         val center = getCenter(tetromino) // Starting position
         val coordinates = tetrominoCoordinates[tetromino]!!
         val coordinatesList: MutableList<Point> = mutableListOf()
-        var y = pushDownwards
+        var y = pushDownwards // Starting position for y
         for(sublist in coordinates) {
             var x = center
             for(v in sublist) {
@@ -82,7 +83,7 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
         }
 
         // Draw all the tetrominoes
-        var pushDownwards = squareSize // How many dps to push the y value of each coordinate downwards by
+        var pushDownwards = 0 // How many dps to push the y value of each coordinate downwards by
         for(t in upcoming) {
             val coordinates = getCoordinates(t, pushDownwards)
             paint.color = Color.RED // FIXME: this should come from settings per tetromino
@@ -91,7 +92,7 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
                 dpToPx(p.x+squareSize.toFloat())-1, dpToPx(p.y+squareSize.toFloat())-1, paint)
             }
             // For spacing between the tetrominoes
-            pushDownwards += squareSize*4
+            pushDownwards += squareSize*3
         }
     }
 }

@@ -13,18 +13,24 @@ Supply to the constructor.
 12, 13, 14, 15]
  */
 class Grid(val width: Int, val height: Int) {
-    // columns, rows (x, y)
-    // Create 2D array of rows,columns
-    // All elements are set to null by default.
-    // A TetrominoCode value instead of null means the position is occupied.
-    //var grid = Array(height) { Array<TetrominoCode?>(width) { null } }
-    var grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
+    // HashMap<y, HashMap<x, TetrominoCode>>
+    val grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
 
     internal fun getCenter(tWidth: Int): Int {
         /* Get the center x position in the grid based on
         the tetromino's width
          */
         return (width / 2) - (tWidth / 2)
+    }
+
+    fun copyOf(): HashMap<Int, HashMap<Int, TetrominoCode>> {
+        // Returns a copy of the grid
+        val copyMap: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
+        for(y in grid.keys) {
+            val m = grid[y]!!
+            copyMap[y] = HashMap(m)
+        }
+        return copyMap
     }
 
     private fun findArrayPosition(n: Int, length: Int): Point {
@@ -37,7 +43,7 @@ class Grid(val width: Int, val height: Int) {
          [12, 13, 14, 15]] -> 3: [0, 1, 2, 3]
         Example with n=15, length=4
         x = 15 % 4 (== 3)
-        y = (15-x) / 4 (12 / 4 == 3)
+        y = (15-x) / 4 (Same as (15-3) / 4, == 3)
         Result is (3, 3) */
         val x = n % length
         val y = (n-x) / length
@@ -45,8 +51,8 @@ class Grid(val width: Int, val height: Int) {
     }
 
     internal fun convertCoordinatesMap(map: Array<Int>, tWidth: Int): Array<Point> {
-        /* Converts the given coordinates map to (x, y) positions */
-        // I block: arrayOf(0, 1, 2, 3)
+        /* Converts the given coordinates map to Point(x, y) positions */
+        // For example, map of I block: arrayOf(0, 1, 2, 3)
         val coordinates = Array(map.size) { Point(0, 0) }
         val gridCenter = getCenter(tWidth)
         for((i, n) in map.withIndex()) {

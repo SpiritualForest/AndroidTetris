@@ -5,7 +5,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
+import android.os.Handler
+import android.os.Looper
 import com.androidtetris.game.Point
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.game.event.LinesCompletedEventArgs
@@ -31,6 +34,8 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     private var gridWidth = 10
     private var gridHeight = 22
     private var grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
+    private var currentTetrominoCoordinates: List<Point> = listOf()
+    private var currentTetromino: TetrominoCode? = null
 
     private fun dpToPx(dp: Float): Float {
         val dpi = resources.displayMetrics.densityDpi
@@ -103,6 +108,8 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     }
 
     fun drawTetromino(old: List<Point>, new: List<Point>, tetrominoCode: TetrominoCode) {
+        currentTetrominoCoordinates = new
+        currentTetromino = tetrominoCode
         // First, remove the tetromino's old coordinates
         for(point in old) {
             var y = point.y
@@ -130,20 +137,63 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         this.invalidate()
     }
 
-    fun drawGrid(newGrid: Map<Int, HashMap<Int, TetrominoCode>>) {
-        // Copy the grid into our own grid representation object
-        this.grid.clear()
-        for(y in newGrid.keys) {
-            // Create a new copy of the submap
-            var subMap = HashMap(newGrid[y])
-            this.grid[y] = subMap
+    fun drawGrid(newGrid: HashMap<Int, HashMap<Int, TetrominoCode>>) {
+        // Before setting the newGrid as the current grid, 
+        // we add the current tetromino's coordinates, if it exists.
+        // We need to do this because otherwise the line clearing animation's
+        // call to this function will cause it to override the grid
+        // FIXME: DRY.
+        val currentTetromino = this.currentTetromino
+        if (currentTetromino != null) {
+            for(p in currentTetrominoCoordinates) {
+                // p is Point(x, y)
+                if (!newGrid.containsKey(p.y)) {
+                    newGrid[p.y] = hashMapOf(p.x to currentTetromino)
+                }
+                else {
+                    newGrid[p.y]!![p.x] = currentTetromino
+                }
+            }
         }
+        this.grid = newGrid
         this.invalidate()
     }
 
     fun linesCompleted(args: LinesCompletedEventArgs) {
         // Line clear animation, etc. TODO.
         // For now, just redraw the grid when this function is called.
-        drawGrid(args.grid)
+        val handler = Handler(Looper.getMainLooper())
+        var delay = 0L
+        for(y in args.lines) {
+            var decreasingCenterx = (gridWidth / 2) - 1
+            var increasingCenterx = gridWidth / 2
+            delay = 0L
+            for(i in (gridWidth / 2) until gridWidth) {
+                // Create a runnable which removes the current squares
+                handler.postDelayed(object : Runnable { 
+                    val dec = decreasingCenterx
+                    val inc = increasingCenterx
+                    val y = y
+                    override fun run() { 
+                        removeSquare(dec, y)
+                        removeSquare(inc, y)
+                    }
+                }, delay)
+                decreasingCenterx--
+                increasingCenterx++
+                delay += 50
+            }
+        }
+        // Now redraw the entire grid
+        handler.postDelayed({ drawGrid(args.grid) }, delay)
+    }
+
+    fun removeSquare(x: Int, y: Int) {
+        // Remove the square from the grid
+        Log.d("removeSquare", "Called with (x, y): ($x, $y)")
+        if (y !in grid) { return }
+        if (x !in grid[y]!!) { return }
+        grid[y]!!.remove(x)
+        this.invalidate()
     }
 }

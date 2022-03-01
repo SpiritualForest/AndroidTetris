@@ -42,7 +42,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     internal fun startMovementTimer() {
         // Creates a CountDownTimer that automatically moves the tetromino downwards every <dropSpeed> milliseconds
         mTimer?.cancel()
-        mTimer = object : CountDownTimer(dropSpeed*21L, dropSpeed) {
+        mTimer = object : CountDownTimer(dropSpeed*gridHeight.toLong(), dropSpeed) {
             override fun onTick(millisInFuture: Long) {
                 move(Direction.Down)
             }
@@ -218,14 +218,12 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
             grid.pushLines(lowestLine)
             // Dispatch the LinesCompleted event
             eventDispatcher.dispatch(Event.LinesCompleted,
-                LinesCompletedEventArgs(completedLines.toList(), grid.grid.toMap()))
+                LinesCompletedEventArgs(completedLines.toList(), grid.copyOf()))
         }
         else {
             // No lines were completed. Trigger the GridChanged event
-            eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(grid.grid.toMap()))
+            eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(grid.copyOf()))
         }
-        // Reset the downwards collisions count for the next tetromino
-        downwardsCollisionCount = 0
         // Now spawn the next upcoming tetromino and restart auto-move
         spawnNextTetromino()
         startMovementTimer()
