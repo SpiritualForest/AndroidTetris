@@ -15,6 +15,8 @@ import com.androidtetris.game.event.LinesCompletedEventArgs
 
 // https://stackoverflow.com/questions/17596053/cannot-call-custom-draw-method-from-another-class-in-android
 
+// TODO: "explosions" animation with "flying pixels" on collision events
+
 class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
     /* Properties */
@@ -35,7 +37,10 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     private var gridHeight = 22
     private var grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
     private var currentTetrominoCoordinates: List<Point> = listOf()
-    private var currentTetromino: TetrominoCode? = null
+    /* In practice, drawGrid() will never be called before drawTetromino().
+     * This is why it's safe to have a default TetrominoCode, making the object non-nullable. */
+    private var currentTetromino = TetrominoCode.I
+    private val mHandler = Handler(Looper.getMainLooper())
 
     private fun dpToPx(dp: Float): Float {
         val dpi = resources.displayMetrics.densityDpi
@@ -110,8 +115,16 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     fun drawTetromino(old: List<Point>, new: List<Point>, tetrominoCode: TetrominoCode) {
         currentTetrominoCoordinates = new
         currentTetromino = tetrominoCode
-        // First, remove the tetromino's old coordinates
-        for(point in old) {
+        // Remove the old ones first
+        removeCoordinates(old)
+        // Add the new ones
+        addCoordinates(new, tetrominoCode)
+        this.invalidate()
+    }
+
+    fun removeCoordinates(coordinates: List<Point>) {
+        // Remove the coordinates from the grid
+        for(point in coordinates) {
             var y = point.y
             var x = point.x
             if (this.grid.containsKey(y)) {
@@ -121,8 +134,11 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
                 }
             }
         }
-        // Now add the new ones
-        for(point in new) {
+    }
+    
+    fun addCoordinates(coordinates: List<Point>, tetrominoCode: TetrominoCode) {
+        // Add the given coordinates to the grid
+        for(point in coordinates) {
             var y = point.y
             var x = point.x
             if (!this.grid.containsKey(y)) {
@@ -134,66 +150,52 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
                 this.grid[y]!![x] = tetrominoCode
             }
         }
-        this.invalidate()
     }
 
     fun drawGrid(newGrid: HashMap<Int, HashMap<Int, TetrominoCode>>) {
-        // Before setting the newGrid as the current grid, 
-        // we add the current tetromino's coordinates, if it exists.
-        // We need to do this because otherwise the line clearing animation's
-        // call to this function will cause it to override the grid
-        // FIXME: DRY.
-        val currentTetromino = this.currentTetromino
-        if (currentTetromino != null) {
-            for(p in currentTetrominoCoordinates) {
-                // p is Point(x, y)
-                if (!newGrid.containsKey(p.y)) {
-                    newGrid[p.y] = hashMapOf(p.x to currentTetromino)
-                }
-                else {
-                    newGrid[p.y]!![p.x] = currentTetromino
-                }
-            }
-        }
+        // Set the newGrid as the grid
         this.grid = newGrid
+        
+        // Now we can add the currentTetromino's coordinates to it
+        val currentTetromino = this.currentTetromino
+        addCoordinates(currentTetrominoCoordinates, currentTetromino)
         this.invalidate()
     }
 
     fun linesCompleted(args: LinesCompletedEventArgs) {
-        // Line clear animation, etc. TODO.
-        // For now, just redraw the grid when this function is called.
-        val handler = Handler(Looper.getMainLooper())
-        var delay = 0L
+        // Call the line clearing animation function for all the completed lines,
+        // and then redraw the grid.
+        val delay = ((gridWidth / 2) * 50) + 5L // By default, (5*50)+5, resulting in 255ms
         for(y in args.lines) {
-            var decreasingCenterx = (gridWidth / 2) - 1
-            var increasingCenterx = gridWidth / 2
-            delay = 0L
-            for(i in (gridWidth / 2) until gridWidth) {
-                // Create a runnable which removes the current squares
-                handler.postDelayed(object : Runnable { 
-                    val dec = decreasingCenterx
-                    val inc = increasingCenterx
-                    val y = y
-                    override fun run() { 
-                        removeSquare(dec, y)
-                        removeSquare(inc, y)
-                    }
-                }, delay)
-                decreasingCenterx--
-                increasingCenterx++
-                delay += 50
-            }
+            clearLine(y)
         }
-        // Now redraw the entire grid
-        handler.postDelayed({ drawGrid(args.grid) }, delay)
+        mHandler.postDelayed({ drawGrid(args.grid) }, delay)
     }
 
-    fun removeSquare(x: Int, y: Int) {
-        // Remove the square from the grid
-        Log.d("removeSquare", "Called with (x, y): ($x, $y)")
-        if (y !in grid) { return }
-        if (x !in grid[y]!!) { return }
-        grid[y]!!.remove(x)
-        this.invalidate()
+    fun clearLine(y: Int) {
+        /* Line clearing animation function.
+         * Remove two squares at a time, starting at the center of the line
+         * and continues "outwards" towards the edges. */
+        var decreasingCenterx = (gridWidth / 2) - 1
+        var delay = 0L
+        // Using increasingCenterx as our counter removes the need for a separate counter variable.
+        for(increasingCenterx in (gridWidth / 2) until gridWidth) {
+            // Create a runnable which removes the current squares
+            mHandler.postDelayed(object : Runnable { 
+                val dec = decreasingCenterx
+                val inc = increasingCenterx
+                val y = y
+                override fun run() { 
+                    // We have to call invalidate() here because removeCoordinates() doesn't.
+                    // If we don't do it, the animation won't happen.
+                    // Only the grid will be fully redrawn after 255ms.
+                    removeCoordinates(listOf(Point(dec, y), Point(inc, y)))
+                    invalidate()
+                }
+            }, delay)
+            // Since increasingCenterx is increased as the loop counter, we only need to decrease decreasingCenterx here.
+            decreasingCenterx--
+            delay += 50
+        }
     }
 }
