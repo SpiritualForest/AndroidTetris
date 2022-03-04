@@ -90,11 +90,10 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         }
         // Game continues, set the "permanent" currentTetromino
         currentTetromino = temp
-        /* Now we have to also dispatch the CoordinatesChanged event,
-         * otherwise the UI won't draw the tetromino's initial coordinates.
+        /* Now we have to also dispatch the TetrominoSpawned event,
+         * otherwise the UI won't know that it has to draw the tetromino's initial coordinates.
          * It will only draw them after move() has been called once. */
-         eventDispatcher.dispatch(Event.CoordinatesChanged, 
-         CoordinatesChangedEventArgs(currentTetromino.coordinates, currentTetromino.coordinates, tCode))
+         eventDispatcher.dispatch(Event.TetrominoSpawned, TetrominoSpawnedEventArgs(currentTetromino.coordinates, tCode))
     }
 
     internal fun getNextTetromino(n: Int = 1): List<TetrominoCode> {

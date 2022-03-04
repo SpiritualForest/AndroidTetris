@@ -6,12 +6,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
 import android.os.Handler
 import android.os.Looper
+import android.content.Context
+import android.app.Activity
+
+// TODO: handle activity OnPause/OnResume
 
 class TetrisActivity : AppCompatActivity() {
     
@@ -21,9 +26,11 @@ class TetrisActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tetris)
-        val gameCanvas = findViewById<GridCanvas>(R.id.gridCanvas)
-        val nextTetrominoCanvas = findViewById<NextTetrominoCanvas>(R.id.nextTetrominoCanvas)
-        mTetris = Tetris(gameCanvas, nextTetrominoCanvas)
+        
+        // Create a new Tetris object and pass the activity.
+        // This way we can find the UI elements we want to manipulate from the Tetris object itself,
+        // and don't have to find them here and then pass them.
+        mTetris = Tetris(this)
 
         // Movement and rotation buttons
         val down = findViewById<CircleButton>(R.id.btn_down)
@@ -82,44 +89,75 @@ class TetrisRunnable(handler: Handler, lambda: () -> Unit, delay: Long = 50L) : 
     }
 }
 
-class Tetris(private val gameCanvas: GridCanvas, private val nextTetrominoCanvas: NextTetrominoCanvas) {
+class Tetris(val activity: Activity) {
+    // This classes uses the API to interact with the tetris game engine.
+
+    // The UI elements we want to manipulate based on events
+    val gameCanvas = activity.findViewById<GridCanvas>(R.id.gridCanvas)
+    val nextTetrominoCanvas = activity.findViewById<NextTetrominoCanvas>(R.id.nextTetrominoCanvas)
+    val linesText = activity.findViewById<TextView>(R.id.txt_lines)
+    val levelText = activity.findViewById<TextView>(R.id.txt_level)
+    val scoreText = activity.findViewById<TextView>(R.id.txt_score)
+    
+    // Required for scoring calculation when lines are completed
+    var score = 0
+    var previousLineCount = 1
+    val scoreMultiplication = listOf(40, 100, 300, 1200) // 1 line, 2 line, 3 lines, 4 lines
+
     val api = API()
     init {
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
         api.addCallback(Event.Collision, ::collision)
         api.addCallback(Event.LinesCompleted, ::linesCompleted)
+        api.addCallback(Event.TetrominoSpawned, ::tetrominoSpawned)
         api.addCallback(Event.GameEnd, ::gameEnd)
         api.addCallback(Event.GameStart, ::gameStart)
         api.startGame()
     }
 
     fun coordinatesChanged(args: CoordinatesChangedEventArgs) {
+        // Called when the tetromino's coordinates changed due to movement
+        // Args: the tetromino's previous coordinates, the new coordinates, and the tetromino
         gameCanvas.drawTetromino(args.old.toList(), args.new.toList(), api.getCurrentTetromino())
-        
-        // Get the first 3 upcoming tetrominoes
-        val upcoming = api.getNextTetromino(3).toMutableList()
-        upcoming.reverse()
-        nextTetrominoCanvas.upcoming = upcoming
-        nextTetrominoCanvas.invalidate()
     }
 
     fun gridChanged(args: GridChangedEventArgs) {
+        // Called when the game's internal grid changes without lines being completed
+        // Args: the grid
         gameCanvas.drawGrid(args.grid)
     }
 
     fun collision(args: CollisionEventArgs) {
-        val direction = args.direction
-        Log.d("CollisionEvent", "Collision event occurred: $direction")
-        val tetromino = api.getCurrentTetromino()
-        Log.d("CollisionEvent", "Colliding tetromino: $tetromino")
-        val grid = api.getGrid()
-        Log.d("CollisionEvent", "Grid at time of collision: $grid")
+        // Called when a collision occurs
+        // Args: Tetromino coordinates, direction of movement
+        gameCanvas.drawCollision(args)
     }
 
     fun linesCompleted(args: LinesCompletedEventArgs) {
+        // Called when lines are completed and the grid changes as a result.
         gameCanvas.linesCompleted(args)
+        val lines = api.lines()
+        val level = api.level()
+        linesText.setText("Lines: $lines")
+        levelText.setText("Level: $level")
+        
+        score += scoreMultiplication[args.lines.size-1] * level * previousLineCount
+        previousLineCount = args.lines.size
+        scoreText.setText("Score: $score")
     }
+
+    fun tetrominoSpawned(args: TetrominoSpawnedEventArgs) {
+        // Get the first 3 upcoming tetrominoes
+        // Args: the tetromino's coordinates, and the tetromino
+        val upcoming = api.getNextTetromino(3).toMutableList()
+        upcoming.reverse()
+        nextTetrominoCanvas.upcoming = upcoming
+        nextTetrominoCanvas.invalidate()
+        // Now draw this one
+        val coordinates = args.coordinates.toList()
+        gameCanvas.drawTetromino(coordinates, coordinates, args.tetromino)
+    }        
 
     fun gameEnd() {
         println("Game ends")

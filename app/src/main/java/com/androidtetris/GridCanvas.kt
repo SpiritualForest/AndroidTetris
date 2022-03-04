@@ -12,12 +12,12 @@ import android.os.Looper
 import com.androidtetris.game.Point
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.game.event.LinesCompletedEventArgs
-
-// https://stackoverflow.com/questions/17596053/cannot-call-custom-draw-method-from-another-class-in-android
+import com.androidtetris.game.event.CollisionEventArgs
 
 // TODO: "explosions" animation with "flying pixels" on collision events
 
 class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
+    /* This View displays the actual gameplay. I should probably change its name. */
 
     /* Properties */
     // TODO: this needs to be customizable
@@ -40,6 +40,8 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     /* In practice, drawGrid() will never be called before drawTetromino().
      * This is why it's safe to have a default TetrominoCode, making the object non-nullable. */
     private var currentTetromino = TetrominoCode.I
+    private var collisionPixels: MutableList<Point> = mutableListOf()
+    private var collisionOccurred = false // If set to true, the next call to onDraw() will draw the collisionPixels on the canvas.
     private val mHandler = Handler(Looper.getMainLooper())
 
     private fun dpToPx(dp: Float): Float {
@@ -104,6 +106,12 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
                 drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, color!!, canvas)
             }
         }
+        // In case of a collision event, draw the collision pixels.
+        if (!collisionOccurred) { return }
+        paint.color = tetrominoColors[currentTetromino]!!
+        for(point in collisionPixels) {
+            canvas.drawPoint(point.x.toFloat(), point.y.toFloat(), paint)
+        }
     }
 
     private fun drawSquare(x: Float, y: Float, size: Float, color: Int, canvas: Canvas) {
@@ -115,9 +123,8 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     fun drawTetromino(old: List<Point>, new: List<Point>, tetrominoCode: TetrominoCode) {
         currentTetrominoCoordinates = new
         currentTetromino = tetrominoCode
-        // Remove the old ones first
+        // Remove the old ones and add the new ones
         removeCoordinates(old)
-        // Add the new ones
         addCoordinates(new, tetrominoCode)
         this.invalidate()
     }
@@ -197,5 +204,13 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
             decreasingCenterx--
             delay += 50
         }
+    }
+
+    fun drawCollision(args: CollisionEventArgs) {
+        // Draw "explosions" of "flying pixels" when a collision occurs.
+        // Basically, calculate the trajectory of the dispersement based on
+        // the direction of the collision and the tetromino's coordinates.
+        // Add these as Point(x, y) to collisionPixels, and then trigger the redrawing.
+        collisionOccurred = true
     }
 }

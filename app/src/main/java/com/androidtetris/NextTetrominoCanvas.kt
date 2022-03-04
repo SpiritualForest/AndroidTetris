@@ -40,6 +40,7 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
     }
 
     fun getCenter(tetromino: TetrominoCode): Int {
+        // Returns the center position in dp
         val tWidth = when(tetromino) {
             TetrominoCode.I -> 4
             TetrominoCode.O -> 2
@@ -49,12 +50,12 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
         return center.toInt()
     }
 
-    fun getCoordinates(tetromino: TetrominoCode, pushDownwards: Int): List<Point> {
+    fun getCoordinates(tetromino: TetrominoCode, spacing: Int): List<Point> {
         // Converts the "coordinates map" of each tetromino to Point(x, y) dp coordinates
-        val center = getCenter(tetromino) // Starting position
+        val center = getCenter(tetromino) // Starting position for x
         val coordinates = tetrominoCoordinates[tetromino]!!
         val coordinatesList: MutableList<Point> = mutableListOf()
-        var y = pushDownwards // Starting position for y
+        var y = spacing // Starting position for y
         for(sublist in coordinates) {
             var x = center
             for(v in sublist) {
@@ -83,16 +84,15 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
         }
 
         // Draw all the tetrominoes
-        var pushDownwards = 0 // How many dps to push the y value of each coordinate downwards by
+        var spacing = 0 // For vertical spacing between the tetrominoes
         for(t in upcoming) {
-            val coordinates = getCoordinates(t, pushDownwards)
+            val coordinates = getCoordinates(t, spacing)
             paint.color = Color.RED // FIXME: this should come from settings per tetromino
             for(p in coordinates) {
                 canvas.drawRect(dpToPx(p.x.toFloat())+1, dpToPx(p.y.toFloat())+1, 
                 dpToPx(p.x+squareSize.toFloat())-1, dpToPx(p.y+squareSize.toFloat())-1, paint)
             }
-            // For spacing between the tetrominoes
-            pushDownwards += squareSize*3
+            spacing += squareSize*3
         }
     }
 }
