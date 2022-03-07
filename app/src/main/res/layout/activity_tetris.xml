@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".TetrisActivity">
+    tools:context=".activity.tetris.TetrisActivity">
 
-    <com.androidtetris.GridCanvas
+    <com.androidtetris.activity.tetris.GridCanvas
         android:id="@+id/gridCanvas"
         android:layout_width="200dp"
         android:layout_height="440dp"
@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <com.androidtetris.CircleButton
+    <com.androidtetris.activity.tetris.CircleButton
         android:id="@+id/btn_rotate"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -34,7 +34,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
 
-    <com.androidtetris.CircleButton
+    <com.androidtetris.activity.tetris.CircleButton
         android:id="@+id/btn_left"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -48,7 +48,7 @@
         app:layout_constraintTop_toBottomOf="@+id/gridCanvas"
         app:layout_constraintVertical_bias="0.487" />
 
-    <com.androidtetris.CircleButton
+    <com.androidtetris.activity.tetris.CircleButton
         android:id="@+id/btn_down"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -61,7 +61,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_rotate" />
 
-    <com.androidtetris.CircleButton
+    <com.androidtetris.activity.tetris.CircleButton
         android:id="@+id/btn_right"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -74,7 +74,7 @@
         app:layout_constraintStart_toEndOf="@+id/btn_left"
         app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
 
-    <com.androidtetris.NextTetrominoCanvas
+    <com.androidtetris.activity.tetris.NextTetrominoCanvas
         android:id="@+id/nextTetrominoCanvas"
         android:layout_width="120dp"
         android:layout_height="120dp"
@@ -141,4 +141,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_score"
         tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/btn_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="237dp"
+        android:layout_marginEnd="134dp"
+        android:layout_marginBottom="203dp"
+        android:background="@color/material_on_primary_emphasis_medium"
+        android:text="@string/btn_pause"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_rotate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_level"
+        app:rippleColor="@android:color/darker_gray" />
 </androidx.constraintlayout.widget.ConstraintLayout>

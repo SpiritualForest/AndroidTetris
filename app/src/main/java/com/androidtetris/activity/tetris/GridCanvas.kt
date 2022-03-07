@@ -1,18 +1,15 @@
-package com.androidtetris
+package com.androidtetris.activity.tetris
 
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.os.Handler
 import android.os.Looper
-import com.androidtetris.game.Point
-import com.androidtetris.game.TetrominoCode
-import com.androidtetris.game.event.LinesCompletedEventArgs
-import com.androidtetris.game.event.CollisionEventArgs
+import com.androidtetris.game.*
+import com.androidtetris.game.event.*
 
 // TODO: "explosions" animation with "flying pixels" on collision events
 
@@ -31,7 +28,7 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         TetrominoCode.Z to Color.RED,
     )
     private val paint = Paint()
-    var canvasBackgroundColor : Int = Color.LTGRAY
+    private var canvasBackgroundColor : Int = Color.LTGRAY
     // Grid defaults to 10x22 squares
     private var gridWidth = 10
     private var gridHeight = 22
@@ -98,7 +95,7 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         canvas.drawRect(1f, 1f, width.toFloat()-1, height.toFloat()-1, paint)
 
         // Draw the grid
-        val (dpWidth, dpHeight) = getSizeDp()
+        val dpWidth = getSizeDp()[0]
         val squareSizeDp = dpWidth / gridWidth
         for(y in this.grid.keys) {
             for(x in this.grid[y]?.keys!!) {
@@ -132,10 +129,10 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     fun removeCoordinates(coordinates: List<Point>) {
         // Remove the coordinates from the grid
         for(point in coordinates) {
-            var y = point.y
-            var x = point.x
+            val y = point.y
+            val x = point.x
             if (this.grid.containsKey(y)) {
-                var subMap = this.grid[y]
+                val subMap = this.grid[y]
                 if (subMap!!.containsKey(x)) {
                     subMap.remove(x)
                 }
@@ -143,11 +140,11 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         }
     }
     
-    fun addCoordinates(coordinates: List<Point>, tetrominoCode: TetrominoCode) {
+    private fun addCoordinates(coordinates: List<Point>, tetrominoCode: TetrominoCode) {
         // Add the given coordinates to the grid
         for(point in coordinates) {
-            var y = point.y
-            var x = point.x
+            val y = point.y
+            val x = point.x
             if (!this.grid.containsKey(y)) {
                 // New row, create new hashmap
                 this.grid[y] = hashMapOf(x to tetrominoCode)
@@ -179,7 +176,7 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         mHandler.postDelayed({ drawGrid(args.grid) }, delay)
     }
 
-    fun clearLine(y: Int) {
+    private fun clearLine(y: Int) {
         /* Line clearing animation function.
          * Remove two squares at a time, starting at the center of the line
          * and continues "outwards" towards the edges. */
@@ -191,7 +188,6 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
             mHandler.postDelayed(object : Runnable { 
                 val dec = decreasingCenterx
                 val inc = increasingCenterx
-                val y = y
                 override fun run() { 
                     // We have to call invalidate() here because removeCoordinates() doesn't.
                     // If we don't do it, the animation won't happen.
@@ -204,13 +200,5 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
             decreasingCenterx--
             delay += 50
         }
-    }
-
-    fun drawCollision(args: CollisionEventArgs) {
-        // Draw "explosions" of "flying pixels" when a collision occurs.
-        // Basically, calculate the trajectory of the dispersement based on
-        // the direction of the collision and the tetromino's coordinates.
-        // Add these as Point(x, y) to collisionPixels, and then trigger the redrawing.
-        collisionOccurred = true
     }
 }

@@ -30,8 +30,8 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         private set
 
     init {
-        // Create 100 random tetrominoes for spawning
-        for (i in 0 until 100) {
+        // Create 10 random tetrominoes for spawning
+        for (i in 0 until 10) {
             this.tetrominoes.add(getRandomTetromino())
         }
         // Set the game drop speed (how fast the tetrominoes move downwards)
@@ -82,7 +82,8 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         this.tetrominoes.removeAt(0)
         // Now add a new one to the list
         this.tetrominoes.add(getRandomTetromino())
-        val temp = t?.invoke(grid)!! // First we must check if the game can even continue
+        val temp = t?.invoke(grid)!!
+        // First we must check if the game can even continue
         if (grid.isCollision(temp.coordinates)) {
             // Top line reached, end the game.
             endGame()
@@ -193,7 +194,6 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
     internal fun dropTetromino() {
         // This adds the current tetromino's coordinates to the grid after a downwards collision,
         // and then checks if lines were completed
-        Log.d("AndroidTetrisGame", "dropTetromino() called")
         var lowestLine = 0
         val completedLines: MutableList<Int> = mutableListOf()
         for(coordinatePoint in currentTetromino.coordinates) {

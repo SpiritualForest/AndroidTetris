@@ -1,4 +1,4 @@
-package com.androidtetris
+package com.androidtetris.activity.tetris
 
 import android.content.Context
 import android.graphics.Canvas

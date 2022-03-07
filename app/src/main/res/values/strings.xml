@@ -9,4 +9,5 @@
     <string name="txt_lines">Lines: 0</string>
     <string name="txt_score">Score: 0</string>
     <string name="txt_level">Level: 1</string>
+    <string name="btn_pause">Pause</string>
 </resources>

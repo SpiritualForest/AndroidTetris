@@ -1,9 +1,8 @@
-package com.androidtetris
+package com.androidtetris.activity.tetris
 
 // Our actual game's UI activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
@@ -13,8 +12,9 @@ import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
 import android.os.Handler
 import android.os.Looper
-import android.content.Context
 import android.app.Activity
+import com.androidtetris.activity.tetris.NextTetrominoCanvas
+import com.androidtetris.R
 
 // TODO: handle activity OnPause/OnResume
 
@@ -73,10 +73,9 @@ class TetrisActivity : AppCompatActivity() {
     }
 }
 
-class TetrisRunnable(handler: Handler, lambda: () -> Unit, delay: Long = 50L) : Runnable {
+class TetrisRunnable(handler: Handler, lambda: () -> Unit, val delay: Long = 50L) : Runnable {
     private val mHandler = handler
     private val lambda = lambda // The lambda that the runnable will run
-    val delay = delay
 
     override fun run() {
         /* We want to execute this runnable repeatedly as long as the button
@@ -89,20 +88,20 @@ class TetrisRunnable(handler: Handler, lambda: () -> Unit, delay: Long = 50L) : 
     }
 }
 
-class Tetris(val activity: Activity) {
+class Tetris(private val activity: Activity) {
     // This classes uses the API to interact with the tetris game engine.
 
     // The UI elements we want to manipulate based on events
-    val gameCanvas = activity.findViewById<GridCanvas>(R.id.gridCanvas)
-    val nextTetrominoCanvas = activity.findViewById<NextTetrominoCanvas>(R.id.nextTetrominoCanvas)
-    val linesText = activity.findViewById<TextView>(R.id.txt_lines)
-    val levelText = activity.findViewById<TextView>(R.id.txt_level)
-    val scoreText = activity.findViewById<TextView>(R.id.txt_score)
+    private val gameCanvas: GridCanvas = activity.findViewById<GridCanvas>(R.id.gridCanvas)
+    private val nextTetrominoCanvas: NextTetrominoCanvas = activity.findViewById<NextTetrominoCanvas>(R.id.nextTetrominoCanvas)
+    private val linesText: TextView = activity.findViewById<TextView>(R.id.txt_lines)
+    private val levelText: TextView = activity.findViewById<TextView>(R.id.txt_level)
+    private val scoreText: TextView = activity.findViewById<TextView>(R.id.txt_score)
     
     // Required for scoring calculation when lines are completed
-    var score = 0
-    var previousLineCount = 1
-    val scoreMultiplication = listOf(40, 100, 300, 1200) // 1 line, 2 line, 3 lines, 4 lines
+    private var score = 0
+    private var previousLineCount = 1
+    private val scoreMultiplication = listOf(40, 100, 300, 1200) // 1 line, 2 line, 3 lines, 4 lines
 
     val api = API()
     init {
@@ -131,7 +130,7 @@ class Tetris(val activity: Activity) {
     fun collision(args: CollisionEventArgs) {
         // Called when a collision occurs
         // Args: Tetromino coordinates, direction of movement
-        gameCanvas.drawCollision(args)
+        println("Collision")
     }
 
     fun linesCompleted(args: LinesCompletedEventArgs) {
@@ -139,12 +138,12 @@ class Tetris(val activity: Activity) {
         gameCanvas.linesCompleted(args)
         val lines = api.lines()
         val level = api.level()
-        linesText.setText("Lines: $lines")
-        levelText.setText("Level: $level")
+        linesText.text = "Lines: $lines"
+        levelText.text = "Level: $level"
         
         score += scoreMultiplication[args.lines.size-1] * level * previousLineCount
         previousLineCount = args.lines.size
-        scoreText.setText("Score: $score")
+        scoreText.text = "Score: $score"
     }
 
     fun tetrominoSpawned(args: TetrominoSpawnedEventArgs) {

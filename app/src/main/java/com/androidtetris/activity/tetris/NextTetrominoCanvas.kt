@@ -1,4 +1,4 @@
-package com.androidtetris
+package com.androidtetris.activity.tetris
 
 import android.view.View
 import android.graphics.Point
@@ -7,7 +7,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import com.androidtetris.game.TetrominoCode
 
 class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {

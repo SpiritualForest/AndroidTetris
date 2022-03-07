@@ -16,7 +16,7 @@
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".TetrisActivity"
+            android:name=".activity.tetris.TetrisActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
