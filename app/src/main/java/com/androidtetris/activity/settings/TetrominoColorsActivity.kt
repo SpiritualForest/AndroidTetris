@@ -36,11 +36,11 @@ class TetrominoColorsActivity : AppCompatActivity() {
         val spinnerObjects: List<SpinnerObject> = listOf(O, I, J, L, T, S, Z)
         
         // Red, green, blue, etc 
-        val colors: List<Int> = listOf(Color.RED, Color.BLUE, Color.GREEN)
-        /*    0xff0000, 0x006400, 0x0000ff, 
-            0x00bfff, 0x800080, 0x9400d3,
-            0xff1493, 0xf5c71a, 0x560319,
-        )*/
+        val colors: List<String> = listOf(
+            "#ff0000", "#006400", "#0000ff", 
+            "#00bfff", "#800080", "#9400d3",
+            "#ff1493", "#f5c71a", "#560319",
+        )
 
         for(spinnerObj in spinnerObjects) {
             val objects: MutableList<TetrominoData> = mutableListOf()
@@ -48,19 +48,11 @@ class TetrominoColorsActivity : AppCompatActivity() {
             Log.d("SpinnerObject", spinnerObj.tCode.toString())
             for(color in colors) {
                 // Add all the colours and shit
-                objects.add(TetrominoData(color, shape))
+                objects.add(TetrominoData(Color.parseColor(color), shape))
             }
             // Now set the adapter
             spinnerObj.spinner.adapter = ColorAdapter(this, R.layout.color_dropdown, objects)
         }
-        /*
-        val os = findViewById<Spinner>(R.id.o_spinner)
-        val objects: MutableList<TetrominoData> = mutableListOf()
-        val shape = TetrominoShape[TetrominoCode.O]!!
-        for(color in colors) {
-            objects.add(TetrominoData(color, shape))
-        }
-        os.adapter = ColorAdapter(this, R.layout.color_dropdown, objects)*/
     }
 }
 
@@ -77,7 +69,7 @@ class ColorAdapter(private val mContext: Context, private val mResource: Int, pr
     override fun getItem(position: Int): TetrominoData { return mObjects[position] }
     override fun getItemId(position: Int): Long { return position.toLong() } // What is this function?
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        var inflatedView: View = convertView ?: LayoutInflater.from(mContext).inflate(mResource, parent, false)
+        val inflatedView: View = convertView ?: LayoutInflater.from(mContext).inflate(mResource, parent, false)
         val colorSelect = inflatedView.findViewById<TetrominoColorSelectView>(R.id.colorSelect)
         colorSelect.color = getItem(position).color
         colorSelect.shape = getItem(position).shape
@@ -94,6 +86,10 @@ class TetrominoColorSelectView(context: Context, attrs: AttributeSet?) : View(co
     private val squareSize = 15 // dp
     private val paint = Paint()
 
+    private fun getCenterVertical(): Int {
+        val center = ((height / resources.displayMetrics.density) / 2) - squareSize
+        return center.toInt()
+    }
     private fun dpToPx(dp: Float): Float {
         val dpi = resources.displayMetrics.densityDpi
         return (dp * (dpi / 160f))
@@ -104,7 +100,7 @@ class TetrominoColorSelectView(context: Context, attrs: AttributeSet?) : View(co
         paint.color = Color.LTGRAY
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
         // Now draw the tetromino
-        val pixelPoints = TetrominoShapeConverter(shape, this, squareSize).getCoordinates()
+        val pixelPoints = TetrominoShapeConverter(shape, this, squareSize).getCoordinates(getCenterVertical())
         paint.color = color
         for(p in pixelPoints) {
             canvas.drawRect(p.x+1, p.y+1, p.x+dpToPx(squareSize.toFloat())-1, p.y+dpToPx(squareSize.toFloat())-1, paint)
