@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/menuLayout"
+    android:layout_width="100dp"
+    android:layout_height="48dp"
+    android:orientation="horizontal"
+    android:weightSum="100" >
+
+    <com.androidtetris.activity.settings.TetrominoColorSelectView
+        android:id="@+id/colorSelect"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="100"/>
+</LinearLayout>

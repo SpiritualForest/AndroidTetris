@@ -1,9 +1,10 @@
 package com.androidtetris
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import com.androidtetris.activity.settings.SettingsActivity
 import com.androidtetris.activity.tetris.TetrisActivity
 
 class MainActivity : AppCompatActivity() {

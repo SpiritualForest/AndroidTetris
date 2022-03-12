@@ -88,7 +88,7 @@ class TetrisRunnable(handler: Handler, lambda: () -> Unit, val delay: Long = 50L
     }
 }
 
-class Tetris(private val activity: Activity) {
+class Tetris(activity: Activity) {
     // This classes uses the API to interact with the tetris game engine.
 
     // The UI elements we want to manipulate based on events

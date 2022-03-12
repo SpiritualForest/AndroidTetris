@@ -10,10 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidTetris">
         <activity
-            android:name=".TetrominoColorsActivity"
+            android:name=".activity.settings.TetrominoColorsActivity"
             android:exported="false" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activity.settings.SettingsActivity"
             android:exported="false" />
         <activity
             android:name=".activity.tetris.TetrisActivity"
