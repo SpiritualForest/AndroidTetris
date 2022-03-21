@@ -14,16 +14,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Spinner
+import android.widget.Toast
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
+import com.androidtetris.ColorHandler // Defined in SettingsHandler.kt
 import com.androidtetris.R
 import com.androidtetris.TetrominoShape
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.game.TetrominoCode
 import android.util.Log
 
-class TetrominoColorsActivity : AppCompatActivity() {
+class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
+    
+    private lateinit var colorHandler: ColorHandler
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tetromino_colors)
+
+        colorHandler = ColorHandler(this)
 
         // Get all the spinners
         val O = SpinnerObject(findViewById(R.id.o_spinner), TetrominoCode.O) // Width 2
@@ -35,33 +44,62 @@ class TetrominoColorsActivity : AppCompatActivity() {
         val Z = SpinnerObject(findViewById(R.id.z_spinner), TetrominoCode.Z)
         val spinnerObjects: List<SpinnerObject> = listOf(O, I, J, L, T, S, Z)
         
-        // Red, green, blue, etc 
-        val colors: List<String> = listOf(
+        // Our selection of colours.
+        // TODO: export this to another file as a constant. This isn't good.
+        val colorHexStrings: List<String> = listOf(
             "#ff0000", "#006400", "#0000ff", 
             "#00bfff", "#800080", "#9400d3",
             "#ff1493", "#f5c71a", "#560319",
         )
 
+        // Now create an adapter for each spinner
         for(spinnerObj in spinnerObjects) {
-            val objects: MutableList<TetrominoData> = mutableListOf()
-            val shape = TetrominoShape[spinnerObj.tCode]!!
-            Log.d("SpinnerObject", spinnerObj.tCode.toString())
-            for(color in colors) {
-                // Add all the colours and shit
-                objects.add(TetrominoData(Color.parseColor(color), shape))
+            // Mark the current activity as responding for the spinner's selection events
+            spinnerObj.spinner.onItemSelectedListener = this
+            val colors: MutableList<Int> = mutableListOf()
+            colorHexStrings.forEach { colors.add(Color.parseColor(it)) }
+            
+            val tetrominoDataObjects: MutableList<TetrominoData> = mutableListOf()
+            val shape = TetrominoShape[spinnerObj.tetrominoCode]!!
+            val color = colorHandler.getColor(spinnerObj.tetrominoCode)
+            // Insert the colour into the first position
+            // FIXME: this is dumb. Find a better way.
+            colors.remove(color)
+            colors.add(0, color)
+            for(col in colors) {
+                tetrominoDataObjects.add(TetrominoData(col, shape, spinnerObj.tetrominoCode))
             }
-            // Now set the adapter
-            spinnerObj.spinner.adapter = ColorAdapter(this, R.layout.color_dropdown, objects)
+            // Set the adapter
+            spinnerObj.spinner.adapter = ColorAdapter(this, R.layout.color_dropdown, tetrominoDataObjects)
         }
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        // Spinner's dropdown menu selection callback.
+        if (view == null) { return }
+        else {
+            // Find our color hex string stored by the view object
+            val colorSelect = view.findViewById<TetrominoColorSelectView>(R.id.colorSelect)
+            // Write the setting
+            val color = colorSelect.color
+            colorHandler.setColor(colorSelect.tetrominoCode, colorSelect.color)
+            // Short duration toast to show the user the selected value
+            // TODO: this need to be a color name, not a random hex string.
+            Toast.makeText(this, "Set color to $color", Toast.LENGTH_SHORT).show()
+        }
+    }            
+
+    override fun onNothingSelected(parent: AdapterView<*>) {
+        println("onNothingSelected() called.")
     }
 }
 
-// This object associated a Spinner with its Tetromino code.
+// This object associates a Spinner with the tetromino we want it to draw as its menu items.
 // We need this to avoid repeating the same few lines of code 7 times.
-data class SpinnerObject(val spinner: Spinner, val tCode: TetrominoCode)
+data class SpinnerObject(val spinner: Spinner, val tetrominoCode: TetrominoCode)
 
 // Contains the data that the spinner itself will use when drawing the dropdown menu.
-data class TetrominoData(val color: Int = Color.BLUE, val shape: List<List<Int>> = listOf())
+data class TetrominoData(val color: Int = Color.RED, val shape: List<List<Int>> = listOf(), val tetrominoCode: TetrominoCode)
 
 // Our adapter
 class ColorAdapter(private val mContext: Context, private val mResource: Int, private val mObjects: List<TetrominoData>) : BaseAdapter() {
@@ -73,6 +111,7 @@ class ColorAdapter(private val mContext: Context, private val mResource: Int, pr
         val colorSelect = inflatedView.findViewById<TetrominoColorSelectView>(R.id.colorSelect)
         colorSelect.color = getItem(position).color
         colorSelect.shape = getItem(position).shape
+        colorSelect.tetrominoCode = getItem(position).tetrominoCode
         return inflatedView
     }
 }
@@ -80,11 +119,14 @@ class ColorAdapter(private val mContext: Context, private val mResource: Int, pr
 class TetrominoColorSelectView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     /* This is the actual view that gets displayed as a dropdown menu item in our respective spinner.
      * It's used in res/layout/color_dropdown.xml, which is what we pass as the resource to ColorAdapter.
-     * The layout inflater in ColorAdapter will inflate it and set the coordinates, color, and tWidth. */
-    var shape: List<List<Int>> = listOf()
+     * The layout inflater in ColorAdapter will inflate it and set the shape and color. */
+    var shape: List<List<Int>> = listOf(listOf(1))
     var color = Color.RED // Default
+    var tetrominoCode = TetrominoCode.I // Default
     private val squareSize = 15 // dp
     private val paint = Paint()
+    private val colorHandler = ColorHandler(context)
+    private val tetrominoShapeConverter = TetrominoShapeConverter(shape, this, squareSize)
 
     private fun getCenterVertical(): Int {
         val center = ((height / resources.displayMetrics.density) / 2) - squareSize
@@ -96,12 +138,13 @@ class TetrominoColorSelectView(context: Context, attrs: AttributeSet?) : View(co
     }
 
     override fun onDraw(canvas: Canvas) {
-        // Draw the background
+        // Draw the background of the canvas
         paint.color = Color.LTGRAY
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
-        // Now draw the tetromino
-        val pixelPoints = TetrominoShapeConverter(shape, this, squareSize).getCoordinates(getCenterVertical())
+        // Set the shape and color to draw
+        tetrominoShapeConverter.shape = shape
         paint.color = color
+        val pixelPoints = tetrominoShapeConverter.getCoordinates(getCenterVertical())
         for(p in pixelPoints) {
             canvas.drawRect(p.x+1, p.y+1, p.x+dpToPx(squareSize.toFloat())-1, p.y+dpToPx(squareSize.toFloat())-1, paint)
         }

@@ -4,29 +4,22 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.View
 import android.os.Handler
 import android.os.Looper
+import com.androidtetris.ColorHandler
 import com.androidtetris.game.*
 import com.androidtetris.game.event.*
 
+
 // TODO: "explosions" animation with "flying pixels" on collision events
 
-class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
+class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     /* This View displays the actual gameplay. I should probably change its name. */
 
     /* Properties */
-    // TODO: this needs to be customizable
-    private val tetrominoColors: HashMap<TetrominoCode, Int> = hashMapOf(
-        TetrominoCode.I to Color.CYAN,
-        TetrominoCode.O to Color.YELLOW,
-        TetrominoCode.T to Color.BLACK,
-        TetrominoCode.J to Color.BLUE,
-        TetrominoCode.L to Color.MAGENTA,
-        TetrominoCode.S to Color.GREEN,
-        TetrominoCode.Z to Color.RED,
-    )
     private val paint = Paint()
     private var canvasBackgroundColor : Int = Color.LTGRAY
     // Grid defaults to 10x22 squares
@@ -40,6 +33,9 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
     private var collisionPixels: MutableList<Point> = mutableListOf()
     private var collisionOccurred = false // If set to true, the next call to onDraw() will draw the collisionPixels on the canvas.
     private val mHandler = Handler(Looper.getMainLooper())
+    private val colorHandler = ColorHandler(context)
+    private val tetrominoColors: Map<TetrominoCode, Int> = colorHandler.getAllColors()
+    
 
     private fun dpToPx(dp: Float): Float {
         val dpi = resources.displayMetrics.densityDpi
@@ -67,11 +63,11 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         gridHeight = height
     }
 
-    private fun getSizeDp(): Array<Float> {
+    private fun getSizeDp(): PointF {
         val density = resources.displayMetrics.density
         val dpHeight = height / density
         val dpWidth = width / density
-        return arrayOf(dpWidth, dpHeight)
+        return PointF(dpWidth, dpHeight)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -95,19 +91,13 @@ class GridCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         canvas.drawRect(1f, 1f, width.toFloat()-1, height.toFloat()-1, paint)
 
         // Draw the grid
-        val dpWidth = getSizeDp()[0]
+        val dpWidth = getSizeDp().x
         val squareSizeDp = dpWidth / gridWidth
         for(y in this.grid.keys) {
             for(x in this.grid[y]?.keys!!) {
-                val color = tetrominoColors[this.grid[y]!![x]]
-                drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, color!!, canvas)
+                val color: Int = tetrominoColors[this.grid[y]!![x]]!!
+                drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, color, canvas)
             }
-        }
-        // In case of a collision event, draw the collision pixels.
-        if (!collisionOccurred) { return }
-        paint.color = tetrominoColors[currentTetromino]!!
-        for(point in collisionPixels) {
-            canvas.drawPoint(point.x.toFloat(), point.y.toFloat(), paint)
         }
     }
 

@@ -23,12 +23,12 @@ val TetrominoShape = mapOf(
     TetrominoCode.T to listOf(listOf(1, 1, 1), listOf(0, 1, 0))
 )
 
-class TetrominoShapeConverter(var shape: List<List<Int>>, var view: View, var squareSize: Int = 15) {
+class TetrominoShapeConverter(var shape: List<List<Int>>, private var view: View, private var squareSize: Int = 15) {
     /* Parameters:
-     * coordinates: a shape to draw, like the ones declared in TetrominoShape
+     * shape: a shape to draw, like the ones declared in TetrominoShape
      * view: the View object that wants to convert the shape into pixels.
      * We need the view because we have to know its size to perform the required calculations.
-     * squareSize: the size of each square, in dp
+     * squareSize: the size of each square, in dp. Defaults to 15
      */
     private var tetrominoWidth = 0
 

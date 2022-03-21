@@ -9,16 +9,21 @@ import android.util.AttributeSet
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.TetrominoShape // Default tetromino coordinates
+import com.androidtetris.ColorHandler // Defined in SettingsHandler.kt
 
 class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     
     // This class just draws all the upcoming tetrominoes on its own canvas.
-    // Unlike the GridCanvas, this one is based on dips,
-    // rather than converting an internal representation of the whole grid into dps.
+    // Unlike the GridCanvas, this one is based on converting the shape of the tetrominoes
+    // into PointF(x, y) pixel positions on which to draw squares,
+    // rather than converting an internal representation of an entire grid into dps and then into pixels.
 
     var upcoming: MutableList<TetrominoCode> = mutableListOf()
     private val paint = Paint()
-    private val squareSize = 15 // In dps
+    private val squareSizeDp = 15 // dp
+    private val squareSizePx = dpToPx(squareSizeDp.toFloat()) // pixels
+    private val colorHandler = ColorHandler(context)
+    private val tetrominoShapeConverter = TetrominoShapeConverter(listOf(listOf(1, 1, 1)), this, squareSizeDp)
 
     private fun dpToPx(dp: Float): Float {
         val dpi = resources.displayMetrics.densityDpi
@@ -33,7 +38,6 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
             canvas.drawPoint(0f, y.toFloat(), paint)
             canvas.drawPoint(width.toFloat()-1, y.toFloat(), paint)
         }
-        val x = resources
         // Now top and bottom
         for(x in 0 until width) {
             canvas.drawPoint(x.toFloat(), 0f, paint)
@@ -42,15 +46,16 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
 
         // Draw all the tetrominoes
         var spacing = 0 // For vertical spacing between the tetrominoes
-        for(t in upcoming) {
+        for(tetromino in upcoming) {
             // NOTE: the coordinates are in pixels, not dp
-            val shape = TetrominoShape[t]!!
-            val coordinates = TetrominoShapeConverter(shape, this, squareSize).getCoordinates(spacing)
-            paint.color = Color.RED // FIXME: this should come from settings per tetromino
+            val shape = TetrominoShape[tetromino]!!
+            paint.color = colorHandler.getColor(tetromino) // Red if setting not found
+            tetrominoShapeConverter.shape = shape
+            val coordinates = tetrominoShapeConverter.getCoordinates(spacing)
             for(p in coordinates) {
-                canvas.drawRect(p.x+1, p.y+1, p.x+dpToPx(squareSize.toFloat())-1, p.y+dpToPx(squareSize.toFloat())-1, paint)
+                canvas.drawRect(p.x+1, p.y+1, p.x+squareSizePx-1, p.y+squareSizePx-1, paint)
             }
-            spacing += squareSize*3
+            spacing += squareSizeDp*3
         }
     }
 }
