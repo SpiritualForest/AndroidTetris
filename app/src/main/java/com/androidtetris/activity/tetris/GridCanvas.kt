@@ -35,7 +35,8 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private val mHandler = Handler(Looper.getMainLooper())
     private val colorHandler = ColorHandler(context)
     private val tetrominoColors: Map<TetrominoCode, Int> = colorHandler.getAllColors()
-    
+    private var ghostEnabled = false // Is the ghost piece feature enabled?
+    private var ghostCoordinates: List<Point> = listOf()
 
     private fun dpToPx(dp: Float): Float {
         val dpi = resources.displayMetrics.densityDpi
@@ -99,6 +100,19 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
                 drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, color, canvas)
             }
         }
+        // Draw the ghost
+        // First, set the colour
+        if (!ghostEnabled) { return }
+        val colorInt = colorHandler.getColor(currentTetromino)
+        val red = (colorInt and 0xff) shl 16
+        val green = (colorInt and 0x00ff) shl 8
+        val blue = colorInt and 0x0000ff
+        val argb = Color.argb(50, red, green, blue)
+        for(point in ghostCoordinates) {
+            val x = point.x // dps
+            val y = point.y // dps
+            drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, argb, canvas)
+        }   
     }
 
     private fun drawSquare(x: Float, y: Float, size: Float, color: Int, canvas: Canvas) {
@@ -112,6 +126,10 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         currentTetromino = tetrominoCode
         // Remove the old ones and add the new ones
         removeCoordinates(old)
+        //addCoordinates(new, tetrominoCode)
+        if (ghostEnabled) {
+            drawGhost()
+        }
         addCoordinates(new, tetrominoCode)
         this.invalidate()
     }
@@ -190,5 +208,44 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             decreasingCenterx--
             delay += 50
         }
+    }
+
+    fun setGhostEnabled(enabled: Boolean) {
+        // If true, draw the ghost piece on each movement
+        ghostEnabled = enabled
+    }
+
+    private fun drawGhost() {
+        /* Draws the ghost piece.
+         * Note that we do NOT call invalidate() here, because this function
+         * is called by the drawTetromino() function, only if the ghost feature is enabled.
+         * drawTetromino() already calls invalidate(), so we don't need to call it here. */
+
+        // Create copies of the coordinate points and move their y axis downwards by 1
+        // If we didn't do this, a collision would occur with the tetromino's coordinates in the grid,
+        // and prevent our ghost from moving downards until a "real" collision occurs.
+
+        // FIXME: this approach is bad. Creating TWO sets of copies?!
+        val coordinatesCopy: MutableList<Point> = mutableListOf()
+        currentTetrominoCoordinates.forEach { coordinatesCopy.add(it.copyOf()) }
+        while(!isDownwardsCollision(coordinatesCopy)) {
+            // Move the copied coordinates downwards until a collision occurs
+            val temp: MutableList<Point> = mutableListOf()
+            coordinatesCopy.forEach { temp.add(it.copyOf()) }
+            ghostCoordinates = temp.toList()
+            for(point in coordinatesCopy) {
+                point.y += 1
+            }
+        }
+    }
+
+    private fun isDownwardsCollision(coordinates: List<Point>): Boolean {
+        for(point in coordinates) {
+            if (point.y > gridHeight-1) { return true }
+            if (this.grid.containsKey(point.y) && this.grid[point.y]!!.containsKey(point.x)) {
+                return true
+            }
+        }
+        return false
     }
 }

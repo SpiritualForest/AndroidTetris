@@ -142,21 +142,15 @@
         app:layout_constraintTop_toBottomOf="@+id/txt_score"
         tools:visibility="visible" />
 
-    <Button
-        android:id="@+id/btn_pause"
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_ghost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
-        android:layout_marginTop="237dp"
-        android:layout_marginEnd="134dp"
-        android:layout_marginBottom="203dp"
-        android:background="@color/material_on_primary_emphasis_medium"
-        android:text="@string/btn_pause"
-        android:textAllCaps="false"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn_rotate"
+        android:layout_marginTop="202dp"
+        android:checkable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_level"
-        app:rippleColor="@android:color/darker_gray" />
+        tools:text="Ghost" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

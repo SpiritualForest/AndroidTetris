@@ -22,7 +22,6 @@ import com.androidtetris.R
 import com.androidtetris.TetrominoShape
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.game.TetrominoCode
-import android.util.Log
 
 class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
     
@@ -125,7 +124,6 @@ class TetrominoColorSelectView(context: Context, attrs: AttributeSet?) : View(co
     var tetrominoCode = TetrominoCode.I // Default
     private val squareSize = 15 // dp
     private val paint = Paint()
-    private val colorHandler = ColorHandler(context)
     private val tetrominoShapeConverter = TetrominoShapeConverter(shape, this, squareSize)
 
     private fun getCenterVertical(): Int {

@@ -3,7 +3,6 @@ package com.androidtetris
 import android.content.SharedPreferences
 import android.content.Context
 import android.graphics.Color
-import com.androidtetris.R
 import com.androidtetris.game.TetrominoCode
 
 open class SettingsHandler(mContext: Context) {
@@ -47,7 +46,7 @@ open class SettingsHandler(mContext: Context) {
     }
 }
 
-class ColorHandler(private val mContext: Context) : SettingsHandler(mContext) {
+class ColorHandler(mContext: Context) : SettingsHandler(mContext) {
     // Specialized class to set and get only colour values
     
     fun setColor(tetrominoCode: TetrominoCode, hexString: String) {

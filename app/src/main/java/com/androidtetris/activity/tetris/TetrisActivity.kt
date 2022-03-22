@@ -15,6 +15,7 @@ import android.os.Looper
 import android.app.Activity
 import com.androidtetris.activity.tetris.NextTetrominoCanvas
 import com.androidtetris.R
+import com.google.android.material.chip.Chip
 
 // TODO: handle activity OnPause/OnResume
 
@@ -37,6 +38,7 @@ class TetrisActivity : AppCompatActivity() {
         val rotate = findViewById<CircleButton>(R.id.btn_rotate)
         val left = findViewById<CircleButton>(R.id.btn_left)
         val right = findViewById<CircleButton>(R.id.btn_right)
+        val ghostChip = findViewById<Chip>(R.id.chip_ghost)
 
         // Our handler for the touch event runnables
         mHandler = Handler(Looper.getMainLooper())
@@ -47,6 +49,13 @@ class TetrisActivity : AppCompatActivity() {
         right.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.move(Direction.Right) })))
         // Rotate gets 60ms delay instead of the default 50ms
         rotate.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.rotate() }, 60L)))
+
+        // Now our ghost piece chip
+        ghostChip.setOnCheckedChangeListener { _, isChecked ->
+            run {
+                mTetris.setGhostEnabled(isChecked)
+            }
+        }
     }
 
     private fun getOnTouchListener(r: TetrisRunnable): View.OnTouchListener {
@@ -164,5 +173,9 @@ class Tetris(activity: Activity) {
 
     fun gameStart() {
         println("Game starts")
+    }
+
+    fun setGhostEnabled(enabled: Boolean) {
+        gameCanvas.setGhostEnabled(enabled)
     }
 }
