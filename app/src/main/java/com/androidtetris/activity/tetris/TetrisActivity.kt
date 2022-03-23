@@ -176,6 +176,6 @@ class Tetris(activity: Activity) {
     }
 
     fun setGhostEnabled(enabled: Boolean) {
-        gameCanvas.setGhostEnabled(enabled)
+        gameCanvas.ghostEnabled = enabled
     }
 }

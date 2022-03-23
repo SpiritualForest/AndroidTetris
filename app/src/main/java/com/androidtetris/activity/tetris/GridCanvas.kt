@@ -35,7 +35,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private val mHandler = Handler(Looper.getMainLooper())
     private val colorHandler = ColorHandler(context)
     private val tetrominoColors: Map<TetrominoCode, Int> = colorHandler.getAllColors()
-    private var ghostEnabled = false // Is the ghost piece feature enabled?
+    var ghostEnabled = false // Is the ghost piece feature enabled?
     private var ghostCoordinates: List<Point> = listOf()
 
     private fun dpToPx(dp: Float): Float {
@@ -124,12 +124,15 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     fun drawTetromino(old: List<Point>, new: List<Point>, tetrominoCode: TetrominoCode) {
         currentTetrominoCoordinates = new
         currentTetromino = tetrominoCode
-        // Remove the old ones and add the new ones
+        // Remove the old coordinates and add the new ones
         removeCoordinates(old)
-        //addCoordinates(new, tetrominoCode)
         if (ghostEnabled) {
             drawGhost()
         }
+        // If we add the new coordinates to the grid before drawing the ghost piece,
+        // its collision detection mechanism will detect the new coordinates as a colliding object,
+        // and not draw the ghost piece. This is why we must call addCoordinates()
+        // AFTER drawing the ghost.
         addCoordinates(new, tetrominoCode)
         this.invalidate()
     }
@@ -210,29 +213,23 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         }
     }
 
-    fun setGhostEnabled(enabled: Boolean) {
-        // If true, draw the ghost piece on each movement
-        ghostEnabled = enabled
-    }
-
     private fun drawGhost() {
         /* Draws the ghost piece.
          * Note that we do NOT call invalidate() here, because this function
          * is called by the drawTetromino() function, only if the ghost feature is enabled.
          * drawTetromino() already calls invalidate(), so we don't need to call it here. */
 
-        // Create copies of the coordinate points and move their y axis downwards by 1
-        // If we didn't do this, a collision would occur with the tetromino's coordinates in the grid,
-        // and prevent our ghost from moving downards until a "real" collision occurs.
-
-        // FIXME: this approach is bad. Creating TWO sets of copies?!
+        // In the collision detection function, we check if all the points y+1
+        // collides with something. If there are no collisions, we increase the y axis
+        // in the actual Point object itself and assign the coordinates list to our
+        // ghostCoordinates property.
+        // This way we don't need to repeatedly make copies of everything.
+        // We only copy the tetromino coordinates' point objects once, and operate on those.
         val coordinatesCopy: MutableList<Point> = mutableListOf()
-        currentTetrominoCoordinates.forEach { coordinatesCopy.add(it.copyOf()) }
+        currentTetrominoCoordinates.forEach { coordinatesCopy.add(Point(it.x, it.y)) }
         while(!isDownwardsCollision(coordinatesCopy)) {
             // Move the copied coordinates downwards until a collision occurs
-            val temp: MutableList<Point> = mutableListOf()
-            coordinatesCopy.forEach { temp.add(it.copyOf()) }
-            ghostCoordinates = temp.toList()
+            ghostCoordinates = coordinatesCopy.toList()
             for(point in coordinatesCopy) {
                 point.y += 1
             }
@@ -240,9 +237,12 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     private fun isDownwardsCollision(coordinates: List<Point>): Boolean {
+        // Checks if there's a collision for every y+1, x of the supplied coordinates, in the grid.
+        // This function is used solely for the ghost piece's hard-dropping.
         for(point in coordinates) {
-            if (point.y > gridHeight-1) { return true }
-            if (this.grid.containsKey(point.y) && this.grid[point.y]!!.containsKey(point.x)) {
+            val y = point.y+1
+            if (y > gridHeight-1) { return true }
+            if (this.grid.containsKey(y) && this.grid[y]!!.containsKey(point.x)) {
                 return true
             }
         }
