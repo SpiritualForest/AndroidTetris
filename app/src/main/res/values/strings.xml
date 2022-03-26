@@ -10,5 +10,6 @@
     <string name="txt_score">Score: 0</string>
     <string name="txt_level">Level: 1</string>
     <string name="btn_pause">Pause</string>
+    <string name="chip_ghost">Ghost</string>
     <string name="preference_file">com.androidtetris.settings_file</string>
 </resources>

@@ -10,11 +10,9 @@ import android.view.View
 import android.os.Handler
 import android.os.Looper
 import com.androidtetris.ColorHandler
+import com.androidtetris.SettingsHandler
 import com.androidtetris.game.*
 import com.androidtetris.game.event.*
-
-
-// TODO: "explosions" animation with "flying pixels" on collision events
 
 class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     /* This View displays the actual gameplay. I should probably change its name. */
@@ -30,12 +28,10 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     /* In practice, drawGrid() will never be called before drawTetromino().
      * This is why it's safe to have a default TetrominoCode, making the object non-nullable. */
     private var currentTetromino = TetrominoCode.I
-    private var collisionPixels: MutableList<Point> = mutableListOf()
-    private var collisionOccurred = false // If set to true, the next call to onDraw() will draw the collisionPixels on the canvas.
     private val mHandler = Handler(Looper.getMainLooper())
     private val colorHandler = ColorHandler(context)
     private val tetrominoColors: Map<TetrominoCode, Int> = colorHandler.getAllColors()
-    var ghostEnabled = false // Is the ghost piece feature enabled?
+    var ghostEnabled = SettingsHandler(context).getBoolean("ghost_enabled") // Ghost piece feature enabled?
     private var ghostCoordinates: List<Point> = listOf()
 
     private fun dpToPx(dp: Float): Float {
@@ -90,29 +86,34 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // Now fill the rest with the background colour
         paint.color = canvasBackgroundColor
         canvas.drawRect(1f, 1f, width.toFloat()-1, height.toFloat()-1, paint)
-
-        // Draw the grid
+        
         val dpWidth = getSizeDp().x
         val squareSizeDp = dpWidth / gridWidth
+        
+        // Draw the ghost first, because if we draw the tetromino and then the ghost,
+        // it creates this weird coloured squares instad of the tetromino's real colour,
+        // once it drops into the position that the ghost occupies. I don't know why this happens, yet.
+        // The colour comes from the tetromino's own colour, but we reduce the alpha from 255 to 50.
+        if (ghostEnabled) {
+            val colorInt = colorHandler.getColor(currentTetromino)
+            val red = (colorInt and 0xff) shl 16
+            val green = (colorInt and 0x00ff) shl 8
+            val blue = colorInt and 0x0000ff
+            val argb = Color.argb(50, red, green, blue)
+            for(point in ghostCoordinates) {
+                val x = point.x // dps
+                val y = point.y // dps
+                drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, argb, canvas)
+            }
+        }
+
+        // Draw the grid
         for(y in this.grid.keys) {
             for(x in this.grid[y]?.keys!!) {
                 val color: Int = tetrominoColors[this.grid[y]!![x]]!!
                 drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, color, canvas)
             }
         }
-        // Draw the ghost
-        // First, set the colour
-        if (!ghostEnabled) { return }
-        val colorInt = colorHandler.getColor(currentTetromino)
-        val red = (colorInt and 0xff) shl 16
-        val green = (colorInt and 0x00ff) shl 8
-        val blue = colorInt and 0x0000ff
-        val argb = Color.argb(50, red, green, blue)
-        for(point in ghostCoordinates) {
-            val x = point.x // dps
-            val y = point.y // dps
-            drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, argb, canvas)
-        }   
     }
 
     private fun drawSquare(x: Float, y: Float, size: Float, color: Int, canvas: Canvas) {
@@ -227,7 +228,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // We only copy the tetromino coordinates' point objects once, and operate on those.
         val coordinatesCopy: MutableList<Point> = mutableListOf()
         currentTetrominoCoordinates.forEach { coordinatesCopy.add(Point(it.x, it.y)) }
-        while(!isDownwardsCollision(coordinatesCopy)) {
+        while(!isGhostCollision(coordinatesCopy)) {
             // Move the copied coordinates downwards until a collision occurs
             ghostCoordinates = coordinatesCopy.toList()
             for(point in coordinatesCopy) {
@@ -236,7 +237,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         }
     }
 
-    private fun isDownwardsCollision(coordinates: List<Point>): Boolean {
+    private fun isGhostCollision(coordinates: List<Point>): Boolean {
         // Checks if there's a collision for every y+1, x of the supplied coordinates, in the grid.
         // This function is used solely for the ghost piece's hard-dropping.
         for(point in coordinates) {

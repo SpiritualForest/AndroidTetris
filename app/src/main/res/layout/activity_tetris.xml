@@ -149,6 +149,8 @@
         android:layout_marginStart="18dp"
         android:layout_marginTop="202dp"
         android:checkable="true"
+        android:text="@string/chip_ghost"
+        android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_level"
         tools:text="Ghost" />

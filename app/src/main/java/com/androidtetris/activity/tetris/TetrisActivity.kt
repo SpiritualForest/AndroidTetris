@@ -13,9 +13,9 @@ import com.androidtetris.game.event.*
 import android.os.Handler
 import android.os.Looper
 import android.app.Activity
-import com.androidtetris.activity.tetris.NextTetrominoCanvas
 import com.androidtetris.R
 import com.google.android.material.chip.Chip
+import com.androidtetris.SettingsHandler
 
 // TODO: handle activity OnPause/OnResume
 
@@ -23,6 +23,7 @@ class TetrisActivity : AppCompatActivity() {
     
     private lateinit var mTetris: Tetris
     private lateinit var mHandler: Handler
+    private lateinit var mSettingsHandler: SettingsHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +33,7 @@ class TetrisActivity : AppCompatActivity() {
         // This way we can find the UI elements we want to manipulate from the Tetris object itself,
         // and don't have to find them here and then pass them.
         mTetris = Tetris(this)
+        mSettingsHandler = SettingsHandler(this)
 
         // Movement and rotation buttons
         val down = findViewById<CircleButton>(R.id.btn_down)
@@ -39,6 +41,8 @@ class TetrisActivity : AppCompatActivity() {
         val left = findViewById<CircleButton>(R.id.btn_left)
         val right = findViewById<CircleButton>(R.id.btn_right)
         val ghostChip = findViewById<Chip>(R.id.chip_ghost)
+        // Check or uncheck the ghost chip based on if the feature is enabled in settings
+        ghostChip.isChecked = mSettingsHandler.getBoolean("ghost_enabled")
 
         // Our handler for the touch event runnables
         mHandler = Handler(Looper.getMainLooper())
@@ -54,6 +58,7 @@ class TetrisActivity : AppCompatActivity() {
         ghostChip.setOnCheckedChangeListener { _, isChecked ->
             run {
                 mTetris.setGhostEnabled(isChecked)
+                mSettingsHandler.setBoolean("ghost_enabled", isChecked)
             }
         }
     }
@@ -101,11 +106,11 @@ class Tetris(activity: Activity) {
     // This classes uses the API to interact with the tetris game engine.
 
     // The UI elements we want to manipulate based on events
-    private val gameCanvas: GridCanvas = activity.findViewById<GridCanvas>(R.id.gridCanvas)
-    private val nextTetrominoCanvas: NextTetrominoCanvas = activity.findViewById<NextTetrominoCanvas>(R.id.nextTetrominoCanvas)
-    private val linesText: TextView = activity.findViewById<TextView>(R.id.txt_lines)
-    private val levelText: TextView = activity.findViewById<TextView>(R.id.txt_level)
-    private val scoreText: TextView = activity.findViewById<TextView>(R.id.txt_score)
+    private val gameCanvas: GridCanvas = activity.findViewById(R.id.gridCanvas)
+    private val nextTetrominoCanvas: NextTetrominoCanvas = activity.findViewById(R.id.nextTetrominoCanvas)
+    private val linesText: TextView = activity.findViewById(R.id.txt_lines)
+    private val levelText: TextView = activity.findViewById(R.id.txt_level)
+    private val scoreText: TextView = activity.findViewById(R.id.txt_score)
     
     // Required for scoring calculation when lines are completed
     private var score = 0
