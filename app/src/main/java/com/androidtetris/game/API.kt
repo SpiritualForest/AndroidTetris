@@ -45,4 +45,12 @@ class API {
     fun getNextTetromino(n: Int = 1): List<TetrominoCode> {
         return gameObj.getNextTetromino(n)
     }
+
+    fun pauseGame() {
+        gameObj.pauseGame()
+    }
+
+    fun unpauseGame() {
+        gameObj.unpauseGame()
+    }
 }

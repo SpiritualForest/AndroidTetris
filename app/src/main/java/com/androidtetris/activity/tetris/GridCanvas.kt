@@ -33,6 +33,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private val tetrominoColors: Map<TetrominoCode, Int> = colorHandler.getAllColors()
     var ghostEnabled = SettingsHandler(context).getBoolean("ghost_enabled") // Ghost piece feature enabled?
     private var ghostCoordinates: List<Point> = listOf()
+    private var gamePaused = false // If true, will draw "PAUSE" on the canvas when onDraw() is called
 
     private fun dpToPx(dp: Float): Float {
         val dpi = resources.displayMetrics.densityDpi
@@ -87,6 +88,18 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         paint.color = canvasBackgroundColor
         canvas.drawRect(1f, 1f, width.toFloat()-1, height.toFloat()-1, paint)
         
+        if (gamePaused) {
+            // onDraw() called when the game is paused.
+            // Draw "PAUSE" at the center of the canvas.
+            val text = "PAUSE"
+            val textSize = 50f
+            val x = (width / 2) - ((text.length / 2) * textSize) + (text.length / 2).toFloat()
+            val y = (height / 2) - (textSize / 2).toFloat()
+            paint.color = Color.BLACK
+            paint.textSize = textSize
+            canvas.drawText("PAUSE", x, y, paint)
+            return
+        }
         val dpWidth = getSizeDp().x
         val squareSizeDp = dpWidth / gridWidth
         
@@ -248,5 +261,17 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             }
         }
         return false
+    }
+
+    fun setGamePaused(paused: Boolean) {
+        // The call to invalidate() will either clear the canvas
+        // or draw the grid onto it, depending on whether running is true or false
+        // true == draw, false == clear
+        gamePaused = paused
+        invalidate()
+    }
+
+    fun clearGrid() { 
+        this.grid.clear()
     }
 }

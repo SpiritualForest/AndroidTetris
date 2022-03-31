@@ -13,6 +13,7 @@ import com.androidtetris.game.event.*
 import android.os.Handler
 import android.os.Looper
 import android.app.Activity
+import android.widget.Button
 import com.androidtetris.R
 import com.google.android.material.chip.Chip
 import com.androidtetris.SettingsHandler
@@ -41,6 +42,28 @@ class TetrisActivity : AppCompatActivity() {
         val left = findViewById<CircleButton>(R.id.btn_left)
         val right = findViewById<CircleButton>(R.id.btn_right)
         val ghostChip = findViewById<Chip>(R.id.chip_ghost)
+        val btnPause = findViewById<Button>(R.id.btn_pause)
+        val btnRestart = findViewById<Button>(R.id.btn_restart)
+
+        btnRestart.setOnClickListener {
+            mTetris.restartGame()
+        }
+
+        btnPause.setOnClickListener {
+            if (!mTetris.isGamePaused) {
+                // Currently unpaused, let's pause it.
+                mTetris.setGamePaused(true)
+                mTetris.api.pauseGame()
+                // Set button text to "Unpause"
+                btnPause.setText(R.string.btn_unpause)
+            }
+            else {
+                // Currently paused
+                mTetris.setGamePaused(false)
+                mTetris.api.unpauseGame()
+                btnPause.setText(R.string.btn_pause)
+            }
+        }
         // Check or uncheck the ghost chip based on if the feature is enabled in settings
         ghostChip.isChecked = mSettingsHandler.getBoolean("ghost_enabled")
 
@@ -102,8 +125,10 @@ class TetrisRunnable(handler: Handler, lambda: () -> Unit, val delay: Long = 50L
     }
 }
 
-class Tetris(activity: Activity) {
+class Tetris(private var activity: Activity) {
     // This classes uses the API to interact with the tetris game engine.
+    var isGamePaused = false
+        private set
 
     // The UI elements we want to manipulate based on events
     private val gameCanvas: GridCanvas = activity.findViewById(R.id.gridCanvas)
@@ -121,11 +146,11 @@ class Tetris(activity: Activity) {
     init {
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
-        api.addCallback(Event.Collision, ::collision)
+        api.addCallback(Event.Collision, ::collisionOccurred)
         api.addCallback(Event.LinesCompleted, ::linesCompleted)
         api.addCallback(Event.TetrominoSpawned, ::tetrominoSpawned)
-        api.addCallback(Event.GameEnd, ::gameEnd)
-        api.addCallback(Event.GameStart, ::gameStart)
+        api.addCallback(Event.GameEnd, ::gameEnded)
+        api.addCallback(Event.GameStart, ::gameStarted)
         api.startGame()
     }
 
@@ -141,7 +166,7 @@ class Tetris(activity: Activity) {
         gameCanvas.drawGrid(args.grid)
     }
 
-    fun collision(args: CollisionEventArgs) {
+    fun collisionOccurred(args: CollisionEventArgs) {
         // Called when a collision occurs
         // Args: Tetromino coordinates, direction of movement
         println("Collision")
@@ -172,15 +197,40 @@ class Tetris(activity: Activity) {
         gameCanvas.drawTetromino(coordinates, coordinates, args.tetromino)
     }        
 
-    fun gameEnd() {
+    fun gameEnded() {
         println("Game ends")
     }
-
-    fun gameStart() {
+    
+    fun gameStarted() {
         println("Game starts")
     }
 
     fun setGhostEnabled(enabled: Boolean) {
         gameCanvas.ghostEnabled = enabled
+    }
+
+    fun setGamePaused(paused: Boolean) {
+        // Tell the GridCanvas that the game isn't running, so it should not draw anything.
+        isGamePaused = paused
+        gameCanvas.setGamePaused(paused)
+    }
+
+    fun restartGame() {
+        gameCanvas.clearGrid()
+        /* If the game is restarted while paused, the GridCanvas's gamePaused property
+         * will remain set to "true", which will cause it to draw "PAUSED" on the canvas
+         * instead of the new game's grid and moving tetromino. This is why we must
+         * explicitly set it to false here, just in case. */
+        gameCanvas.setGamePaused(false)
+        // Also set the pause button's text back to "Pause"
+        val btnPause = activity.findViewById<Button>(R.id.btn_pause)
+        btnPause.setText("Pause")
+        isGamePaused = false // And this class's property too
+        /* Now reset the lines count, level, and score */
+        linesText.text = "Lines: 0"
+        scoreText.text = "Score: 0"
+        levelText.text = "Level: 1"
+        api.endGame()
+        api.startGame()
     }
 }

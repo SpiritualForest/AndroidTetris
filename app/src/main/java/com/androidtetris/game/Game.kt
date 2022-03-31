@@ -69,6 +69,19 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         eventDispatcher.dispatch(Event.GameEnd)
     }
 
+    internal fun pauseGame() {
+        // Pauses the game
+        gameRunning = false
+        mTimer?.cancel()
+        eventDispatcher.dispatch(Event.GamePause)
+    }
+
+    internal fun unpauseGame() {
+        gameRunning = true
+        startMovementTimer()
+        eventDispatcher.dispatch(Event.GameUnpause)
+    }
+
     private fun getRandomTetromino(): TetrominoCode {
         val codes = TetrominoCode.values()
         val codeIndex = (codes.indices).random()
@@ -134,6 +147,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
 
     internal fun move(direction: Direction) {
         // Move the block on the grid
+        if (!gameRunning) { return }
         val moved = moveCoordinates(direction, currentTetromino.coordinates)
         if (grid.isCollision(moved)) {
             eventDispatcher.dispatch(Event.Collision, CollisionEventArgs(currentTetromino.coordinates, direction))
@@ -171,6 +185,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
 
     internal fun rotate() {
         // Rotate the block
+        if (!gameRunning) { return }
         val rotations = currentTetromino.rotations
         val rotation = rotations[currentTetromino.currentRotation]
         if (grid.isCollision(rotation)) {
