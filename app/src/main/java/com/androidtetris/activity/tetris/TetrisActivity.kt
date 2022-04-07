@@ -145,15 +145,13 @@ class Tetris(private var activity: Activity) {
     private val scoreMultiplication = listOf(40, 100, 300, 1200) // 1 line, 2 line, 3 lines, 4 lines
 
     val api = API()
+    private var invertRotation = false
+    private var gameLevel = 1
+    private var gridSize = Point(10, 22)
+    private var startingHeight = 0
+    
     init {
-        // Load up the settings
-        // FIXME!!! This is bad! This doesn't check for errors! Fix this!
-        val invertRotation = mSettings.getBoolean("invertRotation")
-        val gameLevel = mSettings.getInt("gameLevel")
-        val gridSizeSetting = mSettings.getString("gridSize")
-        val (x, y) = gridSizeSetting!!.split("x")
-        val gridSize = Point(x.toInt(), y.toInt())
-        val startingHeight = mSettings.getInt("startingHeight")
+        loadSettings()
         api.createGame(TetrisOptions(gameLevel, gridSize, invertRotation, startingHeight))
         gameCanvas.setGridSize(gridSize.x, gridSize.y)
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
@@ -164,6 +162,30 @@ class Tetris(private var activity: Activity) {
         api.addCallback(Event.GameEnd, ::gameEnded)
         api.addCallback(Event.GameStart, ::gameStarted)
         api.startGame()
+    }
+
+    private fun loadSettings() {
+        // Loads up the game options saved settings
+        invertRotation = mSettings.getBoolean("invertRotation")
+        gameLevel = mSettings.getInt("gameLevel")
+        if (gameLevel == -1) {
+            // Setting doesn't exist. Set to default of 1
+            gameLevel = 1
+        }
+        val gridSizeSetting = mSettings.getString("gridSize")
+        if (gridSizeSetting == "") {
+            // Not found. Set to default of 10x22
+            gridSize = Point(10, 22)
+        }
+        else {
+            val (x, y) = gridSizeSetting!!.split("x")
+            gridSize = Point(x.toInt(), y.toInt())
+        }
+        startingHeight = mSettings.getInt("startingHeight")
+        if (startingHeight == -1) {
+            // Not found, set to default of 0
+            startingHeight = 0
+        }
     }
 
     fun coordinatesChanged(args: CoordinatesChangedEventArgs) {

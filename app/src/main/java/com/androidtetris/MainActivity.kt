@@ -42,10 +42,8 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         
         // Strings list for the grid size's ArrayAdapter
         val gridSizes: List<String> = listOf(defaultSpinnerSelection, "10x22", "20x44", "25x55", "40x88")
-        val gridSizeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, gridSizes)
-        gridSizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        gridSizeSpinner.adapter = gridSizeAdapter
-        gridSizeSpinner.onItemSelectedListener = this
+        // Set the adapter
+        setAdapter(gridSizeSpinner, gridSizes)
         val gridSizeSetValue = settingsHandler.getString("gridSize")
         if (gridSizeSetValue != "") {
             gridSizeSpinner.setSelection(getSpinnerIndex(gridSizeSpinner, gridSizeSetValue!!))
@@ -53,11 +51,9 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
 
         // Game level
         val gameLevels: MutableList<String> = mutableListOf(defaultSpinnerSelection)
-        for(i in 1 until 19) { gameLevels.add(i.toString()) }
-        val gameLevelAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, gameLevels)
-        gameLevelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        gameLevelSpinner.adapter = gameLevelAdapter
-        gameLevelSpinner.onItemSelectedListener = this
+        for(i in 1 until 20) { gameLevels.add(i.toString()) }
+        // Set the adapter
+        setAdapter(gameLevelSpinner, gameLevels)
         // NOTE: string and int mix-up here, beware!
         val gameLevelSetValue: Int = settingsHandler.getInt("gameLevel")
         if (gameLevelSetValue != -1) {
@@ -67,16 +63,21 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
 
         // Starting height
         val startingHeights: MutableList<String> = mutableListOf(defaultSpinnerSelection)
-        for(i in 0 until 11) { startingHeights.add(i.toString()) }
-        val startingHeightAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, startingHeights)
-        startingHeightAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        startingHeightSpinner.adapter = startingHeightAdapter
-        startingHeightSpinner.onItemSelectedListener = this
+        for(i in 0 until 8) { startingHeights.add(i.toString()) }
+        // Set the adapter for this spinner
+        setAdapter(startingHeightSpinner, startingHeights)
         val startingHeightSetValue = settingsHandler.getInt("startingHeight")
         if (startingHeightSetValue != -1) {
             startingHeightSpinner.setSelection(getSpinnerIndex(startingHeightSpinner, startingHeightSetValue.toString()))
         }
         // Colours stuff here later
+    }
+
+    private fun setAdapter(spinner: Spinner, objects: List<String>) {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, objects)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+        spinner.onItemSelectedListener = this
     }
 
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
