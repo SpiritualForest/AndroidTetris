@@ -31,7 +31,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private val mHandler = Handler(Looper.getMainLooper())
     private val colorHandler = ColorHandler(context)
     private val tetrominoColors: Map<TetrominoCode, Int> = colorHandler.getAllColors()
-    var ghostEnabled = SettingsHandler(context).getBoolean("ghost_enabled") // Ghost piece feature enabled?
+    var ghostEnabled: Boolean = SettingsHandler(context).getBoolean("ghost_enabled") // Ghost piece feature enabled?
     private var ghostCoordinates: List<Point> = listOf()
     private var gamePaused = false // If true, will draw "PAUSE" on the canvas when onDraw() is called
 
@@ -93,8 +93,8 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             // Draw "PAUSE" at the center of the canvas.
             val text = "PAUSE"
             val textSize = 50f
-            val x = (width / 2) - ((text.length / 2) * textSize) + (text.length / 2).toFloat()
-            val y = (height / 2) - (textSize / 2).toFloat()
+            val x = (width / 2) - ((text.length / 2) * textSize) + (text.length / 2)
+            val y = (height / 2) - (textSize / 2)
             paint.color = Color.BLACK
             paint.textSize = textSize
             canvas.drawText("PAUSE", x, y, paint)

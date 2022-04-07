@@ -17,6 +17,8 @@ import android.widget.Button
 import com.androidtetris.R
 import com.google.android.material.chip.Chip
 import com.androidtetris.SettingsHandler
+import com.androidtetris.game.Point
+import com.androidtetris.game.TetrisOptions
 
 // TODO: handle activity OnPause/OnResume
 
@@ -24,7 +26,7 @@ class TetrisActivity : AppCompatActivity() {
     
     private lateinit var mTetris: Tetris
     private lateinit var mHandler: Handler
-    private lateinit var mSettingsHandler: SettingsHandler
+    lateinit var mSettingsHandler: SettingsHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,8 +35,8 @@ class TetrisActivity : AppCompatActivity() {
         // Create a new Tetris object and pass the activity.
         // This way we can find the UI elements we want to manipulate from the Tetris object itself,
         // and don't have to find them here and then pass them.
-        mTetris = Tetris(this)
         mSettingsHandler = SettingsHandler(this)
+        mTetris = Tetris(this)
 
         // Movement and rotation buttons
         val down = findViewById<CircleButton>(R.id.btn_down)
@@ -110,9 +112,8 @@ class TetrisActivity : AppCompatActivity() {
     }
 }
 
-class TetrisRunnable(handler: Handler, lambda: () -> Unit, val delay: Long = 50L) : Runnable {
+class TetrisRunnable(handler: Handler, private val lambda: () -> Unit, val delay: Long = 50L) : Runnable {
     private val mHandler = handler
-    private val lambda = lambda // The lambda that the runnable will run
 
     override fun run() {
         /* We want to execute this runnable repeatedly as long as the button
@@ -127,6 +128,7 @@ class TetrisRunnable(handler: Handler, lambda: () -> Unit, val delay: Long = 50L
 
 class Tetris(private var activity: Activity) {
     // This classes uses the API to interact with the tetris game engine.
+    private val mSettings = SettingsHandler(activity)
     var isGamePaused = false
         private set
 
@@ -144,6 +146,16 @@ class Tetris(private var activity: Activity) {
 
     val api = API()
     init {
+        // Load up the settings
+        // FIXME!!! This is bad! This doesn't check for errors! Fix this!
+        val invertRotation = mSettings.getBoolean("invertRotation")
+        val gameLevel = mSettings.getInt("gameLevel")
+        val gridSizeSetting = mSettings.getString("gridSize")
+        val (x, y) = gridSizeSetting!!.split("x")
+        val gridSize = Point(x.toInt(), y.toInt())
+        val startingHeight = mSettings.getInt("startingHeight")
+        api.createGame(TetrisOptions(gameLevel, gridSize, invertRotation, startingHeight))
+        gameCanvas.setGridSize(gridSize.x, gridSize.y)
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
         api.addCallback(Event.Collision, ::collisionOccurred)
@@ -224,7 +236,7 @@ class Tetris(private var activity: Activity) {
         gameCanvas.setGamePaused(false)
         // Also set the pause button's text back to "Pause"
         val btnPause = activity.findViewById<Button>(R.id.btn_pause)
-        btnPause.setText("Pause")
+        btnPause.setText(R.string.btn_pause)
         isGamePaused = false // And this class's property too
         /* Now reset the lines count, level, and score */
         linesText.text = "Lines: 0"

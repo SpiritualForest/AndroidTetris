@@ -3,9 +3,11 @@ import kotlin.reflect.* // for KFunction
 import com.androidtetris.game.event.Event
 
 class API {
-    private val gameObj = Game()
-
-    fun startGame(gameLevel: Int = 1, gridWidth: Int = 10, gridHeight: Int = 22) {
+    private lateinit var gameObj: Game
+    fun createGame(options: TetrisOptions) {
+        gameObj = Game(options)
+    }
+    fun startGame() {
         // Start a new game
         gameObj.startGame()
     }

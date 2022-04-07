@@ -1,11 +1,9 @@
 <resources>
     <string name="app_name">AndroidTetris</string>
-    <string name="rotation_direction">Rotation Direction:</string>
-    <string name="rdb_clockwise">Clockwise</string>
-    <string name="rdb_counterclockwise">Counter clockwise</string>
-    <string name="btn_startgame">Start game!</string>
+    <string name="invert_rotation">Invert rotation</string>
+    <string name="btn_startgame">Start Game</string>
     <string name="btn_settings">Settings</string>
-    <string name="btn_aigame">AI Game (not yet implemented)</string>
+    <string name="btn_aigame">AI Game</string>
     <string name="txt_lines">Lines: 0</string>
     <string name="txt_score">Score: 0</string>
     <string name="txt_level">Level: 1</string>
@@ -13,5 +11,9 @@
     <string name="btn_unpause">Unpause</string>
     <string name="btn_restart">Restart</string>
     <string name="chip_ghost">Ghost</string>
+    <string name="txt_gridSize">Grid size:</string>
+    <string name="txt_startingHeight">Starting height:</string>
+    <string name="txt_gameLevel">Game level:</string>
+    <string name="txt_gameOptions">Game options</string>
     <string name="preference_file">com.androidtetris.settings_file</string>
 </resources>

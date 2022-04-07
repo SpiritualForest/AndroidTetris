@@ -13,9 +13,6 @@
             android:name=".activity.settings.TetrominoColorsActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.settings.SettingsActivity"
-            android:exported="false" />
-        <activity
             android:name=".activity.tetris.TetrisActivity"
             android:exported="false" />
         <activity

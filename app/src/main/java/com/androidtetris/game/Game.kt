@@ -1,13 +1,25 @@
 package com.androidtetris.game
 
 import android.os.CountDownTimer
-import android.util.Log
 import com.androidtetris.game.event.*
+import kotlin.math.floor
 
 // Movement directions
 enum class Direction { Left, Right, Down }
 
-class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int = 22, val rotationClockwise: Boolean = false, val runInTestMode: Boolean = false) {
+// Game options class
+data class TetrisOptions(
+    val gameLevel: Int = 1, // Game level, affects the tetromino's dropping speed
+    val gridSize: Point = Point(10, 22), // Point(x, y) size of the grid. x is width, y is height
+    val invertRotation: Boolean = false, // Rotation direction. Counter clockwise is normal
+    val startingHeight: Int = 0 // Starting height. If more than 0, will populate the grid with random squares across <startingHeight> lines
+)
+
+class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMode: Boolean = false) {
+    private val gridHeight = options.gridSize.y
+    private val gridWidth = options.gridSize.x
+    var gameLevel = options.gameLevel
+        private set
     val grid = Grid(gridWidth, gridHeight) // Default is x 10, y 22
     private var tetrominoes = mutableListOf<TetrominoCode>()
     private val tetrominoReferences = hashMapOf(
@@ -59,6 +71,35 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         spawnNextTetromino()
         startMovementTimer()
         eventDispatcher.dispatch(Event.GameStart)
+        // Populate the grid with random squares, spanning across <startingHeight> lines
+        var startingHeight = options.startingHeight
+        if (startingHeight > 0) {
+            // Now populate the grid
+            val lines = floor((startingHeight / 10f) * gridHeight).toInt()
+            for(y in gridHeight downTo gridHeight - lines) {
+                /* We create a list of indices from 0 to gridWidth.
+                 * Those are our x values for the grid. Each x represents one square on that y line.
+                 * We remove a random amount of x values from the xPositions list
+                 * and then proceed to add the remaining x values to the grid, with a random
+                 * tetromino code created for each one.
+                 * The tetromino code determines the colour of the square.
+                 */
+                val xPositions: MutableList<Int> = mutableListOf()
+                for(x in 0 until gridWidth) { xPositions.add(x) }
+                val xValuesToRemove = (0..gridWidth).random()
+                // Now remove <squaresToRemove> x values from xPositions
+                for(i in 0 until xValuesToRemove) {
+                    xPositions.removeAt(xPositions.indices.random())
+                }
+                // Populate the nested hashmap with random x positions
+                grid.grid[y] = HashMap()
+                for(x in xPositions) {
+                    grid.grid[y]?.set(x, getRandomTetromino())
+                }
+            }
+            // Dispatch the GridChanged event to notify the UI of the changes that were made when initializing this object
+            eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(grid.copyOf()))
+        }
     }
 
     internal fun endGame() {
@@ -104,6 +145,10 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
         }
         // Game continues, set the "permanent" currentTetromino
         currentTetromino = temp
+        if (options.invertRotation) {
+            // Reverse the rotation order if the user wants it the other way around
+            currentTetromino.rotations.reverse()
+        }
         /* Now we have to also dispatch the TetrominoSpawned event,
          * otherwise the UI won't know that it has to draw the tetromino's initial coordinates.
          * It will only draw them after move() has been called once. */
@@ -222,7 +267,7 @@ class Game(var gameLevel: Int = 1, val gridWidth: Int = 10, val gridHeight: Int 
                     lowestLine = y
                 }
                 lines++
-                if (lines % 10 == 0) {
+                if ((lines % 10 == 0) && (dropSpeed > 100)) {
                     gameLevel++
                     dropSpeed -= 50
                 }
