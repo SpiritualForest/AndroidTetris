@@ -16,9 +16,9 @@ import android.app.Activity
 import android.widget.Button
 import com.androidtetris.R
 import com.google.android.material.chip.Chip
-import com.androidtetris.SettingsHandler
 import com.androidtetris.game.Point
 import com.androidtetris.game.TetrisOptions
+import com.androidtetris.settings.* // For SettingsHandler and option name constants
 
 // TODO: handle activity OnPause/OnResume
 
@@ -67,7 +67,7 @@ class TetrisActivity : AppCompatActivity() {
             }
         }
         // Check or uncheck the ghost chip based on if the feature is enabled in settings
-        ghostChip.isChecked = mSettingsHandler.getBoolean("ghost_enabled")
+        ghostChip.isChecked = mSettingsHandler.getBoolean(S_GHOST_ENABLED)
 
         // Our handler for the touch event runnables
         mHandler = Handler(Looper.getMainLooper())
@@ -83,7 +83,7 @@ class TetrisActivity : AppCompatActivity() {
         ghostChip.setOnCheckedChangeListener { _, isChecked ->
             run {
                 mTetris.setGhostEnabled(isChecked)
-                mSettingsHandler.setBoolean("ghost_enabled", isChecked)
+                mSettingsHandler.setBoolean(S_GHOST_ENABLED, isChecked)
             }
         }
     }
@@ -162,26 +162,30 @@ class Tetris(private var activity: Activity) {
         api.addCallback(Event.GameEnd, ::gameEnded)
         api.addCallback(Event.GameStart, ::gameStarted)
         api.startGame()
+        levelText.text = "Level: $gameLevel"
     }
 
     private fun loadSettings() {
         // Loads up the game options saved settings
-        invertRotation = mSettings.getBoolean("invertRotation")
-        gameLevel = mSettings.getInt("gameLevel")
+        invertRotation = mSettings.getBoolean(S_INVERT_ROTATION)
+        gameLevel = mSettings.getInt(S_GAME_LEVEL)
         if (gameLevel == -1) {
             // Setting doesn't exist. Set to default of 1
             gameLevel = 1
         }
-        val gridSizeSetting = mSettings.getString("gridSize")
+
+        val gridSizeSetting = mSettings.getString(S_GRID_SIZE)
         if (gridSizeSetting == "") {
             // Not found. Set to default of 10x22
             gridSize = Point(10, 22)
         }
         else {
+            // It's a string of "NxN", for example "10x22"
             val (x, y) = gridSizeSetting!!.split("x")
             gridSize = Point(x.toInt(), y.toInt())
         }
-        startingHeight = mSettings.getInt("startingHeight")
+
+        startingHeight = mSettings.getInt(S_STARTING_HEIGHT)
         if (startingHeight == -1) {
             // Not found, set to default of 0
             startingHeight = 0
@@ -214,7 +218,7 @@ class Tetris(private var activity: Activity) {
         linesText.text = "Lines: $lines"
         levelText.text = "Level: $level"
         
-        score += scoreMultiplication[args.lines.size-1] * level * previousLineCount
+        score += scoreMultiplication[args.lines.size-1] * level * (startingHeight+1) * previousLineCount
         previousLineCount = args.lines.size
         scoreText.text = "Score: $score"
     }

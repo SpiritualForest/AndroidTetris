@@ -8,7 +8,7 @@
     android:orientation="horizontal"
     android:weightSum="100" >
 
-    <com.androidtetris.activity.settings.TetrominoColorSelectView
+    <com.androidtetris.activity.main.TetrominoColorSelectView
         android:id="@+id/colorSelect"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

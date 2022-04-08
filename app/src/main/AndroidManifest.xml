@@ -10,13 +10,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidTetris">
         <activity
-            android:name=".activity.settings.TetrominoColorsActivity"
+            android:name=".activity.main.TetrominoColorsActivity"
             android:exported="false" />
         <activity
             android:name=".activity.tetris.TetrisActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

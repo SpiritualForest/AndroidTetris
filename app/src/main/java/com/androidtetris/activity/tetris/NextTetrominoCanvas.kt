@@ -9,7 +9,7 @@ import android.util.AttributeSet
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.TetrominoShape // Default tetromino coordinates
-import com.androidtetris.ColorHandler // Defined in SettingsHandler.kt
+import com.androidtetris.settings.ColorHandler // Defined in SettingsHandler.kt
 
 class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     

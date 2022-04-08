@@ -1,4 +1,4 @@
-package com.androidtetris.activity.settings
+package com.androidtetris.activity.main
 
 // Sub-settings activity just to set the tetromino colours
 
@@ -17,11 +17,16 @@ import android.widget.Spinner
 import android.widget.Toast
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
-import com.androidtetris.ColorHandler // Defined in SettingsHandler.kt
+import com.androidtetris.settings.ColorHandler // Defined in SettingsHandler.kt
 import com.androidtetris.R
 import com.androidtetris.TetrominoShape
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.game.TetrominoCode
+
+/* TODO: refactor this code so that the spinners don't set the settings.
+   Instead, the Apply button should save all at once.
+   Cancel button should close the activity.
+ */
 
 class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
     

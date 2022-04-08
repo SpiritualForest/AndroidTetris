@@ -1,9 +1,11 @@
-package com.androidtetris
+package com.androidtetris.settings
 
 import android.content.SharedPreferences
 import android.content.Context
 import android.graphics.Color
 import com.androidtetris.game.TetrominoCode
+import com.androidtetris.R
+
 
 open class SettingsHandler(mContext: Context) {
     private val sharedPref: SharedPreferences = mContext.getSharedPreferences(mContext.resources.getString(R.string.preference_file), Context.MODE_PRIVATE)

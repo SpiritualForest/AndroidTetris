@@ -15,5 +15,9 @@
     <string name="txt_startingHeight">Starting height:</string>
     <string name="txt_gameLevel">Game level:</string>
     <string name="txt_gameOptions">Game options</string>
+    <string name="txt_selectTheme">Select colour theme:</string>
+    <string name="btn_customizeTheme">Customize</string>
+    <string name="btn_apply">Apply</string>
+    <string name="btn_cancel">Cancel</string>
     <string name="preference_file">com.androidtetris.settings_file</string>
 </resources>
