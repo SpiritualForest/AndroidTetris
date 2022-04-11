@@ -13,6 +13,7 @@ import com.androidtetris.settings.* // For S_GHOST_ENABLED
 import com.androidtetris.game.*
 import com.androidtetris.game.event.*
 import com.androidtetris.R
+import com.androidtetris.settings.theme.ThemeHandler // For colours
 
 class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     /* This View displays the actual gameplay. I should probably change its name. */
@@ -30,7 +31,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private var currentTetromino = TetrominoCode.I
     private val mHandler = Handler(Looper.getMainLooper())
     private val colorHandler = ColorHandler(context)
-    private val tetrominoColors: Map<TetrominoCode, Int> = colorHandler.getAllColors()
+    private val tetrominoColors: Map<TetrominoCode, Int> = ThemeHandler.getThemeColors()
     var ghostEnabled: Boolean = SettingsHandler(context).getBoolean(S_GHOST_ENABLED) // Ghost piece feature enabled?
     private var ghostCoordinates: List<Point> = listOf()
     private var gamePaused = false // If true, will draw "PAUSE" on the canvas when onDraw() is called

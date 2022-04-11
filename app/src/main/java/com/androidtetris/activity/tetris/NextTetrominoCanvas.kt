@@ -9,7 +9,7 @@ import android.util.AttributeSet
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.TetrominoShape // Default tetromino coordinates
-import com.androidtetris.settings.ColorHandler // Defined in SettingsHandler.kt
+import com.androidtetris.settings.theme.ThemeHandler // For tetromino colours
 
 class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     
@@ -22,7 +22,7 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
     private val paint = Paint()
     private val squareSizeDp = 15 // dp
     private val squareSizePx = dpToPx(squareSizeDp.toFloat()) // pixels
-    private val colorHandler = ColorHandler(context)
+    private val colors = ThemeHandler.getThemeColors()
     private val tetrominoShapeConverter = TetrominoShapeConverter(listOf(listOf(1, 1, 1)), this, squareSizeDp)
 
     private fun dpToPx(dp: Float): Float {
@@ -49,7 +49,7 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
         for(tetromino in upcoming) {
             // NOTE: the coordinates are in pixels, not dp
             val shape = TetrominoShape[tetromino]!!
-            paint.color = colorHandler.getColor(tetromino) // Red if setting not found
+            paint.color = colors[tetromino]!!
             tetrominoShapeConverter.shape = shape
             val coordinates = tetrominoShapeConverter.getCoordinates(spacing)
             for(p in coordinates) {
