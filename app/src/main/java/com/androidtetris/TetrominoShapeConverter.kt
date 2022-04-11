@@ -47,19 +47,26 @@ class TetrominoShapeConverter(var shape: List<List<Int>>, private var view: View
         return (getWidthDp() / 2) - ((tetrominoWidth*squareSize) / 2)
     }
 
-    fun getCoordinates(verticalStartingPosition: Int = 0): List<PointF> {
+    fun getCoordinates(verticalStartingPosition: Int = 0, horizontalStartingPosition: Int = -1): List<PointF> {
         // Converts the "coordinates map" of each tetromino to PointF(x, y) pixel coordinates
         // First, set the width of the tetromino based on the given shape
         this.tetrominoWidth = shape[0].size
         val center = getCenter() // Starting position for x
         val coordinatesList: MutableList<PointF> = mutableListOf()
         var y = verticalStartingPosition
+        var x = 0f
         for(sublist in shape) {
-            var x = center
+            // If the horizontal starting position is -1, we restart at the center.
+            // Otherwise, we start wherever that position is set to.
+            x = if (horizontalStartingPosition == -1) {
+                center
+            } else {
+                horizontalStartingPosition.toFloat()
+            }
             for(v in sublist) {
                 if (v == 1) {
                     // Draw a square at this x,y - so add this point to the list.
-                    coordinatesList.add(PointF(dpToPx(x), dpToPx(y.toFloat())))
+                    coordinatesList.add(PointF(dpToPx(x.toFloat()), dpToPx(y.toFloat())))
                 }
                 x += squareSize
             }

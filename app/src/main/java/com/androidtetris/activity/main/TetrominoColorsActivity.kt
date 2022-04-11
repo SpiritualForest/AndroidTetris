@@ -65,17 +65,29 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
             
             val tetrominoDataObjects: MutableList<TetrominoData> = mutableListOf()
             val shape = TetrominoShape[spinnerObj.tetrominoCode]!!
-            val color = colorHandler.getColor(spinnerObj.tetrominoCode)
-            // Insert the colour into the first position
-            // FIXME: this is dumb. Find a better way.
-            colors.remove(color)
-            colors.add(0, color)
             for(col in colors) {
                 tetrominoDataObjects.add(TetrominoData(col, shape, spinnerObj.tetrominoCode))
             }
             // Set the adapter
             spinnerObj.spinner.adapter = ColorAdapter(this, R.layout.color_dropdown, tetrominoDataObjects)
+            
+            // If a color was already previously selected and saved, we load it and set it as the spinner's selection
+            val color = colorHandler.getColor(spinnerObj.tetrominoCode)
+            if (color != -1) { 
+                spinnerObj.spinner.setSelection(getSpinnerIndex(spinnerObj.spinner, color))
+        
+            }
         }
+    }
+    
+    private fun getSpinnerIndex(spinner: Spinner, color: Int): Int {
+        /* Returns the index of the TetrominoData object within the spinner
+         * based on the given color */
+        for(i in 0 until spinner.count) {
+            val tetrominoDataObj: TetrominoData = spinner.getItemAtPosition(i) as TetrominoData
+            if (tetrominoDataObj.color == color) { return i }
+        }
+        return -1
     }
 
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -87,9 +99,6 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
             // Write the setting
             val color = colorSelect.color
             colorHandler.setColor(colorSelect.tetrominoCode, colorSelect.color)
-            // Short duration toast to show the user the selected value
-            // TODO: this need to be a color name, not a random hex string.
-            Toast.makeText(this, "Set color to $color", Toast.LENGTH_SHORT).show()
         }
     }            
 

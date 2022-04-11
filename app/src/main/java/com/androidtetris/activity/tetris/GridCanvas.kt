@@ -12,6 +12,7 @@ import android.os.Looper
 import com.androidtetris.settings.* // For S_GHOST_ENABLED
 import com.androidtetris.game.*
 import com.androidtetris.game.event.*
+import com.androidtetris.R
 
 class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     /* This View displays the actual gameplay. I should probably change its name. */
@@ -72,7 +73,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
          * Call canvas.invalidate() to trigger it.
          */
         // Draw border and background
-        paint.color = Color.BLACK
+        paint.color = resources.getColor(R.color.design_default_color_on_primary)
         // First left and right borders
         for(y in 0 until height) {
             canvas.drawPoint(0f, y.toFloat(), paint)

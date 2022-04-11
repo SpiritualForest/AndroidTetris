@@ -14,6 +14,7 @@ import com.androidtetris.activity.tetris.TetrisActivity
 import com.androidtetris.R
 import com.androidtetris.settings.* // For SettingsHandler and game options name constants like S_INVERT_ROTATION
 import com.androidtetris.activity.main.ThemeView
+import com.androidtetris.settings.theme.ThemeHandler
 
 class MainActivity : AppCompatActivity(), OnItemSelectedListener {
     private lateinit var settingsHandler: SettingsHandler // From com.androidtetris
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         val gridSizeSpinner = findViewById<Spinner>(R.id.spinner_gridSize)
         val gameLevelSpinner = findViewById<Spinner>(R.id.spinner_gameLevel)
         val startingHeightSpinner = findViewById<Spinner>(R.id.spinner_startingHeight)
+        val colorThemeSpinner = findViewById<Spinner>(R.id.spinner_colorTheme)
 
         invertRotationCheckBox.setOnCheckedChangeListener {
                 _, isChecked -> settingsHandler.setBoolean(S_INVERT_ROTATION, isChecked)
@@ -78,7 +80,10 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         if (startingHeightSetValue != -1) {
             startingHeightSpinner.setSelection(getSpinnerIndex(startingHeightSpinner, startingHeightSetValue.toString()))
         }
-        // Colours stuff here later
+        // Colour theme selection
+        setAdapter(colorThemeSpinner, ThemeHandler.getThemes())
+        // Set selection to current theme
+        colorThemeSpinner.setSelection(getSpinnerIndex(colorThemeSpinner, ThemeHandler.theme))
     }
 
     private fun setAdapter(spinner: Spinner, objects: List<String>) {
@@ -89,6 +94,7 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
     }
 
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        if (view == null) { return }
         if (parent.getItemAtPosition(position).toString() == defaultSpinnerSelection) {
             // Non-selection
             return
@@ -105,6 +111,14 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
             R.id.spinner_startingHeight -> {
                 // Starting height
                 settingsHandler.setInt(S_STARTING_HEIGHT, parent.getItemAtPosition(position).toString().toInt())
+            }
+            R.id.spinner_colorTheme -> {
+                // Colour
+                val themeView = findViewById<ThemeView>(R.id.themeView)
+                val themeName = parent.getItemAtPosition(position).toString()
+                ThemeHandler.setTheme(themeName)
+                // Update the ThemeView
+                themeView.invalidate()
             }
         }
     }
