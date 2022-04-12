@@ -17,14 +17,16 @@ import com.androidtetris.activity.main.ThemeView
 import com.androidtetris.settings.theme.ThemeHandler
 
 class MainActivity : AppCompatActivity(), OnItemSelectedListener {
-    private lateinit var settingsHandler: SettingsHandler // From com.androidtetris
     private var defaultSpinnerSelection = "Select" // Default text for all the spinners
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        settingsHandler = SettingsHandler(this)
+        
+        // Pass our activity context to the SettingsHandler singleton and open the preferences file
+        // NOTE: if this call is omitted, reading and writing of settings throughout the ENTIRE application
+        // will become impossible.
+        SettingsHandler.openSharedPreferences(this)
 
         // Start game button
         val startGameBtn = findViewById<Button>(R.id.btn_startgame)
@@ -38,14 +40,14 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         
         /* Game options input widgets */
         val invertRotationCheckBox = findViewById<CheckBox>(R.id.checkBox_invertRotation)
-        invertRotationCheckBox.isChecked = settingsHandler.getBoolean(S_INVERT_ROTATION)
+        invertRotationCheckBox.isChecked = SettingsHandler.getBoolean(S_INVERT_ROTATION)
         val gridSizeSpinner = findViewById<Spinner>(R.id.spinner_gridSize)
         val gameLevelSpinner = findViewById<Spinner>(R.id.spinner_gameLevel)
         val startingHeightSpinner = findViewById<Spinner>(R.id.spinner_startingHeight)
         val colorThemeSpinner = findViewById<Spinner>(R.id.spinner_colorTheme)
 
         invertRotationCheckBox.setOnCheckedChangeListener {
-                _, isChecked -> settingsHandler.setBoolean(S_INVERT_ROTATION, isChecked)
+                _, isChecked -> SettingsHandler.setBoolean(S_INVERT_ROTATION, isChecked)
         }
 
         /* FIXME: this is very ugly. Refactor this code to reduce hard coded setting names and such shit. */
@@ -54,7 +56,7 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         val gridSizes: List<String> = listOf(defaultSpinnerSelection, "10x22", "20x44", "25x55", "40x88")
         // Set the adapter
         setAdapter(gridSizeSpinner, gridSizes)
-        val gridSizeSetValue = settingsHandler.getString(S_GRID_SIZE)
+        val gridSizeSetValue = SettingsHandler.getString(S_GRID_SIZE)
         if (gridSizeSetValue != "") {
             gridSizeSpinner.setSelection(getSpinnerIndex(gridSizeSpinner, gridSizeSetValue!!))
         }
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         // Set the adapter
         setAdapter(gameLevelSpinner, gameLevels)
         // NOTE: string and int mix-up here, beware!
-        val gameLevelSetValue: Int = settingsHandler.getInt(S_GAME_LEVEL)
+        val gameLevelSetValue: Int = SettingsHandler.getInt(S_GAME_LEVEL)
         if (gameLevelSetValue != -1) {
             // This value exists in our saved settings, so use it
             gameLevelSpinner.setSelection(getSpinnerIndex(gameLevelSpinner, gameLevelSetValue.toString()))
@@ -76,7 +78,7 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         for(i in 0 until 8) { startingHeights.add(i.toString()) }
         // Set the adapter for this spinner
         setAdapter(startingHeightSpinner, startingHeights)
-        val startingHeightSetValue = settingsHandler.getInt(S_STARTING_HEIGHT)
+        val startingHeightSetValue = SettingsHandler.getInt(S_STARTING_HEIGHT)
         if (startingHeightSetValue != -1) {
             startingHeightSpinner.setSelection(getSpinnerIndex(startingHeightSpinner, startingHeightSetValue.toString()))
         }
@@ -102,15 +104,15 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         when (parent.id) {
             R.id.spinner_gridSize -> {
                 // Grid size selection
-                settingsHandler.setString(S_GRID_SIZE, parent.getItemAtPosition(position).toString())
+                SettingsHandler.setString(S_GRID_SIZE, parent.getItemAtPosition(position).toString())
             }
             R.id.spinner_gameLevel -> {
                 // Game level selection
-                settingsHandler.setInt(S_GAME_LEVEL, parent.getItemAtPosition(position).toString().toInt())
+                SettingsHandler.setInt(S_GAME_LEVEL, parent.getItemAtPosition(position).toString().toInt())
             }
             R.id.spinner_startingHeight -> {
                 // Starting height
-                settingsHandler.setInt(S_STARTING_HEIGHT, parent.getItemAtPosition(position).toString().toInt())
+                SettingsHandler.setInt(S_STARTING_HEIGHT, parent.getItemAtPosition(position).toString().toInt())
             }
             R.id.spinner_colorTheme -> {
                 // Colour

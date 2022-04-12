@@ -26,7 +26,6 @@ class TetrisActivity : AppCompatActivity() {
     
     private lateinit var mTetris: Tetris
     private lateinit var mHandler: Handler
-    lateinit var mSettingsHandler: SettingsHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +34,6 @@ class TetrisActivity : AppCompatActivity() {
         // Create a new Tetris object and pass the activity.
         // This way we can find the UI elements we want to manipulate from the Tetris object itself,
         // and don't have to find them here and then pass them.
-        mSettingsHandler = SettingsHandler(this)
         mTetris = Tetris(this)
 
         // Movement and rotation buttons
@@ -67,7 +65,7 @@ class TetrisActivity : AppCompatActivity() {
             }
         }
         // Check or uncheck the ghost chip based on if the feature is enabled in settings
-        ghostChip.isChecked = mSettingsHandler.getBoolean(S_GHOST_ENABLED)
+        ghostChip.isChecked = SettingsHandler.getBoolean(S_GHOST_ENABLED)
 
         // Our handler for the touch event runnables
         mHandler = Handler(Looper.getMainLooper())
@@ -83,7 +81,7 @@ class TetrisActivity : AppCompatActivity() {
         ghostChip.setOnCheckedChangeListener { _, isChecked ->
             run {
                 mTetris.setGhostEnabled(isChecked)
-                mSettingsHandler.setBoolean(S_GHOST_ENABLED, isChecked)
+                SettingsHandler.setBoolean(S_GHOST_ENABLED, isChecked)
             }
         }
     }
@@ -128,7 +126,7 @@ class TetrisRunnable(handler: Handler, private val lambda: () -> Unit, val delay
 
 class Tetris(private var activity: Activity) {
     // This classes uses the API to interact with the tetris game engine.
-    private val mSettings = SettingsHandler(activity)
+    private val mSettings = SettingsHandler
     var isGamePaused = false
         private set
 

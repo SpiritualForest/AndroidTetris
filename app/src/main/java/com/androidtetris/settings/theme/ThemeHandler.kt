@@ -2,10 +2,9 @@ package com.androidtetris.settings.theme
 
 /* AndroidTetris theme handler */
 
-import com.androidtetris.settings.ColorHandler
+import com.androidtetris.settings.*
 import com.androidtetris.game.TetrominoCode
 import android.graphics.Color
-import android.content.Context
 
 // Theme names
 val T_CUSTOM = "Custom"
@@ -24,7 +23,7 @@ object ThemeHandler {
     private var themes: HashMap<String, HashMap<TetrominoCode, Int>> = hashMapOf()
     
     // The currently set theme
-    var theme: String = T_RAINBOW // Default value
+    var theme: String = T_RAINBOW // Defaults to rainbow
         private set
 
     // Theme colour collections
@@ -47,26 +46,56 @@ object ThemeHandler {
             // Rainbow
             themes[T_RAINBOW]!![tetromino] = Color.parseColor(rainbowColors[i])
         }
+
+        // Now set the current theme, if one was saved.
+        val savedTheme = SettingsHandler.getString(S_THEME)!!
+        if (savedTheme != "") { theme = savedTheme }
+
+        if (SettingsHandler.getBoolean(S_LOAD_CUSTOM)) {
+            // A custom theme was saved, load it.
+            loadCustomTheme()
+        }
     }
 
     fun getThemes(): List<String> {
+        // Returns a list of the theme names
         return themes.keys.toList()
     }
 
-    fun loadCustomTheme(mContext: Context) {
+    fun getAllColors(): List<String> {
+        // Returns a list of all the colours
+        return darkColors + brightColors + rainbowColors
+    }
+
+    private fun loadCustomTheme() {
         /* Load the custom theme from storage.
-        * This function should only be called if the custom theme
-        * is set as the chosen theme when the application starts. */
-        val colorHandler = ColorHandler(mContext)
+         * This function is only called on ThemeHandler object initialization
+         * if a custom theme was set */
         themes[T_CUSTOM] = hashMapOf()
         for(tetromino in TetrominoCode.values()) {
-            themes[T_CUSTOM]!![tetromino] = colorHandler.getColor(tetromino)
+            themes[T_CUSTOM]!![tetromino] = SettingsHandler.getColor(tetromino)
+        }
+    }
+
+    fun saveCustomTheme(colors: Map<TetrominoCode, Int>) {
+        /* Save the currently set custom theme colour values into storage */
+        this.theme = T_CUSTOM
+        SettingsHandler.setString(S_THEME, T_CUSTOM)
+        SettingsHandler.setBoolean(S_LOAD_CUSTOM, true)
+        themes[T_CUSTOM] = hashMapOf()
+        for(tetromino in colors.keys) {
+            // colors is TetrominoCode -> ColorInt value
+            val color: Int = colors[tetromino]!!
+            themes[T_CUSTOM]!![tetromino] = color
+            SettingsHandler.setColor(tetromino, color)
         }
     }
 
     fun setTheme(name: String) {
         if (name !in themes.keys) { return }
         this.theme = name
+        // Save the theme in storage as the selected theme
+        SettingsHandler.setString(S_THEME, name)
     }
 
     fun getThemeColors(): Map<TetrominoCode, Int> {

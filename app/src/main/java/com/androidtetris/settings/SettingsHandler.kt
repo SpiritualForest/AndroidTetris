@@ -6,10 +6,26 @@ import android.graphics.Color
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.R
 
+/* Constants for setting names */
+    
+val S_GRID_SIZE = "gridSize"
+val S_GAME_LEVEL = "gameLevel"
+val S_STARTING_HEIGHT = "startingHeight"
+val S_INVERT_ROTATION = "invertRotation"
+val S_GHOST_ENABLED = "ghostEnabled"
+val S_THEME = "theme" // Tetromino colours theme
+val S_TETROMINO_COLOR = "tetrominoColor_%s" // Remember to use String.format() with this
+val S_LOAD_CUSTOM = "loadCustom" // Should we load the custom theme on ThemeHandler instantiation?
 
-open class SettingsHandler(mContext: Context) {
-    private val sharedPref: SharedPreferences = mContext.getSharedPreferences(mContext.resources.getString(R.string.preference_file), Context.MODE_PRIVATE)
-    //private val sharedPref = getDefaultSharedPreferences(mContext)
+/* Our settings handling singleton object. Intended to be used globally throughout the application.
+ * This why we don't have to constantly instantiate this object and open the preferences file in each activity. */
+
+object SettingsHandler {
+    private lateinit var sharedPref: SharedPreferences
+
+    fun openSharedPreferences(mContext: Context) {
+        sharedPref = mContext.getSharedPreferences(mContext.resources.getString(R.string.preference_file), Context.MODE_PRIVATE)
+    }
 
     fun setString(key: String, value: String) {
         // saveString("key", "value")
@@ -46,38 +62,26 @@ open class SettingsHandler(mContext: Context) {
         // False by default
         return sharedPref.getBoolean(key, false)
     }
-}
 
-class ColorHandler(mContext: Context) : SettingsHandler(mContext) {
-    // Specialized class to set and get only colour values
+    // These methods are only used for handling
     
     fun setColor(tetrominoCode: TetrominoCode, hexString: String) {
         // Use the inherited setString function for this
-        val formattedKey = String.format("tetrominoColor_%s", tetrominoCode.toString())
+        val formattedKey = String.format(S_TETROMINO_COLOR, tetrominoCode.toString())
         setInt(formattedKey, Color.parseColor(hexString))
     }
 
     fun setColor(tetrominoCode: TetrominoCode, color: Int) {
-        val formattedKey = String.format("tetrominoColor_%s", tetrominoCode.toString())
+        val formattedKey = String.format(S_TETROMINO_COLOR, tetrominoCode.toString())
         setInt(formattedKey, color)
     }
 
     fun getColor(tetrominoCode: TetrominoCode): Int {
-        val color = getInt(String.format("tetrominoColor_%s", tetrominoCode.toString()))
+        val color = getInt(String.format(S_TETROMINO_COLOR, tetrominoCode.toString()))
         if (color == -1) {
             // No such setting
             return Color.RED // Default
         }
         return color
-    }
-
-    fun getAllColors(): Map<TetrominoCode, Int> {
-        // Maps all the colours to their tetromino code
-        val colorsMap: HashMap<TetrominoCode, Int> = hashMapOf()
-        for(v in TetrominoCode.values()) {
-            val color = getColor(v) // -1 if not found
-            colorsMap[v] = color
-        }
-        return colorsMap.toMap()
     }
 }

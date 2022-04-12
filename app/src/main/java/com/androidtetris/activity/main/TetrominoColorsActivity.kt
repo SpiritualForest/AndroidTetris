@@ -3,6 +3,7 @@ package com.androidtetris.activity.main
 // Sub-settings activity just to set the tetromino colours
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -13,11 +14,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Button
 import android.widget.Spinner
 import android.widget.Toast
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
-import com.androidtetris.settings.ColorHandler // Defined in SettingsHandler.kt
+import com.androidtetris.settings.theme.ThemeHandler
 import com.androidtetris.R
 import com.androidtetris.TetrominoShape
 import com.androidtetris.TetrominoShapeConverter
@@ -30,13 +32,13 @@ import com.androidtetris.game.TetrominoCode
 
 class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
     
-    private lateinit var colorHandler: ColorHandler
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tetromino_colors)
 
-        colorHandler = ColorHandler(this)
+        val currentThemeColors = ThemeHandler.getThemeColors() // Required for spinner.setSelection()
+        
+        val btnApply = findViewById<Button>(R.id.btn_apply)
 
         // Get all the spinners
         val O = SpinnerObject(findViewById(R.id.o_spinner), TetrominoCode.O) // Width 2
@@ -47,14 +49,8 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
         val S = SpinnerObject(findViewById(R.id.s_spinner), TetrominoCode.S)
         val Z = SpinnerObject(findViewById(R.id.z_spinner), TetrominoCode.Z)
         val spinnerObjects: List<SpinnerObject> = listOf(O, I, J, L, T, S, Z)
-        
-        // Our selection of colours.
-        // TODO: export this to another file as a constant. This isn't good.
-        val colorHexStrings: List<String> = listOf(
-            "#ff0000", "#006400", "#0000ff", 
-            "#00bfff", "#800080", "#9400d3",
-            "#ff1493", "#f5c71a", "#560319",
-        )
+
+        val colorHexStrings = ThemeHandler.getAllColors() // All available colours regardless of theme association
 
         // Now create an adapter for each spinner
         for(spinnerObj in spinnerObjects) {
@@ -71,12 +67,21 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
             // Set the adapter
             spinnerObj.spinner.adapter = ColorAdapter(this, R.layout.color_dropdown, tetrominoDataObjects)
             
-            // If a color was already previously selected and saved, we load it and set it as the spinner's selection
-            val color = colorHandler.getColor(spinnerObj.tetrominoCode)
-            if (color != -1) { 
-                spinnerObj.spinner.setSelection(getSpinnerIndex(spinnerObj.spinner, color))
-        
+            // Set the selected colour on each spinner item respectively.
+            // FIXME: account for custom theme.
+            val color = currentThemeColors[spinnerObj.tetrominoCode]!!
+            spinnerObj.spinner.setSelection(getSpinnerIndex(spinnerObj.spinner, color))
+        }
+
+        // Applying the changes
+        btnApply.setOnClickListener {
+            val colors: HashMap<TetrominoCode, Int> = hashMapOf()
+            for(spinnerObj in spinnerObjects) {
+                val tetrominoDataObj = spinnerObj.spinner.getSelectedItem() as TetrominoData
+                colors[tetrominoDataObj.tetrominoCode] = tetrominoDataObj.color
             }
+            // Save custom theme
+            ThemeHandler.saveCustomTheme(colors)
         }
     }
     
@@ -96,9 +101,8 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
         else {
             // Find our color hex string stored by the view object
             val colorSelect = view.findViewById<TetrominoColorSelectView>(R.id.colorSelect)
-            // Write the setting
-            val color = colorSelect.color
-            colorHandler.setColor(colorSelect.tetrominoCode, colorSelect.color)
+            // NOTE: we don't save the colours in the theme here.
+            // We'll do that in the "Apply" button's onClick listener.
         }
     }            
 

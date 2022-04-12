@@ -30,9 +30,8 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
      * This is why it's safe to have a default TetrominoCode, making the object non-nullable. */
     private var currentTetromino = TetrominoCode.I
     private val mHandler = Handler(Looper.getMainLooper())
-    private val colorHandler = ColorHandler(context)
     private val tetrominoColors: Map<TetrominoCode, Int> = ThemeHandler.getThemeColors()
-    var ghostEnabled: Boolean = SettingsHandler(context).getBoolean(S_GHOST_ENABLED) // Ghost piece feature enabled?
+    var ghostEnabled: Boolean = SettingsHandler.getBoolean(S_GHOST_ENABLED) // Ghost piece feature enabled?
     private var ghostCoordinates: List<Point> = listOf()
     private var gamePaused = false // If true, will draw "PAUSE" on the canvas when onDraw() is called
 
@@ -109,7 +108,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // once it drops into the position that the ghost occupies. I don't know why this happens, yet.
         // The colour comes from the tetromino's own colour, but we reduce the alpha from 255 to 50.
         if (ghostEnabled) {
-            val colorInt = colorHandler.getColor(currentTetromino)
+            val colorInt = tetrominoColors[currentTetromino]!!
             val red = (colorInt and 0xff) shl 16
             val green = (colorInt and 0x00ff) shl 8
             val blue = colorInt and 0x0000ff
