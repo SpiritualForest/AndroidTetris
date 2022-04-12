@@ -82,7 +82,7 @@ data class J(val grid: Grid) : Tetromino(grid) {
 }
 
 data class L(val grid: Grid) : Tetromino(grid) {
-    override val tetrominoCode = TetrominoCode.T
+    override val tetrominoCode = TetrominoCode.L
     override var coordinatesMap = arrayOf(2, 4, 5, 6)
     override val rotationsMap = arrayOf(
         arrayOf(0, 1, 5, 9),

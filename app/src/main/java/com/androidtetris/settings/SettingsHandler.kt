@@ -8,17 +8,17 @@ import com.androidtetris.R
 
 /* Constants for setting names */
     
-val S_GRID_SIZE = "gridSize"
-val S_GAME_LEVEL = "gameLevel"
-val S_STARTING_HEIGHT = "startingHeight"
-val S_INVERT_ROTATION = "invertRotation"
-val S_GHOST_ENABLED = "ghostEnabled"
-val S_THEME = "theme" // Tetromino colours theme
-val S_TETROMINO_COLOR = "tetrominoColor_%s" // Remember to use String.format() with this
-val S_LOAD_CUSTOM = "loadCustom" // Should we load the custom theme on ThemeHandler instantiation?
+val S_GRID_SIZE = "gridSize" // String setting
+val S_GAME_LEVEL = "gameLevel" // Int
+val S_STARTING_HEIGHT = "startingHeight" // Int
+val S_INVERT_ROTATION = "invertRotation" // Boolean
+val S_GHOST_ENABLED = "ghostEnabled" // Boolean
+val S_THEME = "theme" // String. Tetromino colours theme.
+val S_TETROMINO_COLOR = "tetrominoColor_%s" // Int. Remember to use String.format() with this.
+val S_LOAD_CUSTOM = "loadCustom" // Boolean. Should we load the custom theme on ThemeHandler instantiation?
 
 /* Our settings handling singleton object. Intended to be used globally throughout the application.
- * This why we don't have to constantly instantiate this object and open the preferences file in each activity. */
+ * This is so we don't have to constantly instantiate this object and open the preferences file in each activity. */
 
 object SettingsHandler {
     private lateinit var sharedPref: SharedPreferences
