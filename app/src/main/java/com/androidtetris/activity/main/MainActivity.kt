@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Spinner
 import android.widget.CheckBox
 import android.widget.Button
+import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import com.androidtetris.activity.tetris.TetrisActivity
 import com.androidtetris.R
@@ -23,9 +24,11 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
+        // Disable screen rotation
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        
         // Pass our activity context to the SettingsHandler singleton and open the preferences file
-        // NOTE: if this call is omitted, reading and writing of settings throughout the ENTIRE application
-        // will become impossible.
+        // NOTE: if this call is omitted, reading and writing of settings with SettingsHandler becomes impossible.
         SettingsHandler.openSharedPreferences(this)
 
         // Start game button
@@ -35,7 +38,6 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
 
         val customizeThemeBtn = findViewById<Button>(R.id.btn_customizeTheme)
         val customizeThemeIntent = Intent(this, TetrominoColorsActivity::class.java)
-        /* TODO: pass the selected theme colours as parameters to this activity */
         customizeThemeBtn.setOnClickListener { startActivity(customizeThemeIntent) }
         
         /* Game options input widgets */

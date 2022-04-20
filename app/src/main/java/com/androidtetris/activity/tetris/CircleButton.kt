@@ -9,12 +9,12 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.MotionEvent
 import kotlin.math.min
+import com.google.android.material.color.MaterialColors
+import com.androidtetris.R
 
 class CircleButton(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
     private val paint = Paint()
-    private val upColor = Color.BLACK // Default when up
-    private val downColor = Color.GRAY // When pressed
-    private var currentColor = upColor
+    private var currentColor = MaterialColors.getColor(this, R.attr.colorOnPrimary)
     //private val center = Point(width / 2, height / 2)
 
     override fun onDraw(canvas: Canvas) {
@@ -30,10 +30,10 @@ class CircleButton(context: Context?, attrs: AttributeSet?) : View(context, attr
         val y: Float = ev.y
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                currentColor = downColor
+                currentColor = MaterialColors.getColor(this, R.attr.colorPrimaryVariant)
             }
             MotionEvent.ACTION_UP -> {
-                currentColor = upColor
+                currentColor = MaterialColors.getColor(this, R.attr.colorOnPrimary)
             }
         }
         invalidate()

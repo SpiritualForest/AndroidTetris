@@ -10,6 +10,8 @@ import com.androidtetris.game.TetrominoCode
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.TetrominoShape // Default tetromino coordinates
 import com.androidtetris.settings.theme.ThemeHandler // For tetromino colours
+import com.androidtetris.R
+import com.google.android.material.color.MaterialColors
 
 class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     
@@ -32,7 +34,7 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
 
     override fun onDraw(canvas: Canvas) {
         // First, draw the border
-        paint.color = Color.BLACK
+        paint.color = MaterialColors.getColor(this, R.attr.colorOnPrimary)
         // First left and right borders
         for(y in 0 until height) {
             canvas.drawPoint(0f, y.toFloat(), paint)

@@ -5,6 +5,7 @@
     android:id="@+id/activity_main_constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.AndroidTetris"
     tools:context=".MainActivity">
 
     <Button
@@ -15,9 +16,9 @@
         android:text="@string/btn_startgame"
         android:textAlignment="center"
         android:textAllCaps="false"
-        android:textColor="@color/white"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:theme="@style/Theme.AndroidTetris"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +97,6 @@
             android:layout_marginTop="22dp"
             android:layout_marginBottom="23dp"
             android:text="@string/txt_gridSize"
-            android:textColor="#9E9E9E"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -140,7 +140,6 @@
             android:layout_marginTop="22dp"
             android:layout_marginBottom="23dp"
             android:text="@string/txt_startingHeight"
-            android:textColor="#9E9E9E"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -183,7 +182,6 @@
             android:layout_marginTop="22dp"
             android:layout_marginBottom="23dp"
             android:text="@string/txt_gameLevel"
-            android:textColor="#9E9E9E"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -225,7 +223,6 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="22dp"
             android:text="@string/txt_selectTheme"
-            android:textColor="#9E9E9E"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -267,7 +264,7 @@
 
         <Button
             android:id="@+id/btn_customizeTheme"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

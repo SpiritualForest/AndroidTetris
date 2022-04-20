@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.os.Handler
 import android.os.Looper
+import com.google.android.material.color.MaterialColors
 import com.androidtetris.settings.* // For S_GHOST_ENABLED
 import com.androidtetris.game.*
 import com.androidtetris.game.event.*
@@ -20,7 +21,6 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
 
     /* Properties */
     private val paint = Paint()
-    private var canvasBackgroundColor : Int = Color.LTGRAY
     // Grid defaults to 10x22 squares
     private var gridWidth = 10
     private var gridHeight = 22
@@ -73,20 +73,20 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
          * Call canvas.invalidate() to trigger it.
          */
         // Draw border and background
-        paint.color = resources.getColor(R.color.design_default_color_on_primary)
+        paint.color = MaterialColors.getColor(this, R.attr.colorOnPrimary)
         // First left and right borders
         for(y in 0 until height) {
             canvas.drawPoint(0f, y.toFloat(), paint)
             canvas.drawPoint(width.toFloat()-1, y.toFloat(), paint)
         }
-        // Now top and bottom
+        // Now top and bottoma
         for(x in 0 until width) {
             canvas.drawPoint(x.toFloat(), 0f, paint)
             canvas.drawPoint(x.toFloat(), height.toFloat()-1, paint)
         }
         // Now fill the rest with the background colour
-        paint.color = canvasBackgroundColor
-        canvas.drawRect(1f, 1f, width.toFloat()-1, height.toFloat()-1, paint)
+        paint.color = MaterialColors.getColor(this, R.attr.colorPrimary)
+        //canvas.drawRect(1f, 1f, width.toFloat()-1, height.toFloat()-1, paint)
         
         if (gamePaused) {
             // onDraw() called when the game is paused.
@@ -95,7 +95,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             val textSize = 50f
             val x = (width / 2) - ((text.length / 2) * textSize) + (text.length / 2)
             val y = (height / 2) - (textSize / 2)
-            paint.color = Color.BLACK
+            paint.color = MaterialColors.getColor(this, R.attr.colorOnPrimary)
             paint.textSize = textSize
             canvas.drawText("PAUSE", x, y, paint)
             return
@@ -108,9 +108,9 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // once it drops into the position that the ghost occupies. I don't know why this happens, yet.
         // The colour comes from the tetromino's own colour, but we reduce the alpha from 255 to 50.
         if (ghostEnabled) {
-            val colorInt = tetrominoColors[currentTetromino]!!
-            val red = (colorInt and 0xff) shl 16
-            val green = (colorInt and 0x00ff) shl 8
+            val colorInt = MaterialColors.getColor(this, R.attr.colorOnSurface)
+            val red = colorInt and 0xff
+            val green = colorInt and 0x00ff
             val blue = colorInt and 0x0000ff
             val argb = Color.argb(50, red, green, blue)
             for(point in ghostCoordinates) {

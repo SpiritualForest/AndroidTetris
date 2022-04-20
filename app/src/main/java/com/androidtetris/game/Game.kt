@@ -71,10 +71,10 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
         spawnNextTetromino()
         startMovementTimer()
         eventDispatcher.dispatch(Event.GameStart)
-        // Populate the grid with random squares, spanning across <startingHeight> lines
+        
         var startingHeight = options.startingHeight
         if (startingHeight > 0) {
-            // Now populate the grid
+            // Populate the grid with random squares, spanning across <startingHeight> percentage of lines
             val lines = floor((startingHeight / 10f) * gridHeight).toInt()
             for(y in gridHeight downTo gridHeight - lines) {
                 /* We create a list of indices from 0 to gridWidth.
@@ -86,7 +86,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
                  */
                 val xPositions: MutableList<Int> = mutableListOf()
                 for(x in 0 until gridWidth) { xPositions.add(x) }
-                val xValuesToRemove = (0..gridWidth).random()
+                val xValuesToRemove = (1..gridWidth-1).random() // So that at least one square remains, but never a full line.
                 // Now remove <squaresToRemove> x values from xPositions
                 for(i in 0 until xValuesToRemove) {
                     xPositions.removeAt(xPositions.indices.random())

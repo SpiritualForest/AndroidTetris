@@ -24,6 +24,7 @@ object SettingsHandler {
     private lateinit var sharedPref: SharedPreferences
 
     fun openSharedPreferences(mContext: Context) {
+        /* NOTE: this function MUST be called before doing anything else. */
         sharedPref = mContext.getSharedPreferences(mContext.resources.getString(R.string.preference_file), Context.MODE_PRIVATE)
     }
 

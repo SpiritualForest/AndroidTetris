@@ -13,6 +13,8 @@ import com.androidtetris.TetrominoShape // HashMap of shapes
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.settings.*
 import com.androidtetris.settings.theme.ThemeHandler
+import com.androidtetris.R
+import com.google.android.material.color.MaterialColors
 
 class ThemeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     // This view is used to provide a preview for the user's selected colour theme.
@@ -30,7 +32,7 @@ class ThemeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     override fun onDraw(canvas: Canvas) {
         // Fill in the background colour
-        paint.color = Color.LTGRAY
+        paint.color = MaterialColors.getColor(this, R.attr.colorSurface)
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
         // Draw the top row first
         var x = dpToPx(5f).toInt()

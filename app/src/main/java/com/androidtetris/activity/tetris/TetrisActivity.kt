@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.ActivityInfo
 import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
@@ -30,6 +31,9 @@ class TetrisActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tetris)
+        
+        // Disable screen rotation
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         
         // Create a new Tetris object and pass the activity.
         // This way we can find the UI elements we want to manipulate from the Tetris object itself,
@@ -74,8 +78,8 @@ class TetrisActivity : AppCompatActivity() {
         down.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.move(Direction.Down) })))
         left.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.move(Direction.Left) })))
         right.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.move(Direction.Right) })))
-        // Rotate gets 60ms delay instead of the default 50ms
-        rotate.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.rotate() }, 60L)))
+        // Rotate gets 70ms delay instead of the default 55ms
+        rotate.setOnTouchListener(getOnTouchListener(TetrisRunnable(mHandler, { mTetris.api.rotate() }, 70L)))
 
         // Now our ghost piece chip
         ghostChip.setOnCheckedChangeListener { _, isChecked ->
@@ -103,6 +107,8 @@ class TetrisActivity : AppCompatActivity() {
         }
         return listener
     }
+
+    /* FIXME: handle saving state on activity stoppage */
     
     override fun onDestroy() {
         super.onDestroy()
@@ -110,7 +116,7 @@ class TetrisActivity : AppCompatActivity() {
     }
 }
 
-class TetrisRunnable(handler: Handler, private val lambda: () -> Unit, val delay: Long = 50L) : Runnable {
+class TetrisRunnable(handler: Handler, private val lambda: () -> Unit, val delay: Long = 55L) : Runnable {
     private val mHandler = handler
 
     override fun run() {
