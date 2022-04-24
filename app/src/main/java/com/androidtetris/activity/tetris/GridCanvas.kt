@@ -83,11 +83,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         for(x in 0 until width) {
             canvas.drawPoint(x.toFloat(), 0f, paint)
             canvas.drawPoint(x.toFloat(), height.toFloat()-1, paint)
-        }
-        // Now fill the rest with the background colour
-        paint.color = MaterialColors.getColor(this, R.attr.colorPrimary)
-        //canvas.drawRect(1f, 1f, width.toFloat()-1, height.toFloat()-1, paint)
-        
+        } 
         if (gamePaused) {
             // onDraw() called when the game is paused.
             // Draw "PAUSE" at the center of the canvas.

@@ -1,11 +1,12 @@
 package com.androidtetris.game
 import kotlin.reflect.* // for KFunction
 import com.androidtetris.game.event.Event
+import android.os.Bundle
 
 class API {
     private lateinit var gameObj: Game
-    fun createGame(options: TetrisOptions) {
-        gameObj = Game(options)
+    fun createGame(options: TetrisOptions, savedState: Bundle?) {
+        gameObj = Game(options, savedState = savedState)
     }
     fun startGame() {
         // Start a new game
@@ -54,5 +55,9 @@ class API {
 
     fun unpauseGame() {
         gameObj.unpauseGame()
+    }
+
+    fun saveGame(bundleObj: Bundle): Bundle {
+        return gameObj.saveGame(bundleObj)
     }
 }

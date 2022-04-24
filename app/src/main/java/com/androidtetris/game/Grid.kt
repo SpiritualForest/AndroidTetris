@@ -14,7 +14,7 @@ Supply to the constructor.
  */
 class Grid(val width: Int, val height: Int) {
     // HashMap<y, HashMap<x, TetrominoCode>>
-    val grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
+    var grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf() // var in case we need to set an existing grid if the activity reloads
 
     internal fun getCenter(tWidth: Int): Int {
         /* Get the center x position in the grid based on

@@ -17,6 +17,18 @@ val S_THEME = "theme" // String. Tetromino colours theme.
 val S_TETROMINO_COLOR = "tetrominoColor_%s" // Int. Remember to use String.format() with this.
 val S_LOAD_CUSTOM = "loadCustom" // Boolean. Should we load the custom theme on ThemeHandler instantiation?
 
+// Game restoration key name constants (for Bundle object keys) - used in Game.kt and TetrisActivity.kt
+val K_LINES = "lines"
+val K_DROP_SPEED = "dropSpeed"
+val K_GAME_LEVEL = "gameLevel"
+val K_TETROMINO = "tetromino"
+val K_TETROMINO_ROTATION = "tetrominoRotation"
+val K_TETROMINO_COORDINATES = "tetrominoCoordinates"
+val K_UPCOMING_TETROMINOES = "upcomingTetrominoes"
+val K_GRID = "grid"
+val K_SCORE = "score"
+
+
 /* Our settings handling singleton object. Intended to be used globally throughout the application.
  * This is so we don't have to constantly instantiate this object and open the preferences file in each activity. */
 

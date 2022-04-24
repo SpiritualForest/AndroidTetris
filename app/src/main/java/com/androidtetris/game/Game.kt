@@ -1,8 +1,11 @@
 package com.androidtetris.game
 
 import android.os.CountDownTimer
+import android.os.Bundle // to save game state in case of sudden activity stoppage
 import com.androidtetris.game.event.*
-import kotlin.math.floor
+import com.androidtetris.settings.* // For Bundle keys
+import kotlin.math.floor // For the grid randomizer
+import android.util.Log
 
 // Movement directions
 enum class Direction { Left, Right, Down }
@@ -15,7 +18,7 @@ data class TetrisOptions(
     val startingHeight: Int = 0 // Starting height. If more than 0, will populate the grid with random squares across <startingHeight> lines
 )
 
-class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMode: Boolean = false) {
+class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMode: Boolean = false, val savedState: Bundle? = null) {
     private val gridHeight = options.gridSize.y
     private val gridWidth = options.gridSize.x
     var gameLevel = options.gameLevel
@@ -40,15 +43,139 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
     private var mTimer: CountDownTimer? = null
     var lines = 0
         private set
+    private var gameRestored = false
 
     init {
-        // Create 10 random tetrominoes for spawning
-        for (i in 0 until 10) {
-            this.tetrominoes.add(getRandomTetromino())
+        // First, check if a game state was saved. If yes, we load it.
+        if (savedState != null) {
+            loadGame(savedState)
+            gameRestored = true
         }
-        // Set the game drop speed (how fast the tetrominoes move downwards)
-        dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
-        startGame()
+        else {
+            // No game state was saved. Initialize a new game.
+            for (i in 0 until 10) {
+                this.tetrominoes.add(getRandomTetromino())
+            }
+            // Set the game drop speed (how fast the tetrominoes move downwards)
+            dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
+        }
+    }
+
+    private fun randomizeGrid(height: Int) {
+        // Populate the grid with random squares, spanning across <height> percentage of lines
+        val lines = floor((height / 10f) * gridHeight).toInt()
+        for(y in gridHeight downTo gridHeight - lines) {
+            /* We create a list of indices from 0 to gridWidth.
+            * Those are our x values for the grid. Each x represents one square on that y line.
+            * We remove a random amount of x values from the xPositions list
+            * and then proceed to add the remaining x values to the grid, with a random
+            * tetromino code created for each one.
+            * The tetromino code determines the colour of the square. */
+            val xPositions: MutableList<Int> = mutableListOf()
+            for(x in 0 until gridWidth) { xPositions.add(x) }
+            val xValuesToRemove = (1..gridWidth-1).random() // So that at least one square remains, but never a full line.
+            // Now remove <squaresToRemove> x values from xPositions
+            for(i in 0 until xValuesToRemove) {
+                xPositions.removeAt(xPositions.indices.random())
+            }
+            // Populate the nested hashmap with random x positions
+            grid.grid[y] = HashMap()
+            for(x in xPositions) {
+                grid.grid[y]?.set(x, getRandomTetromino())
+            }
+        }
+    }
+        
+
+    fun saveGame(bundle: Bundle): Bundle {
+        /* Saves the current game state in a Bundle object.
+         * We need it when we want to restore the game into the state it was
+         * in case the Android activity that handles the gameplay UI was suddenly stopped
+         * and then restarted.
+         * Returns a Bundle object that will be used in onSaveInstanceState() in TetrisActivity */
+        bundle.putInt(K_GAME_LEVEL, gameLevel)
+        bundle.putInt(K_LINES, lines)
+        bundle.putLong(K_DROP_SPEED, dropSpeed)
+        bundle.putSerializable(K_TETROMINO, currentTetromino.tetrominoCode)
+        bundle.putInt(K_TETROMINO_ROTATION, currentTetromino.currentRotation)
+        
+        /* Pack the grid */
+        val gridValuesList: ArrayList<Int> = arrayListOf()
+        val tetrominoCodes = TetrominoCode.values()
+        for(y in grid.grid.keys) {
+            for(x in grid.grid[y]!!.keys) {
+                // We use the index of the tetromino in the TetrominoCode enum to determine which one it is
+                val tetrominoInteger = tetrominoCodes.indexOf(grid.grid[y]!![x]!!)
+                // Now pack
+                val packed = ((x and 255) shl 16) or ((y and 255) shl 8) or (tetrominoInteger and 255)
+                gridValuesList.add(packed)
+            }
+        }
+        bundle.putIntegerArrayList(K_GRID, gridValuesList)
+        
+        // Now also pack the current tetromino's coordinates
+        val coordinatesList: ArrayList<Int> = arrayListOf()
+        for(point in currentTetromino.coordinates) {
+            val packed = (point.x and 255) shl 8 or (point.y and 255)
+            coordinatesList.add(packed)
+        }
+        bundle.putIntegerArrayList(K_TETROMINO_COORDINATES, coordinatesList)
+
+        // Now put the the upcoming tetrominoes list too
+        val upcomingTetrominoes: ArrayList<Int> = arrayListOf()
+        for(t in this.tetrominoes) {
+            upcomingTetrominoes.add(tetrominoCodes.indexOf(t))
+        }
+        bundle.putIntegerArrayList(K_UPCOMING_TETROMINOES, upcomingTetrominoes)
+
+        return bundle
+    }
+
+    private fun loadGame(savedState: Bundle) {
+        // Load a game
+        // Stats first
+        gameLevel = savedState.getInt(K_GAME_LEVEL)
+        lines = savedState.getInt(K_LINES)
+        dropSpeed = savedState.getLong(K_DROP_SPEED)
+        
+        // For tetromino, we must create a new object and then set its coordinates and current rotation
+        val t = savedState.getSerializable(K_TETROMINO)
+        // Populate the coordinates array of points
+        val coordinatesList = savedState.getIntegerArrayList(K_TETROMINO_COORDINATES)
+        val coordinates = Array<Point>(coordinatesList!!.size) { Point(0, 0) }
+        for((i, xy) in coordinatesList.withIndex()) {
+            val x = (xy shr 8) and 255
+            val y = xy and 255
+            coordinates[i] = Point(x, y)
+        }
+        val rotation = savedState.getInt(K_TETROMINO_ROTATION)
+        // Create the tetromino object, set its coordinates and rotation, and then set it as our current tetromino in the game
+        val tetrominoObj = tetrominoReferences[t]!!
+        currentTetromino = tetrominoObj.invoke(grid)
+        currentTetromino.currentRotation = rotation
+        currentTetromino.coordinates = coordinates
+
+        // Now we unpack the grid
+        val grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
+        val tetrominoCodes = TetrominoCode.values()
+        val gridValuesList = savedState.getIntegerArrayList(K_GRID)
+        for(xyc in gridValuesList!!) {
+            val x = (xyc shr 16) and 255
+            val y = (xyc shr 8) and 255
+            val c = xyc and 255
+            if (y !in grid.keys) {
+                grid[y] = HashMap()
+            }
+            grid[y]!![x] = tetrominoCodes[c]
+        }
+        this.grid.grid = grid
+
+        // Upcoming tetrominoes
+        val upcoming = savedState.getIntegerArrayList(K_UPCOMING_TETROMINOES)
+        for(upcomingTetromino in upcoming!!) {
+            this.tetrominoes.add(tetrominoCodes[upcomingTetromino])
+        }
+        eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(this.grid.copyOf()))
     }
     
     internal fun startMovementTimer() {
@@ -68,45 +195,31 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
         /* Start the game, spawn the first tetromino,
          * and create our automatic movement thread. */
         gameRunning = true
-        spawnNextTetromino()
-        startMovementTimer()
-        eventDispatcher.dispatch(Event.GameStart)
-        
-        var startingHeight = options.startingHeight
-        if (startingHeight > 0) {
-            // Populate the grid with random squares, spanning across <startingHeight> percentage of lines
-            val lines = floor((startingHeight / 10f) * gridHeight).toInt()
-            for(y in gridHeight downTo gridHeight - lines) {
-                /* We create a list of indices from 0 to gridWidth.
-                 * Those are our x values for the grid. Each x represents one square on that y line.
-                 * We remove a random amount of x values from the xPositions list
-                 * and then proceed to add the remaining x values to the grid, with a random
-                 * tetromino code created for each one.
-                 * The tetromino code determines the colour of the square.
-                 */
-                val xPositions: MutableList<Int> = mutableListOf()
-                for(x in 0 until gridWidth) { xPositions.add(x) }
-                val xValuesToRemove = (1..gridWidth-1).random() // So that at least one square remains, but never a full line.
-                // Now remove <squaresToRemove> x values from xPositions
-                for(i in 0 until xValuesToRemove) {
-                    xPositions.removeAt(xPositions.indices.random())
-                }
-                // Populate the nested hashmap with random x positions
-                grid.grid[y] = HashMap()
-                for(x in xPositions) {
-                    grid.grid[y]?.set(x, getRandomTetromino())
-                }
+        if (!gameRestored) {
+            // This is a new game. Spawn a new tetromino
+            spawnNextTetromino()
+            if (options.startingHeight > 0) {
+                // Randomize the grid
+                randomizeGrid(options.startingHeight)
             }
-            // Dispatch the GridChanged event to notify the UI of the changes that were made when initializing this object
-            eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(grid.copyOf()))
         }
+        else {
+            // A game was restored. Indicate that when startGame() is called again,
+            // it will start a new game.
+            gameRestored = false
+        }
+        startMovementTimer()
+        eventDispatcher.dispatch(Event.GameStart) 
+        // We dispatch the GridChanged here in case any changes were to the grid,
+        // such as having it be populated by a random starting height.
+        eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(this.grid.copyOf()))
     }
 
     internal fun endGame() {
         // Stop the movement timer and clear out the grid.
         gameRunning = false
-        mTimer?.cancel()
         grid.clear()
+        mTimer?.cancel()
         eventDispatcher.dispatch(Event.GameEnd)
     }
 

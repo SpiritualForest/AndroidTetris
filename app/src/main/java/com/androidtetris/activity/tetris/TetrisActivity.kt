@@ -20,6 +20,7 @@ import com.google.android.material.chip.Chip
 import com.androidtetris.game.Point
 import com.androidtetris.game.TetrisOptions
 import com.androidtetris.settings.* // For SettingsHandler and option name constants
+import android.util.Log
 
 // TODO: handle activity OnPause/OnResume
 
@@ -38,7 +39,11 @@ class TetrisActivity : AppCompatActivity() {
         // Create a new Tetris object and pass the activity.
         // This way we can find the UI elements we want to manipulate from the Tetris object itself,
         // and don't have to find them here and then pass them.
-        mTetris = Tetris(this)
+        mTetris = Tetris(this, savedInstanceState)
+        if (savedInstanceState != null) {
+            // Pause the game
+            pauseGame()
+        }
 
         // Movement and rotation buttons
         val down = findViewById<CircleButton>(R.id.btn_down)
@@ -55,17 +60,12 @@ class TetrisActivity : AppCompatActivity() {
 
         btnPause.setOnClickListener {
             if (!mTetris.isGamePaused) {
-                // Currently unpaused, let's pause it.
-                mTetris.setGamePaused(true)
-                mTetris.api.pauseGame()
-                // Set button text to "Unpause"
-                btnPause.setText(R.string.btn_unpause)
+                // Pause the game
+                pauseGame()
             }
             else {
-                // Currently paused
-                mTetris.setGamePaused(false)
-                mTetris.api.unpauseGame()
-                btnPause.setText(R.string.btn_pause)
+                // Unpause it
+                unpauseGame()
             }
         }
         // Check or uncheck the ghost chip based on if the feature is enabled in settings
@@ -90,6 +90,20 @@ class TetrisActivity : AppCompatActivity() {
         }
     }
 
+    fun pauseGame() {
+        val btnPause = findViewById<Button>(R.id.btn_pause)
+        mTetris.setGamePaused(true)
+        mTetris.api.pauseGame()
+        btnPause.setText(R.string.btn_unpause)
+    }
+
+    fun unpauseGame() {
+        val btnPause = findViewById<Button>(R.id.btn_pause)
+        mTetris.setGamePaused(false)
+        mTetris.api.unpauseGame()
+        btnPause.setText(R.string.btn_pause)
+    }
+
     private fun getOnTouchListener(r: TetrisRunnable): View.OnTouchListener {
         // Creates a new OnTouchListener that executes the provided runnable with a delay
         val listener = View.OnTouchListener { v, ev ->
@@ -108,7 +122,12 @@ class TetrisActivity : AppCompatActivity() {
         return listener
     }
 
-    /* FIXME: handle saving state on activity stoppage */
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.run {
+            putAll(mTetris.saveGame(outState))
+        }
+        super.onSaveInstanceState(outState)
+    }
     
     override fun onDestroy() {
         super.onDestroy()
@@ -130,7 +149,7 @@ class TetrisRunnable(handler: Handler, private val lambda: () -> Unit, val delay
     }
 }
 
-class Tetris(private var activity: Activity) {
+class Tetris(private var activity: Activity, savedState: Bundle?) {
     // This classes uses the API to interact with the tetris game engine.
     private val mSettings = SettingsHandler
     var isGamePaused = false
@@ -144,19 +163,20 @@ class Tetris(private var activity: Activity) {
     private val scoreText: TextView = activity.findViewById(R.id.txt_score)
     
     // Required for scoring calculation when lines are completed
-    private var score = 0
+    private var score = savedState?.getInt(K_SCORE) ?: 0
     private var previousLineCount = 1
     private val scoreMultiplication = listOf(40, 100, 300, 1200) // 1 line, 2 line, 3 lines, 4 lines
 
     val api = API()
     private var invertRotation = false
-    private var gameLevel = 1
+    private var gameLevel = savedState?.getInt(K_GAME_LEVEL) ?: 1
+    private var lines = savedState?.getInt(K_LINES) ?: 0
     private var gridSize = Point(10, 22)
     private var startingHeight = 0
     
     init {
         loadSettings()
-        api.createGame(TetrisOptions(gameLevel, gridSize, invertRotation, startingHeight))
+        api.createGame(TetrisOptions(gameLevel, gridSize, invertRotation, startingHeight), savedState)
         gameCanvas.setGridSize(gridSize.x, gridSize.y)
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
@@ -167,6 +187,8 @@ class Tetris(private var activity: Activity) {
         api.addCallback(Event.GameStart, ::gameStarted)
         api.startGame()
         levelText.text = "Level: $gameLevel"
+        scoreText.text = "Score: $score"
+        linesText.text = "Lines: $lines"
     }
 
     private fun loadSettings() {
@@ -217,12 +239,12 @@ class Tetris(private var activity: Activity) {
     fun linesCompleted(args: LinesCompletedEventArgs) {
         // Called when lines are completed and the grid changes as a result.
         gameCanvas.linesCompleted(args)
-        val lines = api.lines()
-        val level = api.level()
+        lines = api.lines()
+        gameLevel = api.level()
         linesText.text = "Lines: $lines"
-        levelText.text = "Level: $level"
+        levelText.text = "Level: $gameLevel"
         
-        score += scoreMultiplication[args.lines.size-1] * level * (startingHeight+1) * previousLineCount
+        score += scoreMultiplication[args.lines.size-1] * gameLevel * (startingHeight+1) * previousLineCount
         previousLineCount = args.lines.size
         scoreText.text = "Score: $score"
     }
@@ -274,5 +296,10 @@ class Tetris(private var activity: Activity) {
         levelText.text = "Level: 1"
         api.endGame()
         api.startGame()
+    }
+
+    fun saveGame(bundleObj: Bundle): Bundle {
+        bundleObj.putInt(K_SCORE, this.score)
+        return api.saveGame(bundleObj)
     }
 }
