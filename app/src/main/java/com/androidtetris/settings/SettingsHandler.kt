@@ -27,7 +27,7 @@ val K_TETROMINO_COORDINATES = "tetrominoCoordinates"
 val K_UPCOMING_TETROMINOES = "upcomingTetrominoes"
 val K_GRID = "grid"
 val K_SCORE = "score"
-
+val K_GAME_TIME = "gameTime" // Seconds elapsed since starting the game
 
 /* Our settings handling singleton object. Intended to be used globally throughout the application.
  * This is so we don't have to constantly instantiate this object and open the preferences file in each activity. */

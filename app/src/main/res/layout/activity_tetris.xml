@@ -36,9 +36,8 @@
         android:id="@+id/btn_left"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:layout_marginStart="50dp"
         android:layout_marginTop="114dp"
-        app:layout_constraintStart_toEndOf="@+id/btn_pause"
+        app:layout_constraintEnd_toStartOf="@+id/btn_rotate"
         app:layout_constraintTop_toBottomOf="@+id/gridCanvas" />
 
     <com.androidtetris.activity.tetris.CircleButton
@@ -116,10 +115,10 @@
         android:layout_marginStart="47dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="84dp"
-        android:layout_marginBottom="488dp"
+        android:layout_marginBottom="4dp"
         android:text="@string/txt_level"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/txt_time"
         app:layout_constraintEnd_toStartOf="@+id/gridCanvas"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_score"
@@ -158,5 +157,17 @@
         android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_pause" />
+
+    <TextView
+        android:id="@+id/txt_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="47dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="201dp"
+        android:text="@string/txt_time"
+        app:layout_constraintBottom_toTopOf="@+id/chip_ghost"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_level" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,6 +13,7 @@ import com.androidtetris.game.Direction
 import com.androidtetris.game.event.*
 import android.os.Handler
 import android.os.Looper
+import android.os.CountDownTimer
 import android.app.Activity
 import android.widget.Button
 import com.androidtetris.R
@@ -149,7 +150,7 @@ class TetrisRunnable(handler: Handler, private val lambda: () -> Unit, val delay
     }
 }
 
-class Tetris(private var activity: Activity, savedState: Bundle?) {
+class Tetris(private var activity: Activity, private val savedState: Bundle?) {
     // This classes uses the API to interact with the tetris game engine.
     private val mSettings = SettingsHandler
     var isGamePaused = false
@@ -161,7 +162,8 @@ class Tetris(private var activity: Activity, savedState: Bundle?) {
     private val linesText: TextView = activity.findViewById(R.id.txt_lines)
     private val levelText: TextView = activity.findViewById(R.id.txt_level)
     private val scoreText: TextView = activity.findViewById(R.id.txt_score)
-    
+    private val timeText: TextView = activity.findViewById(R.id.txt_time)
+
     // Required for scoring calculation when lines are completed
     private var score = savedState?.getInt(K_SCORE) ?: 0
     private var previousLineCount = 1
@@ -173,6 +175,9 @@ class Tetris(private var activity: Activity, savedState: Bundle?) {
     private var lines = savedState?.getInt(K_LINES) ?: 0
     private var gridSize = Point(10, 22)
     private var startingHeight = 0
+    private var gameTime = savedState?.getInt(K_GAME_TIME) ?: 0 // Time elapsed in seconds since the game started
+    private var gameTimer: CountDownTimer? = null
+    private var gameRestored = false
     
     init {
         loadSettings()
@@ -189,6 +194,12 @@ class Tetris(private var activity: Activity, savedState: Bundle?) {
         levelText.text = "Level: $gameLevel"
         scoreText.text = "Score: $score"
         linesText.text = "Lines: $lines"
+        // FIXME: game time should be updated here too
+        if (savedState != null) {
+            // A restored game. We need to tell the nextTetrominoCanvas to draw the upcoming ones.
+            drawUpcomingTetrominoes()
+            gameRestored = true
+        }
     }
 
     private fun loadSettings() {
@@ -250,23 +261,33 @@ class Tetris(private var activity: Activity, savedState: Bundle?) {
     }
 
     fun tetrominoSpawned(args: TetrominoSpawnedEventArgs) {
+        // This function is called when a new tetromino is spawned
+        // First, draw the updated upcoming tetrominoes
+        drawUpcomingTetrominoes()
+        // Now draw the newly spawned tetromino
+        val coordinates = args.coordinates.toList()
+        gameCanvas.drawTetromino(coordinates, coordinates, args.tetromino)
+    }
+
+    private fun drawUpcomingTetrominoes() {
         // Get the first 3 upcoming tetrominoes
         // Args: the tetromino's coordinates, and the tetromino
         val upcoming = api.getNextTetromino(3).toMutableList()
         upcoming.reverse()
         nextTetrominoCanvas.upcoming = upcoming
         nextTetrominoCanvas.invalidate()
-        // Now draw this one
-        val coordinates = args.coordinates.toList()
-        gameCanvas.drawTetromino(coordinates, coordinates, args.tetromino)
-    }        
+    }
 
     fun gameEnded() {
-        println("Game ends")
+        gameTimer?.cancel()
     }
     
     fun gameStarted() {
-        println("Game starts")
+        if (gameRestored) {
+            gameTime = 0
+            gameRestored = false
+        }
+        startGameTimer()
     }
 
     fun setGhostEnabled(enabled: Boolean) {
@@ -300,6 +321,33 @@ class Tetris(private var activity: Activity, savedState: Bundle?) {
 
     fun saveGame(bundleObj: Bundle): Bundle {
         bundleObj.putInt(K_SCORE, this.score)
+        bundleObj.putInt(K_GAME_TIME, this.gameTime)
         return api.saveGame(bundleObj)
     }
+
+    private fun increaseGameTimer() {
+        if (isGamePaused) { return }
+        gameTime++
+        val s = gameTime % 60
+        val m = (gameTime-s) / 60
+        var mStr = m.toString()
+        var sStr = s.toString()
+        if (m < 10) { mStr = "0" + mStr }
+        if (s < 10) { sStr = "0" + sStr }
+        timeText.text = String.format("Time: %s:%s", mStr, sStr)
+    }
+
+    private fun startGameTimer() {
+        // Creates a CountDownTimer that automatically moves the tetromino downwards every <dropSpeed> milliseconds
+        gameTimer?.cancel()
+        gameTimer = object : CountDownTimer(600*1000L, 1000L) {
+            override fun onTick(millisInFuture: Long) {
+                increaseGameTimer()
+            }
+            override fun onFinish() {
+                startGameTimer()
+            }
+        }.start()
+    }
+
 }

@@ -52,12 +52,12 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
             gameRestored = true
         }
         else {
-            // No game state was saved. Initialize a new game.
-            for (i in 0 until 10) {
+            // No previous game state was saved, so this is a new game.
+            // Create 4 new random tetrominoes.
+            // Rest of the stuff is done in startGame(), which the API calls manually.
+            for (i in 0 until 4) {
                 this.tetrominoes.add(getRandomTetromino())
             }
-            // Set the game drop speed (how fast the tetrominoes move downwards)
-            dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
         }
     }
 
@@ -85,7 +85,6 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
             }
         }
     }
-        
 
     fun saveGame(bundle: Bundle): Bundle {
         /* Saves the current game state in a Bundle object.
@@ -208,6 +207,10 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
             // it will start a new game.
             gameRestored = false
         }
+        // Set the game drop speed (how fast the tetrominoes move downwards)
+        gameLevel = options.gameLevel
+        dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
+
         startMovementTimer()
         eventDispatcher.dispatch(Event.GameStart) 
         // We dispatch the GridChanged here in case any changes were to the grid,

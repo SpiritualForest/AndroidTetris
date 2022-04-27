@@ -18,6 +18,6 @@
     <string name="txt_selectTheme">Select colour theme:</string>
     <string name="btn_customizeTheme">Customize</string>
     <string name="btn_apply">Apply</string>
-    <string name="btn_cancel">Cancel</string>
+    <string name="txt_time">Time: 00:00</string>
     <string name="preference_file">com.androidtetris.settings_file</string>
 </resources>

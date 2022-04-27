@@ -25,11 +25,6 @@ import com.androidtetris.TetrominoShape
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.game.TetrominoCode
 
-/* TODO: refactor this code so that the spinners don't set the settings.
-   Instead, the Apply button should save all at once.
-   Cancel button should close the activity.
- */
-
 class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +77,7 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
             }
             // Save custom theme
             ThemeHandler.saveCustomTheme(colors)
+            Toast.makeText(this, "Changes saved", Toast.LENGTH_SHORT).show()
         }
     }
     

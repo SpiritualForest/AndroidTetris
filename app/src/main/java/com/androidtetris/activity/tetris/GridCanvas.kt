@@ -102,7 +102,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // Draw the ghost first, because if we draw the tetromino and then the ghost,
         // it creates this weird coloured squares instad of the tetromino's real colour,
         // once it drops into the position that the ghost occupies. I don't know why this happens, yet.
-        // The colour comes from the tetromino's own colour, but we reduce the alpha from 255 to 50.
+        // The colour comes from the the theme's colorOnSurface attribute, with alpha (transparency) set to 50.
         if (ghostEnabled) {
             val colorInt = MaterialColors.getColor(this, R.attr.colorOnSurface)
             val red = colorInt and 0xff
