@@ -70,7 +70,7 @@ class TetrisActivity : AppCompatActivity() {
             }
         }
         // Check or uncheck the ghost chip based on if the feature is enabled in settings
-        ghostChip.isChecked = SettingsHandler.getBoolean(S_GHOST_ENABLED)
+        ghostChip.isChecked = SettingsHandler.getGhostEnabled()
 
         // Our handler for the touch event runnables
         mHandler = Handler(Looper.getMainLooper())
@@ -86,7 +86,7 @@ class TetrisActivity : AppCompatActivity() {
         ghostChip.setOnCheckedChangeListener { _, isChecked ->
             run {
                 mTetris.setGhostEnabled(isChecked)
-                SettingsHandler.setBoolean(S_GHOST_ENABLED, isChecked)
+                SettingsHandler.setGhostEnabled(isChecked)
             }
         }
     }
@@ -166,24 +166,27 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
 
     // Required for scoring calculation when lines are completed
     private var score = savedState?.getInt(K_SCORE) ?: 0
-    private var previousLineCount = 1
-    private val scoreMultiplication = listOf(40, 100, 300, 1200) // 1 line, 2 line, 3 lines, 4 lines
+    private var previousLineCount = savedState?.getInt(K_PREVIOUS_LINE_COUNT) ?: 1
+    private val scoreMultiplication = listOf(40, 100, 300, 1200) // 1 line, 2 line, 3 lines, 4 lines 
+    private var lines = savedState?.getInt(K_LINES) ?: 0 // How many lines were completed so far
 
     val api = API()
-    private var invertRotation = false
-    private var gameLevel = savedState?.getInt(K_GAME_LEVEL) ?: 1
-    private var lines = savedState?.getInt(K_LINES) ?: 0
-    private var gridSize = Point(10, 22)
-    private var startingHeight = 0
+    
+    // Game options
+    private var invertRotation = mSettings.getInvertRotation() // False by default
+    private var gameLevel = savedState?.getInt(K_GAME_LEVEL) ?: mSettings.getGameLevel() // 1 by default
+    private var gridSize = mSettings.getGridSize() // Point(10x22) by default
+    private var startingHeight = mSettings.getStartingHeight() // 0 by default
+
+    // Game time
     private var gameTime = savedState?.getInt(K_GAME_TIME) ?: 0 // Time elapsed in seconds since the game started
     private var gameTimer: CountDownTimer? = null
-    private var gameRestored = false
     
     init {
-        Log.d("TetrisActivity", "Game time: $gameTime")
-        loadSettings()
         api.createGame(TetrisOptions(gameLevel, gridSize, invertRotation, startingHeight), savedState)
         gameCanvas.setGridSize(gridSize.x, gridSize.y)
+
+        // Event callbacks
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
         api.addCallback(Event.Collision, ::collisionOccurred)
@@ -191,43 +194,18 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         api.addCallback(Event.TetrominoSpawned, ::tetrominoSpawned)
         api.addCallback(Event.GameEnd, ::gameEnded)
         api.addCallback(Event.GameStart, ::gameStarted)
+        
+        // Stats TextViews
         levelText.text = "Level: $gameLevel"
         scoreText.text = "Score: $score"
         linesText.text = "Lines: $lines"
-        convertGameTime()
+        convertGameTime() // "Time: 00:00" or whatever it is
+        
         if (savedState != null) {
             // A restored game. We need to tell the nextTetrominoCanvas to draw the upcoming ones.
             drawUpcomingTetrominoes()
-            gameRestored = true
         }
         api.startGame()
-    }
-
-    private fun loadSettings() {
-        // Loads up the game options saved settings
-        invertRotation = mSettings.getBoolean(S_INVERT_ROTATION)
-        gameLevel = mSettings.getInt(S_GAME_LEVEL)
-        if (gameLevel == -1) {
-            // Setting doesn't exist. Set to default of 1
-            gameLevel = 1
-        }
-
-        val gridSizeSetting = mSettings.getString(S_GRID_SIZE)
-        if (gridSizeSetting == "") {
-            // Not found. Set to default of 10x22
-            gridSize = Point(10, 22)
-        }
-        else {
-            // It's a string of "NxN", for example "10x22"
-            val (x, y) = gridSizeSetting!!.split("x")
-            gridSize = Point(x.toInt(), y.toInt())
-        }
-
-        startingHeight = mSettings.getInt(S_STARTING_HEIGHT)
-        if (startingHeight == -1) {
-            // Not found, set to default of 0
-            startingHeight = 0
-        }
     }
 
     fun coordinatesChanged(args: CoordinatesChangedEventArgs) {
@@ -284,11 +262,12 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
     }
     
     fun gameStarted() {
-        Log.d("ActivityTetris", "gameStarted() game time: $gameTime")
         startGameTimer()
     }
 
     fun setGhostEnabled(enabled: Boolean) {
+        /* We need this function here so that we can pass this information to the game canvas,
+         * instead of having the canvas' view constantly access persistent storage to retrieve it. */
         gameCanvas.ghostEnabled = enabled
     }
 
@@ -322,6 +301,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
     fun saveGame(bundleObj: Bundle): Bundle {
         bundleObj.putInt(K_SCORE, this.score)
         bundleObj.putInt(K_GAME_TIME, this.gameTime)
+        bundleObj.putInt(K_PREVIOUS_LINE_COUNT, this.previousLineCount)
         return api.saveGame(bundleObj)
     }
 
@@ -336,13 +316,12 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
     }
 
     private fun startGameTimer() {
-        // Creates a CountDownTimer that automatically moves the tetromino downwards every <dropSpeed> milliseconds
+        // Creates a CountDownTimer that automatically increases the time and displays it in a TextView every second.
         gameTimer?.cancel()
         val untilFinished = 600*1000L
         val tick = 1000L
         gameTimer = object : CountDownTimer(untilFinished, tick) {
             override fun onTick(millisInFuture: Long) {
-                Log.d("startGameTimer", "millisInFuture: $millisInFuture")
                 if ((untilFinished - millisInFuture) < 1000) {
                     // First ever tick, happens immediately when timer starts, resulting in an incorrect time.
                     // We skip this one.

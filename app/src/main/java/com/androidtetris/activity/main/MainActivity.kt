@@ -42,48 +42,40 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         
         /* Game options input widgets */
         val invertRotationCheckBox = findViewById<CheckBox>(R.id.checkBox_invertRotation)
-        invertRotationCheckBox.isChecked = SettingsHandler.getBoolean(S_INVERT_ROTATION)
+        invertRotationCheckBox.isChecked = SettingsHandler.getInvertRotation()
         val gridSizeSpinner = findViewById<Spinner>(R.id.spinner_gridSize)
         val gameLevelSpinner = findViewById<Spinner>(R.id.spinner_gameLevel)
         val startingHeightSpinner = findViewById<Spinner>(R.id.spinner_startingHeight)
         val colorThemeSpinner = findViewById<Spinner>(R.id.spinner_colorTheme)
 
         invertRotationCheckBox.setOnCheckedChangeListener {
-                _, isChecked -> SettingsHandler.setBoolean(S_INVERT_ROTATION, isChecked)
+                _, isChecked -> SettingsHandler.setInvertRotation(isChecked)
         }
-
-        /* FIXME: this is very ugly. Refactor this code to reduce hard coded setting names and such shit. */
         
         // Strings list for the grid size's ArrayAdapter
         val gridSizes: List<String> = listOf(defaultSpinnerSelection, "10x22", "20x44", "25x55", "40x88")
         // Set the adapter
         setAdapter(gridSizeSpinner, gridSizes)
-        val gridSizeSetValue = SettingsHandler.getString(S_GRID_SIZE)
-        if (gridSizeSetValue != "") {
-            gridSizeSpinner.setSelection(getSpinnerIndex(gridSizeSpinner, gridSizeSetValue!!))
-        }
+        // getGridSize() returns Point(x, y). Using .toString() will return "XxY", such as "10x22"
+        val gridSizeSetValue = SettingsHandler.getGridSize().toString() // Will be "10x22" by default
+        gridSizeSpinner.setSelection(getSpinnerIndex(gridSizeSpinner, gridSizeSetValue))
 
         // Game level
         val gameLevels: MutableList<String> = mutableListOf(defaultSpinnerSelection)
         for(i in 1 until 20) { gameLevels.add(i.toString()) }
         // Set the adapter
         setAdapter(gameLevelSpinner, gameLevels)
-        // NOTE: string and int mix-up here, beware!
-        val gameLevelSetValue: Int = SettingsHandler.getInt(S_GAME_LEVEL)
-        if (gameLevelSetValue != -1) {
-            // This value exists in our saved settings, so use it
-            gameLevelSpinner.setSelection(getSpinnerIndex(gameLevelSpinner, gameLevelSetValue.toString()))
-        }
+        val gameLevelSetValue: Int = SettingsHandler.getGameLevel() // Returns 1 by default
+        gameLevelSpinner.setSelection(getSpinnerIndex(gameLevelSpinner, gameLevelSetValue.toString()))
 
         // Starting height
         val startingHeights: MutableList<String> = mutableListOf(defaultSpinnerSelection)
         for(i in 0 until 8) { startingHeights.add(i.toString()) }
         // Set the adapter for this spinner
         setAdapter(startingHeightSpinner, startingHeights)
-        val startingHeightSetValue = SettingsHandler.getInt(S_STARTING_HEIGHT)
-        if (startingHeightSetValue != -1) {
-            startingHeightSpinner.setSelection(getSpinnerIndex(startingHeightSpinner, startingHeightSetValue.toString()))
-        }
+        val startingHeightSetValue = SettingsHandler.getStartingHeight() // 0 by default
+        startingHeightSpinner.setSelection(getSpinnerIndex(startingHeightSpinner, startingHeightSetValue.toString()))
+
         // Colour theme selection
         setAdapter(colorThemeSpinner, ThemeHandler.getThemes())
         // Set selection to current theme
@@ -106,15 +98,15 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
         when (parent.id) {
             R.id.spinner_gridSize -> {
                 // Grid size selection
-                SettingsHandler.setString(S_GRID_SIZE, parent.getItemAtPosition(position).toString())
+                SettingsHandler.setGridSize(parent.getItemAtPosition(position).toString())
             }
             R.id.spinner_gameLevel -> {
                 // Game level selection
-                SettingsHandler.setInt(S_GAME_LEVEL, parent.getItemAtPosition(position).toString().toInt())
+                SettingsHandler.setGameLevel(parent.getItemAtPosition(position).toString().toInt())
             }
             R.id.spinner_startingHeight -> {
                 // Starting height
-                SettingsHandler.setInt(S_STARTING_HEIGHT, parent.getItemAtPosition(position).toString().toInt())
+                SettingsHandler.setStartingHeight(parent.getItemAtPosition(position).toString().toInt())
             }
             R.id.spinner_colorTheme -> {
                 // Colour

@@ -48,10 +48,10 @@ object ThemeHandler {
         }
 
         // Now set the current theme, if one was saved.
-        val savedTheme = SettingsHandler.getString(S_THEME)!!
+        val savedTheme = SettingsHandler.getTheme()
         if (savedTheme != "") { theme = savedTheme }
 
-        if (SettingsHandler.getBoolean(S_LOAD_CUSTOM)) {
+        if (SettingsHandler.getLoadCustom()) {
             // A custom theme was saved, load it.
             loadCustomTheme()
         }
@@ -80,8 +80,8 @@ object ThemeHandler {
     fun saveCustomTheme(colors: Map<TetrominoCode, Int>) {
         /* Save the currently set custom theme colour values into storage */
         this.theme = T_CUSTOM
-        SettingsHandler.setString(S_THEME, T_CUSTOM)
-        SettingsHandler.setBoolean(S_LOAD_CUSTOM, true)
+        SettingsHandler.setTheme(T_CUSTOM)
+        SettingsHandler.setLoadCustom(true)
         themes[T_CUSTOM] = hashMapOf()
         for(tetromino in colors.keys) {
             // colors is TetrominoCode -> ColorInt value
@@ -95,7 +95,7 @@ object ThemeHandler {
         if (name !in themes.keys) { return }
         this.theme = name
         // Save the theme in storage as the selected theme
-        SettingsHandler.setString(S_THEME, name)
+        SettingsHandler.setTheme(name)
     }
 
     fun getThemeColors(): Map<TetrominoCode, Int> {

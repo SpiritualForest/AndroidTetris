@@ -21,6 +21,10 @@ data class Point(var x: Int, var y: Int) {
         // Return a copy of this point
         return Point(x, y)
     }
+
+    override fun toString(): String {
+        return String.format("%dx%d", x, y)
+    }
 }
 
 abstract class Tetromino(private val grid: Grid) {
@@ -109,12 +113,12 @@ data class S(val grid: Grid) : Tetromino(grid) {
 
 data class T(val grid: Grid) : Tetromino(grid) {
     override val tetrominoCode = TetrominoCode.T
-    override var coordinatesMap = arrayOf(1, 4, 5, 6)
+    override var coordinatesMap = arrayOf(0, 1, 2, 5)
     override val rotationsMap = arrayOf(
-        arrayOf(1, 4, 5, 9),
-        arrayOf(0, 1, 2, 5),
         arrayOf(0, 4, 8, 5),
         arrayOf(1, 4, 5, 6),
+        arrayOf(1, 4, 5, 9),
+        arrayOf(0, 1, 2, 5)
     )
     init {
         initCoordinates()

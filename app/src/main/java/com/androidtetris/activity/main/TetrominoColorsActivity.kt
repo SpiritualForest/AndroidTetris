@@ -63,7 +63,6 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
             spinnerObj.spinner.adapter = ColorAdapter(this, R.layout.color_dropdown, tetrominoDataObjects)
             
             // Set the selected colour on each spinner item respectively.
-            // FIXME: account for custom theme.
             val color = currentThemeColors[spinnerObj.tetrominoCode]!!
             spinnerObj.spinner.setSelection(getSpinnerIndex(spinnerObj.spinner, color))
         }
@@ -92,14 +91,11 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
     }
 
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-        // Spinner's dropdown menu selection callback.
-        if (view == null) { return }
-        else {
-            // Find our color hex string stored by the view object
-            val colorSelect = view.findViewById<TetrominoColorSelectView>(R.id.colorSelect)
-            // NOTE: we don't save the colours in the theme here.
-            // We'll do that in the "Apply" button's onClick listener.
-        }
+        /* Spinner dropdown menu selection callback.
+         * This function doesn't actually do anything, because we're not setting
+         * each menu's selection individually, but we must implement it to conform
+         * to the OnItemSelectedListener interface.
+         * The settings are saved all at once by pressing the Apply button. */
     }            
 
     override fun onNothingSelected(parent: AdapterView<*>) {
