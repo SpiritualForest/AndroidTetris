@@ -180,6 +180,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
     private var gameRestored = false
     
     init {
+        Log.d("TetrisActivity", "Game time: $gameTime")
         loadSettings()
         api.createGame(TetrisOptions(gameLevel, gridSize, invertRotation, startingHeight), savedState)
         gameCanvas.setGridSize(gridSize.x, gridSize.y)
@@ -190,16 +191,16 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         api.addCallback(Event.TetrominoSpawned, ::tetrominoSpawned)
         api.addCallback(Event.GameEnd, ::gameEnded)
         api.addCallback(Event.GameStart, ::gameStarted)
-        api.startGame()
         levelText.text = "Level: $gameLevel"
         scoreText.text = "Score: $score"
         linesText.text = "Lines: $lines"
-        // FIXME: game time should be updated here too
+        convertGameTime()
         if (savedState != null) {
             // A restored game. We need to tell the nextTetrominoCanvas to draw the upcoming ones.
             drawUpcomingTetrominoes()
             gameRestored = true
         }
+        api.startGame()
     }
 
     private fun loadSettings() {
@@ -283,10 +284,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
     }
     
     fun gameStarted() {
-        if (gameRestored) {
-            gameTime = 0
-            gameRestored = false
-        }
+        Log.d("ActivityTetris", "gameStarted() game time: $gameTime")
         startGameTimer()
     }
 
@@ -315,6 +313,8 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         linesText.text = "Lines: 0"
         scoreText.text = "Score: 0"
         levelText.text = "Level: 1"
+        timeText.text = "Time: 00:00"
+        gameTime = 0
         api.endGame()
         api.startGame()
     }
@@ -325,9 +325,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         return api.saveGame(bundleObj)
     }
 
-    private fun increaseGameTimer() {
-        if (isGamePaused) { return }
-        gameTime++
+    private fun convertGameTime() {
         val s = gameTime % 60
         val m = (gameTime-s) / 60
         var mStr = m.toString()
@@ -340,9 +338,19 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
     private fun startGameTimer() {
         // Creates a CountDownTimer that automatically moves the tetromino downwards every <dropSpeed> milliseconds
         gameTimer?.cancel()
-        gameTimer = object : CountDownTimer(600*1000L, 1000L) {
+        val untilFinished = 600*1000L
+        val tick = 1000L
+        gameTimer = object : CountDownTimer(untilFinished, tick) {
             override fun onTick(millisInFuture: Long) {
-                increaseGameTimer()
+                Log.d("startGameTimer", "millisInFuture: $millisInFuture")
+                if ((untilFinished - millisInFuture) < 1000) {
+                    // First ever tick, happens immediately when timer starts, resulting in an incorrect time.
+                    // We skip this one.
+                    return
+                }
+                if (isGamePaused) { return }
+                gameTime++
+                convertGameTime()
             }
             override fun onFinish() {
                 startGameTimer()
