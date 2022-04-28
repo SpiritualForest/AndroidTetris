@@ -21,7 +21,7 @@ data class TetrisOptions(
 class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMode: Boolean = false, val savedState: Bundle? = null) {
     private val gridHeight = options.gridSize.y
     private val gridWidth = options.gridSize.x
-    var gameLevel = options.gameLevel
+    var gameLevel = savedState?.getInt(K_GAME_LEVEL) ?: options.gameLevel
         private set
     val grid = Grid(gridWidth, gridHeight) // Default is x 10, y 22
     private var tetrominoes = mutableListOf<TetrominoCode>()
@@ -34,14 +34,14 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
         TetrominoCode.T to ::T,
         TetrominoCode.Z to ::Z,
     )
-    lateinit var currentTetromino: Tetromino
+    lateinit var currentTetromino: Tetromino // = savedState?.getSerializable(K_TETROMINO) ?: TetrominoCode.I
         private set
-    private var dropSpeed: Long = 1000L // How fast the tetrominoes move downwards automatically. Defaults to 1 sec (1000ms)
+    private var dropSpeed: Long = savedState?.getLong(K_DROP_SPEED) ?: 1000L // How fast the tetrominoes move downwards automatically. Defaults to 1 sec (1000ms)
     private var downwardsCollisionCount = 0
     val eventDispatcher = EventDispatcher()
     private var gameRunning = false // Game is not running by default
     private var mTimer: CountDownTimer? = null
-    var lines = 0
+    var lines = savedState?.getInt(K_LINES) ?: 0
         private set
     private var gameRestored = false
 
@@ -132,10 +132,6 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
 
     private fun loadGame(savedState: Bundle) {
         // Load a game
-        // Stats first
-        gameLevel = savedState.getInt(K_GAME_LEVEL)
-        lines = savedState.getInt(K_LINES)
-        dropSpeed = savedState.getLong(K_DROP_SPEED)
         
         // For tetromino, we must create a new object and then set its coordinates and current rotation
         val t = savedState.getSerializable(K_TETROMINO)
@@ -174,7 +170,8 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
         for(upcomingTetromino in upcoming!!) {
             this.tetrominoes.add(tetrominoCodes[upcomingTetromino])
         }
-        eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(this.grid.copyOf()))
+        // Dispatch the GridChanged event so that the UI will be able to redraw the grid immediately
+        //eventDispatcher.dispatch(Event.GridChanged, GridChangedEventArgs(this.grid.copyOf()))
     }
     
     internal fun startMovementTimer() {
@@ -207,9 +204,6 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
             // it will start a new game.
             gameRestored = false
         }
-        // Set the game drop speed (how fast the tetrominoes move downwards)
-        gameLevel = options.gameLevel
-        dropSpeed -= (gameLevel-1)*50 // Reductions of 50ms for each extra level
 
         startMovementTimer()
         eventDispatcher.dispatch(Event.GameStart) 

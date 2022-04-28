@@ -27,6 +27,8 @@ import com.androidtetris.game.TetrominoCode
 
 class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
     
+    private var spinnerCalls = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tetromino_colors)
@@ -93,7 +95,7 @@ class TetrominoColorsActivity : AppCompatActivity(), OnItemSelectedListener {
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
         /* Spinner dropdown menu selection callback.
          * This function doesn't actually do anything, because we're not setting
-         * each menu's selection individually, but we must implement it to conform
+         * each menu's selection individually, but we must provide it to conform
          * to the OnItemSelectedListener interface.
          * The settings are saved all at once by pressing the Apply button. */
     }            
