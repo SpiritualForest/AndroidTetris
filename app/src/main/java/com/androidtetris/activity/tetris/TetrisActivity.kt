@@ -23,8 +23,6 @@ import com.androidtetris.game.TetrisOptions
 import com.androidtetris.settings.* // For SettingsHandler and option name constants
 import android.util.Log
 
-// TODO: handle activity OnPause/OnResume
-
 class TetrisActivity : AppCompatActivity() {
     
     private lateinit var mTetris: Tetris
@@ -289,9 +287,14 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         btnPause.setText(R.string.btn_pause)
         isGamePaused = false // And this class's property too
         /* Now reset the lines count, level, and score */
+        gameLevel = savedState?.getInt(K_GAME_LEVEL) ?: mSettings.getGameLevel()
+        score = 0
+        lines = 0
+        previousLineCount = 1
+        // Reset the stats TextViews
         linesText.text = "Lines: 0"
         scoreText.text = "Score: 0"
-        levelText.text = "Level: 1"
+        levelText.text = "Level: $gameLevel"
         timeText.text = "Time: 00:00"
         gameTime = 0
         api.endGame()

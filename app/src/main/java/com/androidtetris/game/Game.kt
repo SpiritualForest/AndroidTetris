@@ -15,10 +15,11 @@ data class TetrisOptions(
     val gameLevel: Int = 1, // Game level, affects the tetromino's dropping speed
     val gridSize: Point = Point(10, 22), // Point(x, y) size of the grid. x is width, y is height
     val invertRotation: Boolean = false, // Rotation direction. Counter clockwise is normal
-    val startingHeight: Int = 0 // Starting height. If more than 0, will populate the grid with random squares across <startingHeight> lines
+    val startingHeight: Int = 0, // Starting height. If more than 0, will populate the grid with random squares across <startingHeight> lines
+    val isTestMode: Boolean = false // Is the game running in test mode?
 )
 
-class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMode: Boolean = false, val savedState: Bundle? = null) {
+class Game(private val options: TetrisOptions = TetrisOptions(), val savedState: Bundle? = null) {
     private val gridHeight = options.gridSize.y
     private val gridWidth = options.gridSize.x
     var gameLevel = savedState?.getInt(K_GAME_LEVEL) ?: options.gameLevel
@@ -36,7 +37,9 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
     )
     lateinit var currentTetromino: Tetromino // = savedState?.getSerializable(K_TETROMINO) ?: TetrominoCode.I
         private set
-    private var dropSpeed: Long = savedState?.getLong(K_DROP_SPEED) ?: 1000L // How fast the tetrominoes move downwards automatically. Defaults to 1 sec (1000ms)
+    private val dropSpeedReduction = 50 // 50ms reduction on each game level increase
+    // How fast the tetrominoes move downwards automatically. Starts at 1000ms when the game level is 1.
+    private var dropSpeed: Long = savedState?.getLong(K_DROP_SPEED) ?: 1000L - (gameLevel*dropSpeedReduction)
     private var downwardsCollisionCount = 0
     val eventDispatcher = EventDispatcher()
     private var gameRunning = false // Game is not running by default
@@ -46,6 +49,8 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
     private var gameRestored = false
 
     init {
+        // Test mode?
+        if (options.isTestMode) { gameRunning = true }
         // First, check if a game state was saved. If yes, we load it.
         if (savedState != null) {
             loadGame(savedState)
@@ -149,6 +154,9 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
         currentTetromino = tetrominoObj.invoke(grid)
         currentTetromino.currentRotation = rotation
         currentTetromino.coordinates = coordinates
+        if (options.invertRotation) {
+            currentTetromino.rotations.reverse()
+        }
 
         // Now we unpack the grid
         val grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
@@ -215,6 +223,10 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
     internal fun endGame() {
         // Stop the movement timer and clear out the grid.
         gameRunning = false
+        gameLevel = options.gameLevel
+        // Reset the drop speed according to the game level.
+        // This is done in case the player restarts the game. Otherwise, it has no effect anyway.
+        dropSpeed = 1000L - (gameLevel*50)
         grid.clear()
         mTimer?.cancel()
         eventDispatcher.dispatch(Event.GameEnd)
@@ -273,7 +285,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val runInTestMo
 
     /* Functions that are only used when running the game in test mode */
     internal fun setTetromino(tetrominoCode: TetrominoCode) {
-        if (!runInTestMode) {
+        if (!options.isTestMode) {
             println("Can't set tetromino manually when not in test mode")
             return
         }

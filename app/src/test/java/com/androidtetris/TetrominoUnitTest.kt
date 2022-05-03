@@ -5,7 +5,7 @@ import org.junit.Assert.*
 import com.androidtetris.game.*
 
 class TetrominoFunctionsUnitTest {
-    private val gameObj = Game(runInTestMode = true)
+    private val gameObj = Game(TetrisOptions(isTestMode = true))
 
     @Test
     fun test_moveLeft() {
