@@ -4,4 +4,4 @@ The core engine of the game is designed to be decoupled from the user interface 
 
 Gameplay:
 
-![](https://i.imgur.com/2NiBuZs.gif)
+![](https://i.imgur.com/nUMGuJz.gif)
