@@ -287,7 +287,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         btnPause.setText(R.string.btn_pause)
         isGamePaused = false // And this class's property too
         /* Now reset the lines count, level, and score */
-        gameLevel = savedState?.getInt(K_GAME_LEVEL) ?: mSettings.getGameLevel()
+        gameLevel = mSettings.getGameLevel()
         score = 0
         lines = 0
         previousLineCount = 1
