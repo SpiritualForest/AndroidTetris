@@ -104,6 +104,21 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // once it drops into the position that the ghost occupies. I don't know why this happens, yet.
         // The colour comes from the the theme's colorOnSurface attribute, with alpha (transparency) set to 50.
         if (ghostEnabled) {
+            /* First, compare the ghost's coordinates with the tetromino's coordinates.
+             * If they are equal, it means we no longer draw the ghost, even
+             * if the tetromino moves side to side again. */
+            var equal = true
+            for(i in 0 until ghostCoordinates.size) {
+                val ghostPoint = ghostCoordinates[i]
+                val tetPoint = currentTetrominoCoordinates[i]
+                if ((ghostPoint.y != tetPoint.y) or (ghostPoint.x != tetPoint.x)) {
+                    equal = false
+                    break
+                }
+            }
+            if (equal) {
+                ghostCoordinates = listOf()
+            }
             val colorInt = MaterialColors.getColor(this, R.attr.colorOnSurface)
             val red = colorInt and 0xff
             val green = colorInt and 0x00ff
