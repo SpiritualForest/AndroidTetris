@@ -27,7 +27,7 @@ object ThemeHandler {
         private set
 
     // Theme colour collections
-    private val darkColors = listOf("#1A4780", "#0A0A0A", "#8A8A8A", "#330033", "#000B61", "#003D31", "#2C002E")
+    private val darkColors = listOf("#12504f", "#131f1e", "#024910", "#5d0101", "#525d01", "#36015d", "#01155d")
     private val brightColors = listOf("#FF14A3", "#FF141E", "#FF8D14", "#C400F0", "#00F0E8", "#00F039", "#B4F202")
     private val rainbowColors = listOf("#ff0000", "#ff8c00", "#ffff00", "#008000", "#0000ff", "#4b0082", "#ee82ee")
 
