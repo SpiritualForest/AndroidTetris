@@ -24,7 +24,9 @@ class Grid(val width: Int, val height: Int) {
     }
 
     fun copyOf(): HashMap<Int, HashMap<Int, TetrominoCode>> {
-        // Returns a copy of the grid
+        // Returns an immutable "copy" of the grid.
+        // In reality, only the references are copied,
+        // but the set access method is revoked from the resulting object.
         val copyMap: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
         for(y in grid.keys) {
             val m = grid[y]!!

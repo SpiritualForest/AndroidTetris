@@ -3,11 +3,6 @@ package com.androidtetris.game
 import kotlin.reflect.*
 import com.androidtetris.game.event.*
 
-data class EventArgs(
-    val grid: Map<Int, HashMap<Int, TetrominoCode>> = hashMapOf(), // Game grid
-    val lines: List<Int> = listOf(), // Lines completed, empty if not LinesCompletedEvent
-)
-
 class EventDispatcher {
     private val callbacks: HashMap<Event, MutableList<KFunction<Unit>>> = hashMapOf()
 

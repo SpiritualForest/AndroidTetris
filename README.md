@@ -15,6 +15,7 @@ Install the package [android-tools](https://archlinux.org/packages/community/x86
 Obtain the APK file of the release you want from the [releases page](https://github.com/SpiritualForest/AndroidTetris/releases).
 
 Plug your Android device via USB and issue the command *adb -d install path/to/apk_file*.
+
 For example: *adb -d install ~/downloads/androidtetris-0.2b.apk*
 
 Installation through other Linux distributions should be largely similar, but the android-tools package name may differ, or include different tools.  

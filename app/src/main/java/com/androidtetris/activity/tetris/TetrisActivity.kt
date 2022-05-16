@@ -209,7 +209,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
     fun coordinatesChanged(args: CoordinatesChangedEventArgs) {
         // Called when the tetromino's coordinates changed due to movement
         // Args: the tetromino's previous coordinates, the new coordinates, and the tetromino
-        gameCanvas.drawTetromino(args.old.toList(), args.new.toList(), api.getCurrentTetromino())
+        gameCanvas.drawTetromino(args.new.toList(), api.getCurrentTetromino())
     }
 
     fun gridChanged(args: GridChangedEventArgs) {
@@ -243,7 +243,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         drawUpcomingTetrominoes()
         // Now draw the newly spawned tetromino
         val coordinates = args.coordinates.toList()
-        gameCanvas.drawTetromino(coordinates, coordinates, args.tetromino)
+        gameCanvas.drawTetromino(coordinates, args.tetromino)
     }
 
     private fun drawUpcomingTetrominoes() {

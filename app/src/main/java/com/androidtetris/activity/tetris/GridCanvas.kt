@@ -79,7 +79,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             canvas.drawPoint(0f, y.toFloat(), paint)
             canvas.drawPoint(width.toFloat()-1, y.toFloat(), paint)
         }
-        // Now top and bottoma
+        // Now top and bottom
         for(x in 0 until width) {
             canvas.drawPoint(x.toFloat(), 0f, paint)
             canvas.drawPoint(x.toFloat(), height.toFloat()-1, paint)
@@ -108,8 +108,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
              * If they are equal, it means we no longer draw the ghost, even
              * if the tetromino moves side to side again. */
             var equal = true
-            for(i in 0 until ghostCoordinates.size) {
-                val ghostPoint = ghostCoordinates[i]
+            for((i, ghostPoint) in ghostCoordinates.withIndex()) {
                 val tetPoint = currentTetrominoCoordinates[i]
                 if ((ghostPoint.y != tetPoint.y) or (ghostPoint.x != tetPoint.x)) {
                     equal = false
@@ -131,6 +130,14 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             }
         }
 
+        // Draw the tetromino
+        for(tetPoint in currentTetrominoCoordinates) {
+            val x = tetPoint.x
+            val y = tetPoint.y
+            val color = tetrominoColors[currentTetromino]!!
+            drawSquare(x.toFloat()*squareSizeDp, y.toFloat()*squareSizeDp, squareSizeDp, color, canvas)
+        }
+
         // Draw the grid
         for(y in this.grid.keys) {
             for(x in this.grid[y]?.keys!!) {
@@ -146,19 +153,16 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         canvas.drawRect(dpToPx(x)+1, dpToPx(y)+1, dpToPx(x+size)-1, dpToPx(y+size)-1, paint)
     }
 
-    fun drawTetromino(old: List<Point>, new: List<Point>, tetrominoCode: TetrominoCode) {
+    fun drawTetromino(new: List<Point>, tetrominoCode: TetrominoCode) {
+        // Set the coordinates and tetromino code
         currentTetrominoCoordinates = new
         currentTetromino = tetrominoCode
-        // Remove the old coordinates and add the new ones
-        removeCoordinates(old)
+        // Draw the ghost if enabled
         if (ghostEnabled) {
             drawGhost()
         }
-        // If we add the new coordinates to the grid before drawing the ghost piece,
-        // its collision detection mechanism will detect the new coordinates as a colliding object,
-        // and not draw the ghost piece. This is why we must call addCoordinates()
-        // AFTER drawing the ghost.
-        addCoordinates(new, tetrominoCode)
+        // The actual drawing of the tetromino takes place in onDraw()
+        // We only set its coordinates and instruct the View to be updated here.
         this.invalidate()
     }
 
@@ -194,11 +198,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
 
     fun drawGrid(newGrid: HashMap<Int, HashMap<Int, TetrominoCode>>) {
         // Set the newGrid as the grid
-        this.grid = newGrid
-        
-        // Now we can add the currentTetromino's coordinates to it
-        val currentTetromino = this.currentTetromino
-        addCoordinates(currentTetrominoCoordinates, currentTetromino)
+        this.grid = newGrid 
         this.invalidate()
     }
 
@@ -206,6 +206,9 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // Call the line clearing animation function for all the completed lines,
         // and then redraw the grid.
         val delay = ((gridWidth / 2) * 50) + 5L // By default, (5*50)+5, resulting in 255ms
+        // Add the current tetromino's coordinates to the grid, otherwise it will disappear briefly
+        // while the line clearing takes place.
+        addCoordinates(currentTetrominoCoordinates, currentTetromino)
         for(y in args.lines) {
             clearLine(y)
         }
