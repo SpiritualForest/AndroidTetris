@@ -187,7 +187,6 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         // Event callbacks
         api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
-        api.addCallback(Event.Collision, ::collisionOccurred)
         api.addCallback(Event.LinesCompleted, ::linesCompleted)
         api.addCallback(Event.TetrominoSpawned, ::tetrominoSpawned)
         api.addCallback(Event.GameEnd, ::gameEnded)
@@ -216,12 +215,6 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         // Called when the game's internal grid changes without lines being completed
         // Args: the grid
         gameCanvas.drawGrid(args.grid)
-    }
-
-    fun collisionOccurred(args: CollisionEventArgs) {
-        // Called when a collision occurs
-        // Args: Tetromino coordinates, direction of movement
-        println("Collision")
     }
 
     fun linesCompleted(args: LinesCompletedEventArgs) {

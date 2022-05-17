@@ -104,20 +104,6 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // once it drops into the position that the ghost occupies. I don't know why this happens, yet.
         // The colour comes from the the theme's colorOnSurface attribute, with alpha (transparency) set to 50.
         if (ghostEnabled) {
-            /* First, compare the ghost's coordinates with the tetromino's coordinates.
-             * If they are equal, it means we no longer draw the ghost, even
-             * if the tetromino moves side to side again. */
-            var equal = true
-            for((i, ghostPoint) in ghostCoordinates.withIndex()) {
-                val tetPoint = currentTetrominoCoordinates[i]
-                if ((ghostPoint.y != tetPoint.y) or (ghostPoint.x != tetPoint.x)) {
-                    equal = false
-                    break
-                }
-            }
-            if (equal) {
-                ghostCoordinates = listOf()
-            }
             val colorInt = MaterialColors.getColor(this, R.attr.colorOnSurface)
             val red = colorInt and 0xff
             val green = colorInt and 0x00ff
@@ -255,6 +241,8 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // We only copy the tetromino coordinates' point objects once, and operate on those.
         val coordinatesCopy: MutableList<Point> = mutableListOf()
         currentTetrominoCoordinates.forEach { coordinatesCopy.add(Point(it.x, it.y)) }
+        // Clear the old ghost coordinates first
+        ghostCoordinates = listOf()
         while(!isGhostCollision(coordinatesCopy)) {
             // Move the copied coordinates downwards until a collision occurs
             ghostCoordinates = coordinatesCopy.toList()
@@ -262,6 +250,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
                 point.y += 1
             }
         }
+        // If there was a collision on the first iteration, the ghost coordinates will remain empty.
     }
 
     private fun isGhostCollision(coordinates: List<Point>): Boolean {
