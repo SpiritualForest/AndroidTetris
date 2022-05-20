@@ -15,6 +15,7 @@ import com.androidtetris.game.*
 import com.androidtetris.game.event.*
 import com.androidtetris.R
 import com.androidtetris.settings.theme.ThemeHandler // For colours
+import android.util.Log
 
 class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     /* This View displays the actual gameplay. I should probably change its name. */
@@ -33,6 +34,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private val tetrominoColors: Map<TetrominoCode, Int> = ThemeHandler.getThemeColors()
     var ghostEnabled: Boolean = SettingsHandler.getGhostEnabled() // Ghost piece feature enabled?
     private var ghostCoordinates: List<Point> = listOf()
+    private var sortedGridKeys: List<Int> = listOf()
     private var gamePaused = false // If true, will draw "PAUSE" on the canvas when onDraw() is called
 
     private fun dpToPx(dp: Float): Float {
@@ -185,6 +187,10 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     fun drawGrid(newGrid: HashMap<Int, HashMap<Int, TetrominoCode>>) {
         // Set the newGrid as the grid
         this.grid = newGrid 
+        // Sort the y-axis keys for the ghost piece function, if enabled
+        if (ghostEnabled) {
+            this.sortedGridKeys = this.grid.keys.toList().sortedBy { it }
+        }
         this.invalidate()
     }
 
@@ -240,17 +246,65 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         // This way we don't need to repeatedly make copies of everything.
         // We only copy the tetromino coordinates' point objects once, and operate on those.
         val coordinatesCopy: MutableList<Point> = mutableListOf()
-        currentTetrominoCoordinates.forEach { coordinatesCopy.add(Point(it.x, it.y)) }
+        var lowestRow = 0 // Lowest y axis
+        currentTetrominoCoordinates.forEach { 
+            coordinatesCopy.add(Point(it.x, it.y))
+            if (it.y > lowestRow) { lowestRow = it.y }
+        }
         // Clear the old ghost coordinates first
         ghostCoordinates = listOf()
+        // Find the starting row for checking collisions
+        val closestRow = findClosestLarger(lowestRow, this.sortedGridKeys)
+        val diff = (closestRow - lowestRow)
+        // Now increase the coordinates y value by diff-1
+        // diff-1 because otherwise the bottom-most part of the tetromino will end up on the closestRow.
+        coordinatesCopy.forEach { it.y += diff-1 }
+        // No collision was detected after the initial hard-drop, so now we continue downwards.
         while(!isGhostCollision(coordinatesCopy)) {
             // Move the copied coordinates downwards until a collision occurs
-            ghostCoordinates = coordinatesCopy.toList()
             for(point in coordinatesCopy) {
                 point.y += 1
             }
         }
+        ghostCoordinates = coordinatesCopy.toList()
         // If there was a collision on the first iteration, the ghost coordinates will remain empty.
+    }
+    
+    private fun findClosestLarger(n: Int, a: List<Int>): Int {
+        /* Modified binary search algorithm that returns the closest
+         * element in a to n, which is LARGER than n.
+         * It never returns n itself. */
+        if (a.isEmpty()) {
+            // Empty list, return the lowest row (gridHeight-1)
+            return gridHeight-1
+        }
+        if (n < a[0]) {
+            // The first element in the list is already larger than n, so we return that.
+            return a[0]
+        }
+        if (n >= gridHeight-1) {
+            return gridHeight-1
+        }
+        var L = 0
+        var H = a.size
+        while(true) {
+            var m = (L+H) / 2
+            if (n >= a[m]) {
+                // Examine the higher half next iteration
+                L = m
+            }
+            else {
+                if (n >= a[m-1]) {
+                    // Because n was smaller than a[m] to get here,
+                    // but now it is larger than a[m-1],
+                    // this means that a[m] is the closest element in value to n,
+                    // that is larger than it. So we found it.
+                    return a[m]
+                }
+                // Examine the lower half next iteration
+                H = m
+            }
+        }
     }
 
     private fun isGhostCollision(coordinates: List<Point>): Boolean {
