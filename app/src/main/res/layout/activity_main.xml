@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.AndroidTetris"
-    tools:context=".MainActivity">
+    tools:context="com.androidtetris.activity.main.MainActivity">
 
     <Button
         android:id="@+id/btn_startgame"
@@ -128,7 +128,6 @@
         android:layout_marginEnd="9dp"
         android:background="@drawable/rounded_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gridSizeLayout">
 
@@ -154,12 +153,10 @@
             android:layout_marginEnd="123dp"
             android:layout_marginBottom="8dp"
             android:minHeight="48dp"
-            android:dropDownWidth="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/txt_startingHeight"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
             tools:ignore="SpeakableTextPresentCheck" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -196,6 +193,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="123dp"
             android:layout_marginBottom="8dp"
+            android:dropDownWidth="wrap_content"
             android:minHeight="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
 
         // Game level
         val gameLevels: MutableList<String> = mutableListOf(defaultSpinnerSelection)
-        for(i in 1 until 20) { gameLevels.add(i.toString()) }
+        for(i in 1 until 15) { gameLevels.add(i.toString()) }
         // Set the adapter
         setAdapter(gameLevelSpinner, gameLevels)
         val gameLevelSetValue: Int = SettingsHandler.getGameLevel() // Returns 1 by default
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
-        TODO("Not yet implemented")
+        /* Not implemented */
     }
 
     private fun getSpinnerIndex(spinner: Spinner, string: String): Int {

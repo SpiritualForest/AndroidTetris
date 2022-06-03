@@ -309,6 +309,9 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
 
     private fun isGhostCollision(coordinates: List<Point>): Boolean {
         // Checks if there's a collision for every y+1, x of the supplied coordinates, in the grid.
+        // y+1 because if we checked y, that's where the tetromino's lowest y point is, and therefore it
+        // is guaranteed to not be occupied in the grid. If we did this, the bottom-most line of the ghost
+        // would be drawn on the next line.
         // This function is used solely for the ghost piece's hard-dropping.
         for(point in coordinates) {
             val y = point.y+1
