@@ -62,11 +62,20 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
 
         // Game level
         val gameLevels: MutableList<String> = mutableListOf(defaultSpinnerSelection)
-        for(i in 1 until 15) { gameLevels.add(i.toString()) }
+        val defaultSelectionLength = defaultSpinnerSelection.length
+        for(i in 1 until 20) {
+            // Due to the Spinner's 15 item width measurement cap, we must
+            // add extra empty spaces to the number in order to increase its width.
+            val iString = i.toString()
+            val digitLengthIncrement = ((defaultSelectionLength - iString.length) * 2) - 1
+            val finalDigit = iString + " ".repeat(digitLengthIncrement)
+            gameLevels.add(finalDigit)
+        }
         // Set the adapter
         setAdapter(gameLevelSpinner, gameLevels)
         val gameLevelSetValue: Int = SettingsHandler.getGameLevel() // Returns 1 by default
-        gameLevelSpinner.setSelection(getSpinnerIndex(gameLevelSpinner, gameLevelSetValue.toString()))
+        val widthIncrement = ((defaultSelectionLength - gameLevelSetValue.toString().length) * 2) - 1
+        gameLevelSpinner.setSelection(getSpinnerIndex(gameLevelSpinner, gameLevelSetValue.toString() + " ".repeat(widthIncrement)))
 
         // Starting height
         val startingHeights: MutableList<String> = mutableListOf(defaultSpinnerSelection)
@@ -102,7 +111,9 @@ class MainActivity : AppCompatActivity(), OnItemSelectedListener {
             }
             R.id.spinner_gameLevel -> {
                 // Game level selection
-                SettingsHandler.setGameLevel(parent.getItemAtPosition(position).toString().toInt())
+                // This spinner gets special handling because its values are appended with spaces.
+                // We must strip those spaces with .trim()
+                SettingsHandler.setGameLevel(parent.getItemAtPosition(position).toString().trim().toInt())
             }
             R.id.spinner_startingHeight -> {
                 // Starting height
