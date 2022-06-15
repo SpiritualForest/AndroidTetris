@@ -187,10 +187,12 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     fun drawGrid(newGrid: HashMap<Int, HashMap<Int, TetrominoCode>>) {
         // Set the newGrid as the grid
         this.grid = newGrid 
-        // Sort the y-axis keys for the ghost piece function, if enabled
-        if (ghostEnabled) {
-            this.sortedGridKeys = this.grid.keys.toList().sortedBy { it }
-        }
+        // Sort the y-axis keys for the ghost piece function
+        // We must always sort the keys because the ghost relies on them
+        // for calculating its position. If enabled suddenly mid-game
+        // and the sorted keys list is empty, but the grid is not empty,
+        // the ghost might be drawn at a position that collides with squares in the grid.
+        this.sortedGridKeys = this.grid.keys.toList().sortedBy { it }
         this.invalidate()
     }
 
@@ -251,8 +253,6 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
             coordinatesCopy.add(Point(it.x, it.y))
             if (it.y > lowestRow) { lowestRow = it.y }
         }
-        // Clear the old ghost coordinates first
-        ghostCoordinates = listOf()
         // Find the starting row for checking collisions
         val closestRow = findClosestLarger(lowestRow, this.sortedGridKeys)
         val diff = (closestRow - lowestRow)
