@@ -36,16 +36,12 @@ class NextTetrominoCanvas(context: Context, attrs: AttributeSet?) : View(context
         // First, draw the border
         paint.color = MaterialColors.getColor(this, R.attr.colorOnPrimary)
         // First left and right borders
-        for(y in 0 until height) {
-            canvas.drawPoint(0f, y.toFloat(), paint)
-            canvas.drawPoint(width.toFloat()-1, y.toFloat(), paint)
-        }
+        canvas.drawLine(0f, 0f, 0f, height.toFloat(), paint) // Left
+        canvas.drawLine(width.toFloat(), 0f, width.toFloat(), height.toFloat(), paint) // Right
         // Now top and bottom
-        for(x in 0 until width) {
-            canvas.drawPoint(x.toFloat(), 0f, paint)
-            canvas.drawPoint(x.toFloat(), height.toFloat()-1, paint)
-        }
-
+        canvas.drawLine(0f, 0f, width.toFloat(), 0f, paint) // Top
+        canvas.drawLine(0f, height.toFloat(), width.toFloat(), height.toFloat(), paint) // Bottom
+        
         // Draw all the tetrominoes
         var spacing = 0 // For vertical spacing between the tetrominoes
         for(tetromino in upcoming) {
