@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Point
-import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.View
 import android.view.MotionEvent
@@ -15,12 +14,8 @@ import kotlin.math.min
 import com.google.android.material.color.MaterialColors
 import com.androidtetris.R
 
-import android.util.Log
-
-/* NOTE:
- * the actual functionality events for this button
- * are handled in TetrisActivity, not here.
- * This view only handles its own drawing.
+/* NOTE: this view only handles its own drawing.
+ * No gameplay actions are handled here.
  * See TetrisActivity to see the various gameplay functions
  * that are hooked to CircleButton views. */
 
