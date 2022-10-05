@@ -23,4 +23,4 @@ Installation through other Linux distributions should be largely similar, but th
 Find out how to install the adb tool and android-udev rules on your distribution and follow the rest of the instructions afterwards.
 ### Gameplay:
 
-![](https://i.imgur.com/nUMGuJz.gif)
+![](https://i.imgur.com/S274f3i.gif)
