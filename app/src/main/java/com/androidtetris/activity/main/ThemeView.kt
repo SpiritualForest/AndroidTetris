@@ -5,13 +5,11 @@ package com.androidtetris.activity.main
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.graphics.Color
 import android.graphics.Canvas
 import android.graphics.Paint
 import com.androidtetris.TetrominoShapeConverter
 import com.androidtetris.TetrominoShape // HashMap of shapes
 import com.androidtetris.game.TetrominoCode
-import com.androidtetris.settings.*
 import com.androidtetris.settings.theme.ThemeHandler
 import com.androidtetris.R
 import com.google.android.material.color.MaterialColors
@@ -46,21 +44,24 @@ class ThemeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     
     private fun drawRow(row: List<TetrominoCode>, horizontalStartingPosition: Int, verticalStartingPosition: Int, incX: Int, canvas: Canvas) {
         var x = horizontalStartingPosition
-        var y = verticalStartingPosition
         val colorValues = ThemeHandler.getThemeColors() // Map<TetrominoCode, Int>
         for(tetromino in row) {
             shapeConverter.shape = TetrominoShape[tetromino]!!
             // The coordinates are in pixels, not dp
-            val coordinates = shapeConverter.getCoordinates(verticalStartingPosition = y, horizontalStartingPosition = x)
+            val coordinates = shapeConverter.getCoordinates(
+                verticalStartingPosition = verticalStartingPosition,
+                horizontalStartingPosition = x
+            )
             paint.color = colorValues[tetromino]!!
             for(point in coordinates) {
                 canvas.drawRect(point.x+1, point.y+1, point.x+dpToPx(squareSize.toFloat())-1, point.y+dpToPx(squareSize.toFloat())-1, paint)
             }
-            if (incX == -1) { 
-                // Special case for bottom row 
-                x += dpToPx(squareSize.toFloat()*shapeConverter.shape[0].size).toInt()
+            x += if (incX == -1) {
+                // Special case for bottom row
+                dpToPx(squareSize.toFloat()*shapeConverter.shape[0].size).toInt()
+            } else {
+                incX
             }
-            else { x += incX }
         }
     }
 }

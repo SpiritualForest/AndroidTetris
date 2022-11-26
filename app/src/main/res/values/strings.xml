@@ -20,4 +20,5 @@
     <string name="btn_apply">Apply</string>
     <string name="txt_time">Time: 00:00</string>
     <string name="preference_file">com.androidtetris.settings_file</string>
+    <string name="title_activity_main2">MainActivity2</string>
 </resources>

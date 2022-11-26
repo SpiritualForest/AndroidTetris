@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.androidtetris.activity.tetris.TetrisActivity
 import com.androidtetris.R
 import com.androidtetris.settings.* // For SettingsHandler and game options name constants like S_INVERT_ROTATION
-import com.androidtetris.activity.main.ThemeView
 import com.androidtetris.settings.theme.ThemeHandler
 
 class MainActivity : AppCompatActivity(), OnItemSelectedListener {

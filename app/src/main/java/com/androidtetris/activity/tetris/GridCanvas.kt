@@ -15,7 +15,6 @@ import com.androidtetris.game.*
 import com.androidtetris.game.event.*
 import com.androidtetris.R
 import com.androidtetris.settings.theme.ThemeHandler // For colours
-import android.util.Log
 
 class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     /* This View displays the actual gameplay. I should probably change its name. */
