@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.androidtetris.ui.components.TetrisGrid
@@ -15,7 +15,6 @@ import com.androidtetris.ui.components.TetrisGrid
 
 @Composable
 fun TetrisScreen() {
-    // Top level column
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(8.dp)
@@ -26,8 +25,13 @@ fun TetrisScreen() {
                 // Left side column, contains upcoming tetrominoes grid, stats, ghost chip
                 TetrisGrid(
                     width = 120.dp,
-                    height = 200.dp
+                    height = 200.dp,
+                    modifier = Modifier.padding(bottom = 32.dp)
                 )
+                StatsText("Lines:")
+                StatsText("Score:")
+                StatsText("Level:")
+                StatsText("Time:")
             }
             Column(modifier = Modifier.weight(0.5f)) {
                 // Right side column, contains the tetris game grid
@@ -47,4 +51,12 @@ fun TetrisScreen() {
             }
         }
     }
+}
+
+@Composable
+private fun StatsText(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
 }

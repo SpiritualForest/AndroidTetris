@@ -274,7 +274,9 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         /* Now we have to also dispatch the TetrominoSpawned event,
          * otherwise the UI won't know that it has to draw the tetromino's initial coordinates.
          * It will only draw them after move() has been called once. */
-         eventDispatcher.dispatch(Event.TetrominoSpawned, TetrominoSpawnedEventArgs(currentTetromino.coordinates, tCode))
+         eventDispatcher.dispatch(
+             Event.TetrominoSpawned, TetrominoSpawnedEventArgs(currentTetromino.coordinates, tCode)
+         )
     }
 
     internal fun getNextTetromino(n: Int = 1): List<TetrominoCode> {
