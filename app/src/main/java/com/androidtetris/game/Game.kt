@@ -5,7 +5,6 @@ import android.os.Bundle // to save game state in case of sudden activity stoppa
 import com.androidtetris.game.event.*
 import com.androidtetris.settings.* // For Bundle keys
 import kotlin.math.floor // For the grid randomizer
-import android.util.Log
 
 // Movement directions
 enum class Direction { Left, Right, Down }
@@ -39,7 +38,8 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         private set
     private val dropSpeedReduction = 50 // 50ms reduction on each game level increase
     // How fast the tetrominoes move downwards automatically. Starts at 1000ms when the game level is 1.
-    private var dropSpeed: Long = savedState?.getLong(K_DROP_SPEED) ?: 1000L - (gameLevel*dropSpeedReduction)
+    private var dropSpeed: Long =
+        savedState?.getLong(K_DROP_SPEED) ?: (1000L - (gameLevel * dropSpeedReduction))
     private var downwardsCollisionCount = 0
     val eventDispatcher = EventDispatcher()
     private var gameRunning = false // Game is not running by default
@@ -78,7 +78,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
             * The tetromino code determines the colour of the square. */
             val xPositions: MutableList<Int> = mutableListOf()
             for(x in 0 until gridWidth) { xPositions.add(x) }
-            val xValuesToRemove = (1..gridWidth-1).random() // So that at least one square remains, but never a full line.
+            val xValuesToRemove = (1 until gridWidth).random() // So that at least one square remains, but never a full line.
             // Now remove <squaresToRemove> x values from xPositions
             for(i in 0 until xValuesToRemove) {
                 xPositions.removeAt(xPositions.indices.random())
@@ -142,7 +142,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         val t = savedState.getSerializable(K_TETROMINO)
         // Populate the coordinates array of points
         val coordinatesList = savedState.getIntegerArrayList(K_TETROMINO_COORDINATES)
-        val coordinates = Array<Point>(coordinatesList!!.size) { Point(0, 0) }
+        val coordinates = Array(coordinatesList!!.size) { Point(0, 0) }
         for((i, xy) in coordinatesList.withIndex()) {
             val x = (xy shr 8) and 255
             val y = xy and 255
@@ -395,7 +395,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
                 }
             }
         }
-        if (completedLines.count() > 0) {
+        if (completedLines.isNotEmpty()) {
             grid.pushLines(lowestLine)
             // Dispatch the LinesCompleted event
             eventDispatcher.dispatch(Event.LinesCompleted,

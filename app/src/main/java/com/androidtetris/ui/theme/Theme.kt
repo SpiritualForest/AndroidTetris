@@ -1,4 +1,4 @@
-package com.androidtetris.activity.main.ui.theme
+package com.androidtetris.ui.theme
 
 import android.app.Activity
 import android.os.Build

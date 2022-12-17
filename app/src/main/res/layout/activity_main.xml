@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.AndroidTetris"
-    tools:context="com.androidtetris.activity.main.MainActivity">
+    tools:context="com.androidtetris.MainActivity">
 
     <Button
         android:id="@+id/btn_startgame"

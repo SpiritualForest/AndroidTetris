@@ -1,4 +1,4 @@
-package com.androidtetris.activity.main.ui.theme
+package com.androidtetris.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

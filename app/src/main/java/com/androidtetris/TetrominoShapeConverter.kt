@@ -54,7 +54,7 @@ class TetrominoShapeConverter(var shape: List<List<Int>>, private var view: View
         val center = getCenter() // Starting position for x
         val coordinatesList: MutableList<PointF> = mutableListOf()
         var y = verticalStartingPosition
-        var x = 0f
+        var x: Float
         for(sublist in shape) {
             // If the horizontal starting position is -1, we restart at the center.
             // Otherwise, we start wherever that position is set to.
@@ -66,7 +66,7 @@ class TetrominoShapeConverter(var shape: List<List<Int>>, private var view: View
             for(v in sublist) {
                 if (v == 1) {
                     // Draw a square at this x,y - so add this point to the list.
-                    coordinatesList.add(PointF(dpToPx(x.toFloat()), dpToPx(y.toFloat())))
+                    coordinatesList.add(PointF(dpToPx(x), dpToPx(y.toFloat())))
                 }
                 x += squareSize
             }
