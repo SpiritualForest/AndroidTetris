@@ -5,7 +5,10 @@ import android.os.Bundle
 
 class API {
     private lateinit var gameObj: Game
-    fun createGame(options: TetrisOptions, savedState: Bundle?) {
+    fun createGame(
+        options: TetrisOptions = TetrisOptions(),
+        savedState: Bundle? = null
+    ) {
         gameObj = Game(options, savedState = savedState)
     }
     fun startGame() {

@@ -1,5 +1,6 @@
 package com.androidtetris.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,14 +8,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.androidtetris.TetrisScreenViewModel
 import com.androidtetris.ui.components.TetrisGrid
 
 /* AndroidTetris TetrisScreen: the composable that actually displays the gameplay */
 
 @Composable
 fun TetrisScreen() {
+    //Log.d("TetrisScreen", "Composable function called")
+    val viewModel by remember { mutableStateOf(TetrisScreenViewModel()) }
+    val uiState = viewModel.uiState
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(8.dp)
@@ -37,7 +47,10 @@ fun TetrisScreen() {
                 // Right side column, contains the tetris game grid
                 TetrisGrid(
                     width = 200.dp,
-                    height = 440.dp
+                    height = 440.dp,
+                    grid = uiState.grid,
+                    tetrominoCoordinates = uiState.coordinates,
+                    tetromino = uiState.tetromino,
                 )
             }
         }

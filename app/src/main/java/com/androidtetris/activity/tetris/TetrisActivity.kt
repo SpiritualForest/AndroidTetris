@@ -18,7 +18,6 @@ import android.app.Activity
 import android.widget.Button
 import com.androidtetris.R
 import com.google.android.material.chip.Chip
-import com.androidtetris.game.Point
 import com.androidtetris.game.TetrisOptions
 import com.androidtetris.settings.* // For SettingsHandler and option name constants
 import android.util.Log
@@ -185,7 +184,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         gameCanvas.setGridSize(gridSize.x, gridSize.y)
 
         // Event callbacks
-        api.addCallback(Event.CoordinatesChanged, ::coordinatesChanged)
+        api.addCallback(Event.TetrominoCoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.GridChanged, ::gridChanged)
         api.addCallback(Event.LinesCompleted, ::linesCompleted)
         api.addCallback(Event.TetrominoSpawned, ::tetrominoSpawned)
@@ -205,7 +204,7 @@ class Tetris(private var activity: Activity, private val savedState: Bundle?) {
         api.startGame()
     }
 
-    fun coordinatesChanged(args: CoordinatesChangedEventArgs) {
+    fun coordinatesChanged(args: TetrominoCoordinatesChangedEventArgs) {
         // Called when the tetromino's coordinates changed due to movement
         // Args: the tetromino's previous coordinates, the new coordinates, and the tetromino
         gameCanvas.drawTetromino(args.new.toList(), api.getCurrentTetromino())

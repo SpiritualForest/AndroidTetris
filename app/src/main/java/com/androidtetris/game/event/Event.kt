@@ -2,12 +2,16 @@ package com.androidtetris.game.event
 import com.androidtetris.game.*
 
 enum class Event {
-    CoordinatesChanged, Collision, LinesCompleted,
+    TetrominoCoordinatesChanged, Collision, LinesCompleted,
     GameStart, GameEnd, GamePause, GameUnpause,
     GridChanged, TetrominoSpawned
 }
 
-data class CoordinatesChangedEventArgs(val old: Array<Point>, val new: Array<Point>, val tetromino: TetrominoCode)
+data class TetrominoCoordinatesChangedEventArgs(
+    val old: Array<Point>,
+    val new: Array<Point>,
+    val tetromino: TetrominoCode
+)
 data class CollisionEventArgs(val coordinates: Array<Point>, val direction: Direction)
 data class LinesCompletedEventArgs(val lines: List<Int>, val grid: HashMap<Int, HashMap<Int, TetrominoCode>>)
 data class GridChangedEventArgs(val grid: HashMap<Int, HashMap<Int, TetrominoCode>>)

@@ -348,8 +348,8 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
          */
         val oldCoordinates = currentTetromino.coordinates.copyOf()
         currentTetromino.coordinates = moved
-        eventDispatcher.dispatch(Event.CoordinatesChanged,
-            CoordinatesChangedEventArgs(oldCoordinates, moved, currentTetromino.tetrominoCode))
+        eventDispatcher.dispatch(Event.TetrominoCoordinatesChanged,
+            TetrominoCoordinatesChangedEventArgs(oldCoordinates, moved, currentTetromino.tetrominoCode))
     }
 
     internal fun rotate() {
@@ -369,8 +369,8 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         // And dispatch the CoordinatesChanged event
         val oldCoordinates = currentTetromino.coordinates.copyOf()
         currentTetromino.coordinates = rotation
-        eventDispatcher.dispatch(Event.CoordinatesChanged,
-            CoordinatesChangedEventArgs(oldCoordinates, rotation, currentTetromino.tetrominoCode))
+        eventDispatcher.dispatch(Event.TetrominoCoordinatesChanged,
+            TetrominoCoordinatesChangedEventArgs(oldCoordinates, rotation, currentTetromino.tetrominoCode))
     }
 
     /* Grid handling functions */
