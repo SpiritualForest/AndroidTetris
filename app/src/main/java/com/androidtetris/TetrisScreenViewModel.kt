@@ -26,6 +26,7 @@ data class TetrisScreenUiState(
     val level: Int = 0,
     val gameRunning: Boolean = false,
     val gamePaused: Boolean = false,
+    val ghostEnabled: Boolean = false,
     val completedLines: List<Int> = listOf()
 ) {
     override fun equals(other: Any?): Boolean {
@@ -62,10 +63,9 @@ data class TetrisScreenUiState(
 class TetrisScreenViewModel : ViewModel() {
     var uiState by mutableStateOf(TetrisScreenUiState())
         private set
-    private val api = API()
+    val api = API()
 
     init {
-        Log.d("TetrisViewModel", "init called")
         api.createGame()
         api.addCallback(Event.GameStart, ::gameStart)
         api.addCallback(Event.GameEnd, ::gameEnd)
@@ -73,6 +73,8 @@ class TetrisScreenViewModel : ViewModel() {
         api.addCallback(Event.TetrominoCoordinatesChanged, ::coordinatesChanged)
         api.addCallback(Event.LinesCompleted, ::linesCompleted)
         api.addCallback(Event.GridChanged, ::gridChanged)
+        api.addCallback(Event.GamePause, ::gamePaused)
+        api.addCallback(Event.GameUnpause, ::gameUnpaused)
         api.startGame()
     }
 
@@ -105,5 +107,18 @@ class TetrisScreenViewModel : ViewModel() {
 
     fun gridChanged(args: GridChangedEventArgs) {
         uiState = uiState.copy(grid = args.grid)
+    }
+
+    fun gamePaused() {
+        uiState = uiState.copy(gamePaused = true)
+    }
+
+    fun gameUnpaused() {
+        uiState = uiState.copy(gamePaused = false)
+    }
+
+    fun setGhostEnabled(enabled: Boolean) {
+        Log.d("TetrisScreen","setGhostEnabled called")
+        uiState = uiState.copy(ghostEnabled = enabled)
     }
 }
