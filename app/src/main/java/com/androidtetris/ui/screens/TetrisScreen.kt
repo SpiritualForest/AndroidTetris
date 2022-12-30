@@ -19,8 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.androidtetris.R
 import com.androidtetris.TetrisScreenViewModel
 import com.androidtetris.game.Direction
+import com.androidtetris.ui.components.GameActionButton
 import com.androidtetris.ui.components.TetrisGrid
 
 /* AndroidTetris TetrisScreen: the composable that actually displays the gameplay */
@@ -29,7 +31,6 @@ import com.androidtetris.ui.components.TetrisGrid
 fun TetrisScreen() {
     val viewModel by remember { mutableStateOf(TetrisScreenViewModel()) }
     val columnPadding = 16
-    Log.d("TetrisScreen", "TetrisScreen composed")
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(columnPadding.dp)
@@ -71,36 +72,33 @@ fun TetrisScreen() {
                         .padding(top = 32.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Button(
-                        onClick = { viewModel.api.rotate() }
-                    ) {
-                        Text("Rotate")
-                    }
+                    GameActionButton(
+                        drawable = R.drawable.arrow_up,
+                        actionDelay = 70,
+                        onActionDown = { viewModel.api.rotate() }
+                    )
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Button(
-                        onClick = { viewModel.api.move(Direction.Left) }
-                    ) {
-                        Text("Left")
-                    }
-                    Button(
-                        onClick = { viewModel.api.move(Direction.Right) }
-                    ) {
-                        Text("Right")
-                    }
+                    GameActionButton(
+                        drawable = R.drawable.arrow_left,
+                        onActionDown = { viewModel.api.move(Direction.Left) }
+                    )
+                    GameActionButton(
+                        drawable = R.drawable.arrow_right,
+                        onActionDown = { viewModel.api.move(Direction.Right) }
+                    )
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Button(
-                        onClick = { viewModel.api.move(Direction.Down) }
-                    ) {
-                        Text("Down")
-                    }
+                    GameActionButton(
+                        drawable = R.drawable.arrow_down,
+                        onActionDown = { viewModel.api.move(Direction.Down) }
+                    )
                 }
             }
         }

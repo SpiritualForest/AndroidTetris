@@ -31,7 +31,6 @@ fun TetrisGrid(
     viewModel: TetrisScreenViewModel,
     modifier: Modifier = Modifier,
 ) {
-    Log.d("TetrisGrid", "TetrisGridComposed")
     val gridWidth = 10 // squares
     val gridHeight = 22 // squares
     val borderColor: Color = if (isSystemInDarkTheme()) Color.White else Color.Black
