@@ -3,23 +3,23 @@ package com.androidtetris.ui.components
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.androidtetris.game.Point
+import com.androidtetris.TetrisScreenViewModel
 import com.androidtetris.game.TetrominoCode
 
 // The sole purpose of this composable is to display tetrominoes
@@ -28,49 +28,48 @@ import com.androidtetris.game.TetrominoCode
 fun TetrisGrid(
     width: Dp,
     height: Dp,
+    viewModel: TetrisScreenViewModel,
     modifier: Modifier = Modifier,
-    grid: Map<Int, Map<Int, TetrominoCode>> = emptyMap(),
-    tetrominoCoordinates: Array<Point> = arrayOf(),
-    tetromino: TetrominoCode = TetrominoCode.I,
-    ghostEnabled: Boolean = false
 ) {
+    Log.d("TetrisGrid", "TetrisGridComposed")
     val gridWidth = 10 // squares
+    val gridHeight = 22 // squares
     val borderColor: Color = if (isSystemInDarkTheme()) Color.White else Color.Black
 
-    val widthInPx = LocalDensity.current.run { width.toPx() }
+    // State handling
+    val gridState by remember { derivedStateOf { viewModel.tetrisGridState } }
+    val grid = gridState.grid
+    val tetrominoCoordinates = gridState.tetrominoCoordinates
+    val tetromino = gridState.tetromino
 
-    Box(modifier = modifier
-        .height(height)
-        .width(width)
-        .background(Color.Blue.copy(alpha = 0.3f))
+    Canvas(
+        modifier = modifier
+            .height(height)
+            .width(width)
+            .border(BorderStroke(1.dp, borderColor))
     ) {
-        Canvas(
-            modifier = modifier
-                .fillMaxSize()
-                .background(Color.Red.copy(alpha = 0.3f))
-                .border(BorderStroke(1.dp, borderColor))
-        ) {
-            // FIXME: height doesn't change after horizontal padding
-            val squareSizePx = size.width / gridWidth
-            grid.forEach { (y, subMap) ->
-                subMap.forEach { (x, code) ->
-                    val offset = Offset((x * squareSizePx) + 1, (y * squareSizePx) + 1)
-                    drawRect(
-                        color = getTetrominoColor(code),
-                        topLeft = offset,
-                        size = Size(squareSizePx - 1, squareSizePx - 1)
-                    )
-                }
-            }
-            // Now the Tetromino
-            tetrominoCoordinates.forEach { point ->
-                val offset = Offset((point.x * squareSizePx) + 1, (point.y * squareSizePx) + 1)
-                drawRect(
-                    color = getTetrominoColor(tetromino),
-                    topLeft = offset,
-                    size = Size(squareSizePx - 1, squareSizePx - 1)
+        val squareWidthPx = size.width / gridWidth
+        val squareHeightPx = size.height / gridHeight
+        grid.forEach { (y, subMap) ->
+            subMap.forEach { (x, tetrominoCode) ->
+                drawSquare(
+                    x = x.toFloat(),
+                    y = y.toFloat(),
+                    squareWidthPx = squareWidthPx,
+                    squareHeightPx = squareHeightPx,
+                    color = getTetrominoColor(tetrominoCode)
                 )
             }
+        }
+        // Now the Tetromino
+        tetrominoCoordinates.forEach { point ->
+            drawSquare(
+                x = point.x.toFloat(),
+                y = point.y.toFloat(),
+                squareWidthPx = squareWidthPx,
+                squareHeightPx = squareHeightPx,
+                color = getTetrominoColor(tetromino)
+            )
         }
     }
 }
@@ -86,4 +85,19 @@ private fun getTetrominoColor(tetrominoCode: TetrominoCode): Color {
         TetrominoCode.T -> Color(0xFF00F039)
         TetrominoCode.Z -> Color(0xFFB4F202)
     }
+}
+
+private fun DrawScope.drawSquare(
+    x: Float,
+    y: Float,
+    squareWidthPx: Float,
+    squareHeightPx: Float,
+    color: Color
+) {
+    val offset = Offset((x * squareWidthPx) + 1, (y * squareHeightPx) + 1)
+    drawRect(
+        color = color,
+        topLeft = offset,
+        size = Size(squareWidthPx - 1, squareHeightPx - 1)
+    )
 }

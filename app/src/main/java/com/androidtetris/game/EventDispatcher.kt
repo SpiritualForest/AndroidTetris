@@ -2,6 +2,7 @@ package com.androidtetris.game
 
 import kotlin.reflect.*
 import com.androidtetris.game.event.*
+import java.util.EnumMap
 
 class EventDispatcher {
     private val callbacks: HashMap<Event, MutableList<KFunction<Unit>>> = hashMapOf()
@@ -20,7 +21,7 @@ class EventDispatcher {
 
     fun addCallback(event: Event, func: KFunction<Unit>) {
         if (callbacks[event] == null) {
-            callbacks[event] = mutableListOf(func)
+            callbacks[event] = mutableListOf()
         }
         callbacks[event]?.add(func)
     }

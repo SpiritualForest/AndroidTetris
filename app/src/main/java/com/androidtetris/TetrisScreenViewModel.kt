@@ -17,55 +17,35 @@ import com.androidtetris.game.event.TetrominoSpawnedEventArgs
 // Interacts with the game engine so that we don't have to implement that stuff
 // inside any of the composables
 
-data class TetrisScreenUiState(
+data class TetrisGridState(
     val grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf(),
-    val tetromino: TetrominoCode = TetrominoCode.I,
-    val coordinates: Array<Point> = arrayOf(),
+    val tetrominoCoordinates: List<Point> = listOf(),
+    val tetromino: TetrominoCode = TetrominoCode.I
+)
+
+data class StatsState(
     val lines: Int = 0,
     val score: Int = 0,
-    val level: Int = 0,
+    val level: Int = 0
+)
+
+data class GameState(
     val gameRunning: Boolean = false,
-    val gamePaused: Boolean = false,
-    val ghostEnabled: Boolean = false,
-    val completedLines: List<Int> = listOf()
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as TetrisScreenUiState
-
-        if (grid != other.grid) return false
-        if (tetromino != other.tetromino) return false
-        if (!coordinates.contentEquals(other.coordinates)) return false
-        if (lines != other.lines) return false
-        if (score != other.score) return false
-        if (level != other.level) return false
-        if (gameRunning != other.gameRunning) return false
-        if (gamePaused != other.gamePaused) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = grid.hashCode()
-        result = 31 * result + tetromino.hashCode()
-        result = 31 * result + coordinates.contentHashCode()
-        result = 31 * result + lines
-        result = 31 * result + score
-        result = 31 * result + level
-        result = 31 * result + gameRunning.hashCode()
-        result = 31 * result + gamePaused.hashCode()
-        return result
-    }
-}
+    val gamePaused: Boolean = false
+)
 
 class TetrisScreenViewModel : ViewModel() {
-    var uiState by mutableStateOf(TetrisScreenUiState())
+    var tetrisGridState by mutableStateOf(TetrisGridState())
         private set
+    var statsState by mutableStateOf(StatsState())
+        private set
+    var gameState by mutableStateOf(GameState())
+        private set
+
     val api = API()
 
     init {
+        Log.d("TetrisScreen", "ViewModel initialized")
         api.createGame()
         api.addCallback(Event.GameStart, ::gameStart)
         api.addCallback(Event.GameEnd, ::gameEnd)
@@ -79,46 +59,44 @@ class TetrisScreenViewModel : ViewModel() {
     }
 
     fun gameStart() {
-        uiState = uiState.copy(gameRunning = true)
+        gameState = gameState.copy(gameRunning = true)
     }
-
     fun gameEnd() {
-        uiState = uiState.copy(gameRunning = false)
+        gameState = gameState.copy(gameRunning = false)
     }
-
-    fun tetrominoSpawned(args: TetrominoSpawnedEventArgs) {
-        uiState = uiState.copy(
-            tetromino = args.tetromino,
-            coordinates = args.coordinates
-        )
-    }
-
-    fun coordinatesChanged(args: TetrominoCoordinatesChangedEventArgs) {
-        //Log.d("TetrisViewModel", "CoordinatesChanged called")
-        uiState = uiState.copy(coordinates = args.new)
-    }
-
-    fun linesCompleted(args: LinesCompletedEventArgs) {
-        uiState = uiState.copy(
-            grid = args.grid,
-            completedLines = args.lines
-        )
-    }
-
-    fun gridChanged(args: GridChangedEventArgs) {
-        uiState = uiState.copy(grid = args.grid)
-    }
-
     fun gamePaused() {
-        uiState = uiState.copy(gamePaused = true)
+        gameState = gameState.copy(gamePaused = true)
     }
-
     fun gameUnpaused() {
-        uiState = uiState.copy(gamePaused = false)
+        gameState = gameState.copy(gamePaused = false)
     }
-
-    fun setGhostEnabled(enabled: Boolean) {
-        Log.d("TetrisScreen","setGhostEnabled called")
-        uiState = uiState.copy(ghostEnabled = enabled)
+    fun tetrominoSpawned(args: TetrominoSpawnedEventArgs) {
+        tetrisGridState = tetrisGridState.copy(
+            tetromino = args.tetromino,
+            tetrominoCoordinates = args.coordinates.toList()
+        )
+    }
+    fun coordinatesChanged(args: TetrominoCoordinatesChangedEventArgs) {
+        tetrisGridState = tetrisGridState.copy(
+            tetromino = args.tetromino,
+            tetrominoCoordinates = args.new.toList()
+        )
+    }
+    fun linesCompleted(args: LinesCompletedEventArgs) {
+        Log.d("TetrisScreen", "Current lines: ${statsState.lines} and to be added now ${args.lines.size}")
+        val lines = statsState.lines + args.lines.size
+        statsState = statsState.copy(
+            lines = lines,
+            // TODO: score, level
+        )
+        // TODO: line clearing animation
+        tetrisGridState = tetrisGridState.copy(
+            grid = args.grid
+        )
+    }
+    fun gridChanged(args: GridChangedEventArgs) {
+        tetrisGridState = tetrisGridState.copy(
+            grid = args.grid
+        )
     }
 }
