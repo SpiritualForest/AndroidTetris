@@ -3,6 +3,7 @@ package com.androidtetris
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.androidtetris.game.API
@@ -13,6 +14,9 @@ import com.androidtetris.game.event.GridChangedEventArgs
 import com.androidtetris.game.event.LinesCompletedEventArgs
 import com.androidtetris.game.event.TetrominoCoordinatesChangedEventArgs
 import com.androidtetris.game.event.TetrominoSpawnedEventArgs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.runInterruptible
 
 // Interacts with the game engine so that we don't have to implement that stuff
 // inside any of the composables

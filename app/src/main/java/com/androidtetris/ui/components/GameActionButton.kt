@@ -2,7 +2,10 @@ package com.androidtetris.ui.components
 
 import android.view.MotionEvent
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,8 +15,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -32,7 +37,14 @@ fun GameActionButton(
 ) {
     val scope = rememberCoroutineScope()
     var isDown by remember { mutableStateOf(false) }
-    Box(modifier = modifier.pointerInteropFilter {
+    val iconTint = if (isDown) Color.Magenta else Color.Black
+
+    Box(modifier = modifier
+        .border(
+            BorderStroke(1.dp, Color.Black),
+            shape = RoundedCornerShape(32.dp)
+        )
+        .pointerInteropFilter {
             when (it.action) {
                 MotionEvent.ACTION_DOWN -> {
                     isDown = true
@@ -49,13 +61,14 @@ fun GameActionButton(
                     isDown = false
                     true
                 }
-                else -> false
+                else -> false // Do not handle anything else
             }
         }
     ) {
         Icon(
             painter = painterResource(id = drawable),
-            contentDescription = null
+            contentDescription = null,
+            tint = iconTint
         )
     }
 }
