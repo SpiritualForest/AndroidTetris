@@ -7,6 +7,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.androidtetris.game.API
+import com.androidtetris.game.Direction
 import com.androidtetris.game.Point
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.game.event.Event
@@ -46,7 +47,7 @@ class TetrisScreenViewModel : ViewModel() {
     var gameState by mutableStateOf(GameState())
         private set
 
-    val api = API()
+    private val api = API()
 
     init {
         Log.d("TetrisScreen", "ViewModel initialized")
@@ -102,5 +103,17 @@ class TetrisScreenViewModel : ViewModel() {
         tetrisGridState = tetrisGridState.copy(
             grid = args.grid
         )
+    }
+    fun move(direction: Direction) {
+        if (!gameState.gameRunning || gameState.gamePaused) {
+            return
+        }
+        api.move(direction)
+    }
+    fun rotate() {
+        if (!gameState.gameRunning || gameState.gamePaused) {
+            return
+        }
+        api.rotate()
     }
 }

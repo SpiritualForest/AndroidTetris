@@ -3,6 +3,7 @@ package com.androidtetris.ui.screens
 import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +38,7 @@ fun TetrisScreen() {
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.weight(0.5f)
+                modifier = Modifier.weight(0.3f)
             ) {
                 // Left side column, contains upcoming tetrominoes grid, stats, ghost chip
                 /*UpcomingTetrominoesBox(
@@ -49,55 +50,53 @@ fun TetrisScreen() {
                 Row(modifier = Modifier.padding(top = 32.dp)) {
                     Switch(
                         checked = true,
-                        onCheckedChange = {}
+                        onCheckedChange = {},
                     )
                 }
             }
             Column(
-                modifier = Modifier.weight(0.5f),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.weight(0.7f),
+                horizontalAlignment = Alignment.End
             ) {
                 // Right side column, contains the tetris game grid
-                // FIXME: hard coded grid square width and height here. Make it modifiable
-                val width = (200 - columnPadding) / 10f
-                val height = width * 22
+                val fraction = 0.8f
                 TetrisGrid(
                     width = 200.dp,
-                    height = height.dp,
+                    height = 440.dp,
                     viewModel = viewModel
                 )
-                Row(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(fraction = fraction)
                         .padding(top = 32.dp),
-                    horizontalArrangement = Arrangement.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     GameActionButton(
                         drawable = R.drawable.arrow_up,
-                        actionDelay = 80,
-                        onActionDown = { viewModel.api.rotate() }
+                        actionDelay = 80L,
+                        onActionDown = { viewModel.rotate() }
                     )
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(fraction = fraction),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     GameActionButton(
                         drawable = R.drawable.arrow_left,
-                        onActionDown = { viewModel.api.move(Direction.Left) }
+                        onActionDown = { viewModel.move(Direction.Left) }
                     )
                     GameActionButton(
                         drawable = R.drawable.arrow_right,
-                        onActionDown = { viewModel.api.move(Direction.Right) }
+                        onActionDown = { viewModel.move(Direction.Right) }
                     )
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                Box(
+                    modifier = Modifier.fillMaxWidth(fraction = fraction),
+                    contentAlignment = Alignment.Center
                 ) {
                     GameActionButton(
                         drawable = R.drawable.arrow_down,
-                        onActionDown = { viewModel.api.move(Direction.Down) }
+                        onActionDown = { viewModel.move(Direction.Down) }
                     )
                 }
             }
