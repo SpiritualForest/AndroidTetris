@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,26 +36,25 @@ fun GameActionButton(
     actionDelay: Long = 60,
     onActionDown: () -> Unit = {}
 ) {
-    val scope = rememberCoroutineScope()
     var isDown by remember { mutableStateOf(false) }
     val iconTint = if (isDown) Color.Magenta else Color.Black
 
+    LaunchedEffect(isDown) {
+        while (isDown) {
+            yield()
+            onActionDown()
+            delay(actionDelay)
+        }
+    }
     Box(modifier = modifier
         .border(
             BorderStroke(1.dp, Color.Black),
-            shape = RoundedCornerShape(32.dp)
+            shape = RoundedCornerShape(48.dp)
         )
         .pointerInteropFilter {
             when (it.action) {
                 MotionEvent.ACTION_DOWN -> {
                     isDown = true
-                    scope.launch {
-                        while (isDown) {
-                            yield()
-                            onActionDown()
-                            delay(actionDelay)
-                        }
-                    }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
