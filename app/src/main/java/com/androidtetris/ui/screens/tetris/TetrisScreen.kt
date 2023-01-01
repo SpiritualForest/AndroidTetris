@@ -21,27 +21,28 @@ import com.androidtetris.R
 import com.androidtetris.game.Direction
 import com.androidtetris.ui.components.GameActionButton
 import com.androidtetris.ui.components.TetrisGrid
+import com.androidtetris.ui.components.UpcomingTetrominoesBox
 
 /* AndroidTetris TetrisScreen: the composable that actually displays the gameplay */
 
 @Composable
 fun TetrisScreen() {
     val viewModel by remember { mutableStateOf(TetrisScreenViewModel()) }
-    val columnPadding = 16
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(columnPadding.dp)
+        .padding(16.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.weight(0.3f)
             ) {
                 // Left side column, contains upcoming tetrominoes grid, stats, ghost chip
-                /*UpcomingTetrominoesBox(
+                UpcomingTetrominoesBox(
                     width = 120.dp,
                     height = 200.dp,
+                    viewModel = viewModel,
                     modifier = Modifier.padding(bottom = 32.dp)
-                )*/
+                )
                 Stats(viewModel)
                 Row(modifier = Modifier.padding(top = 32.dp)) {
                     Switch(

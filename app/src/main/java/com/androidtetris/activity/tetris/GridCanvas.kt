@@ -14,7 +14,7 @@ import com.androidtetris.settings.* // For S_GHOST_ENABLED
 import com.androidtetris.game.*
 import com.androidtetris.game.event.*
 import com.androidtetris.R
-import com.androidtetris.settings.theme.ThemeHandler // For colours
+//import com.androidtetris.settings.theme.ThemeHandler // For colours
 
 class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     /* This View displays the actual gameplay. I should probably change its name. */
@@ -30,7 +30,7 @@ class GridCanvas(context: Context, attrs: AttributeSet?) : View(context, attrs) 
      * This is why it's safe to have a default TetrominoCode, making the object non-nullable. */
     private var currentTetromino = TetrominoCode.I
     private val mHandler = Handler(Looper.getMainLooper())
-    private val tetrominoColors: Map<TetrominoCode, Int> = ThemeHandler.getThemeColors()
+    private val tetrominoColors: Map<TetrominoCode, Int> = mapOf() //ThemeHandler.getThemeColors()
     var ghostEnabled: Boolean = SettingsHandler.getGhostEnabled() // Ghost piece feature enabled?
     private var ghostCoordinates: List<Point> = listOf()
     private var sortedGridKeys: List<Int> = listOf()

@@ -55,7 +55,6 @@ class TetrisScreenViewModel : ViewModel() {
     private val api = API()
 
     init {
-        Log.d("TetrisScreen", "ViewModel initialized")
         api.createGame()
         api.addCallback(Event.GameStart, ::gameStart)
         api.addCallback(Event.GameEnd, ::gameEnd)
@@ -85,6 +84,9 @@ class TetrisScreenViewModel : ViewModel() {
             tetromino = args.tetromino,
             tetrominoCoordinates = args.coordinates.toList()
         )
+        upcomingTetrominoesState = upcomingTetrominoesState.copy(
+            tetrominoes = api.getNextTetromino(3)
+        )
     }
     fun coordinatesChanged(args: TetrominoCoordinatesChangedEventArgs) {
         tetrisGridState = tetrisGridState.copy(
@@ -101,6 +103,9 @@ class TetrisScreenViewModel : ViewModel() {
         // TODO: line clearing animation
         tetrisGridState = tetrisGridState.copy(
             grid = args.grid
+        )
+        upcomingTetrominoesState = upcomingTetrominoesState.copy(
+            tetrominoes = api.getNextTetromino(3)
         )
     }
     fun gridChanged(args: GridChangedEventArgs) {
