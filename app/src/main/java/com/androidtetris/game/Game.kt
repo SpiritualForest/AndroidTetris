@@ -401,7 +401,11 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
             grid.pushLines(lowestLine)
             // Dispatch the LinesCompleted event
             eventDispatcher.dispatch(Event.LinesCompleted,
-                LinesCompletedEventArgs(completedLines.toList(), grid.copyOf()))
+                LinesCompletedEventArgs(
+                    lines = completedLines.toList(),
+                    grid = grid.copyOf()
+                )
+            )
         }
         else {
             // No lines were completed. Trigger the GridChanged event

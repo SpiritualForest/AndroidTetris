@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.Point
@@ -16,6 +17,8 @@ import com.androidtetris.game.event.LinesCompletedEventArgs
 import com.androidtetris.game.event.TetrominoCoordinatesChangedEventArgs
 import com.androidtetris.game.event.TetrominoSpawnedEventArgs
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.runInterruptible
 
@@ -95,18 +98,41 @@ class TetrisScreenViewModel : ViewModel() {
         )
     }
     fun linesCompleted(args: LinesCompletedEventArgs) {
-        val lines = statsState.lines + args.lines.size
         statsState = statsState.copy(
-            lines = lines,
+            lines = api.lines(),
             level = api.level()
-        )
-        // TODO: line clearing animation
-        tetrisGridState = tetrisGridState.copy(
-            grid = args.grid
         )
         upcomingTetrominoesState = upcomingTetrominoesState.copy(
             tetrominoes = api.getNextTetromino(3)
         )
+        val grid = tetrisGridState.copy().grid
+        // We have to add the tetromino's coordinates to the grid to complete the lines
+        // If we don't do this, the animations will be incomplete.
+        tetrisGridState.tetrominoCoordinates.forEach {
+            grid[it.y]?.put(it.x, tetrisGridState.tetromino)
+        }
+        // FIXME: last two squares on each side are not removed in animation
+        viewModelScope.launch {
+            // Line clearing animation of removing two squares at a time starting at the center and moving outwards
+            var delayMs = 0L
+            args.lines.forEach { y ->
+                val subMap = grid[y]!!
+                val size = subMap.size
+                var decreasingHorizontalPosition = (size / 2) - 1
+                for (increasingHorizontalPosition in (size / 2) until size) {
+                    grid[y]?.remove(decreasingHorizontalPosition)
+                    grid[y]?.remove(increasingHorizontalPosition)
+                    delay(delayMs)
+                    decreasingHorizontalPosition--
+                    tetrisGridState = tetrisGridState.copy(grid = grid)
+                    delayMs += 50
+                }
+            }
+            // All animations done, we can now put the new grid in place
+            tetrisGridState = tetrisGridState.copy(
+                grid = args.grid
+            )
+        }
     }
     fun gridChanged(args: GridChangedEventArgs) {
         tetrisGridState = tetrisGridState.copy(

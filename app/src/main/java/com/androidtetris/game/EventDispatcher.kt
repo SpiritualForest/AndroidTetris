@@ -2,7 +2,6 @@ package com.androidtetris.game
 
 import kotlin.reflect.*
 import com.androidtetris.game.event.*
-import java.util.EnumMap
 
 class EventDispatcher {
     private val callbacks: HashMap<Event, MutableList<KFunction<Unit>>> = hashMapOf()

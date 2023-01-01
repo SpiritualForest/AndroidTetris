@@ -17,13 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.ui.screens.tetris.TetrisScreenViewModel
+
+// FIXME: TetrominoCanvas height keeps changing by one pixel on each recomposition. Find out why.
 
 @Composable
 fun UpcomingTetrominoesBox(
@@ -40,7 +41,7 @@ fun UpcomingTetrominoesBox(
             .size(width = width, height = height)
             .border(BorderStroke(width = 1.dp, color = Color.Black))
     ) {
-        tetrominoes.forEach { tetromino ->
+        tetrominoes.reversed().forEach { tetromino ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -96,8 +97,6 @@ private fun calculateTetrominoCoordinates(
     if (size.width == CanvasSize.width && size.height == CanvasSize.height) {
         return
     }
-    Log.d("WidthComp", "size is ${size.width} and CanvasSize is ${CanvasSize.width}")
-    Log.d("HeightComp", "size is ${size.height} and CanvasSize is ${CanvasSize.height}")
     CanvasSize = size
     val coordinatesMap: HashMap<TetrominoCode, List<PointF>> = hashMapOf()
     TetrominoCode.values().forEach {
