@@ -1,4 +1,4 @@
-package com.androidtetris
+package com.androidtetris.ui.screens.tetris
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -28,6 +28,10 @@ data class TetrisGridState(
     val tetromino: TetrominoCode = TetrominoCode.I
 )
 
+data class UpcomingTetrominoesState(
+    val tetrominoes: List<TetrominoCode> = listOf()
+)
+
 data class StatsState(
     val lines: Int = 0,
     val score: Int = 0,
@@ -46,6 +50,7 @@ class TetrisScreenViewModel : ViewModel() {
         private set
     var gameState by mutableStateOf(GameState())
         private set
+    var upcomingTetrominoesState by mutableStateOf(UpcomingTetrominoesState())
 
     private val api = API()
 
@@ -88,11 +93,10 @@ class TetrisScreenViewModel : ViewModel() {
         )
     }
     fun linesCompleted(args: LinesCompletedEventArgs) {
-        Log.d("TetrisScreen", "Current lines: ${statsState.lines} and to be added now ${args.lines.size}")
         val lines = statsState.lines + args.lines.size
         statsState = statsState.copy(
             lines = lines,
-            // TODO: score, level
+            level = api.level()
         )
         // TODO: line clearing animation
         tetrisGridState = tetrisGridState.copy(
@@ -102,6 +106,9 @@ class TetrisScreenViewModel : ViewModel() {
     fun gridChanged(args: GridChangedEventArgs) {
         tetrisGridState = tetrisGridState.copy(
             grid = args.grid
+        )
+        upcomingTetrominoesState = upcomingTetrominoesState.copy(
+            tetrominoes = api.getNextTetromino(3)
         )
     }
     fun move(direction: Direction) {

@@ -36,10 +36,6 @@ class API {
         gameObj.endGame()
     }
 
-    fun getCurrentTetromino(): TetrominoCode {
-        return gameObj.currentTetromino.tetrominoCode
-    }
-
     fun lines(): Int {
         return gameObj.lines
     }
