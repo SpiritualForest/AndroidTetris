@@ -114,8 +114,8 @@ class TetrisScreenViewModel : ViewModel() {
         // FIXME: last two squares on each side are not removed in animation
         viewModelScope.launch {
             // Line clearing animation of removing two squares at a time starting at the center and moving outwards
-            var delayMs = 0L
             args.lines.forEach { y ->
+                var delayMs = 0L
                 val subMap = grid[y]!!
                 val size = subMap.size
                 var decreasingHorizontalPosition = (size / 2) - 1
