@@ -31,13 +31,13 @@ fun TetrisGrid(
     height: Dp,
     viewModel: TetrisScreenViewModel,
     modifier: Modifier = Modifier,
+    gridWidth: Int = 10,
+    gridHeight: Int = 22
 ) {
-    val gridWidth = 10 // squares
-    val gridHeight = 22 // squares
     val borderColor: Color = if (isSystemInDarkTheme()) Color.White else Color.Black
 
     // State handling
-    remember { mutableStateOf(viewModel.tetrisGridState.recompositionCount) }
+    remember { mutableStateOf(viewModel.tetrisGridState.recompositionCount) } // Used to trigger recomposition
     val gridState = viewModel.tetrisGridState
     val grid = gridState.grid
     val tetrominoCoordinates = gridState.tetrominoCoordinates

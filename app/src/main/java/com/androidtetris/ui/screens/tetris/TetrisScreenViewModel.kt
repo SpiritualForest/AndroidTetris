@@ -1,6 +1,5 @@
 package com.androidtetris.ui.screens.tetris
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,7 +42,10 @@ data class GameState(
     val gamePaused: Boolean = false
 )
 
-class TetrisScreenViewModel : ViewModel() {
+class TetrisScreenViewModel(
+    private val gridWidth: Int,
+    private val gridHeight: Int
+    ) : ViewModel() {
     var tetrisGridState by mutableStateOf(TetrisGridState())
         private set
     var statsState by mutableStateOf(StatsState())
@@ -113,24 +115,22 @@ class TetrisScreenViewModel : ViewModel() {
         // FIXME: last two squares on each side are not removed in animation
         viewModelScope.launch {
             // Line clearing animation of removing two squares at a time starting at the center and moving outwards
-            args.lines.forEach { y ->
-                var recompositionCount = 0
-                var delayMs = 0L
-                val subMap = grid[y]!!
-                val size = subMap.size
-                var decreasingHorizontalPosition = (size / 2) - 1
-                for (increasingHorizontalPosition in (size / 2) until size) {
+            var recompositionCount = 0
+            var delayMs = 0L
+            var decreasingHorizontalPosition = (gridWidth / 2) - 1
+            for (increasingHorizontalPosition in (gridWidth / 2) until gridWidth) {
+                args.lines.forEach { y ->
                     grid[y]?.remove(decreasingHorizontalPosition)
                     grid[y]?.remove(increasingHorizontalPosition)
-                    delay(delayMs)
-                    decreasingHorizontalPosition--
-                    recompositionCount++
-                    tetrisGridState = tetrisGridState.copy(
-                        grid = grid,
-                        recompositionCount = recompositionCount
-                    )
-                    delayMs += 20
                 }
+                delay(delayMs)
+                decreasingHorizontalPosition--
+                recompositionCount++
+                tetrisGridState = tetrisGridState.copy(
+                    grid = grid,
+                    recompositionCount = recompositionCount
+                )
+                delayMs += 25
             }
             // All animations done, we can now put the new grid in place
             delay(20)

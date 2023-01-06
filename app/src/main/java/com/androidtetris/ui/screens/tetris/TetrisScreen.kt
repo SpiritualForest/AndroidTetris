@@ -26,8 +26,11 @@ import com.androidtetris.ui.components.UpcomingTetrominoesBox
 /* AndroidTetris TetrisScreen: the composable that actually displays the gameplay */
 
 @Composable
-fun TetrisScreen() {
-    val viewModel by remember { mutableStateOf(TetrisScreenViewModel()) }
+fun TetrisScreen(
+    gridWidth: Int = 10,
+    gridHeight: Int = 22
+) {
+    val viewModel by remember { mutableStateOf(TetrisScreenViewModel(gridWidth, gridHeight)) }
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(16.dp)
@@ -60,7 +63,9 @@ fun TetrisScreen() {
                 TetrisGrid(
                     width = 200.dp,
                     height = 440.dp,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight
                 )
                 Box(
                     modifier = Modifier
