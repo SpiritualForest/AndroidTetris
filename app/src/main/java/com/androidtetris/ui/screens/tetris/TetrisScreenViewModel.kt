@@ -3,7 +3,6 @@ package com.androidtetris.ui.screens.tetris
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,11 +15,8 @@ import com.androidtetris.game.event.GridChangedEventArgs
 import com.androidtetris.game.event.LinesCompletedEventArgs
 import com.androidtetris.game.event.TetrominoCoordinatesChangedEventArgs
 import com.androidtetris.game.event.TetrominoSpawnedEventArgs
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.runInterruptible
 
 // Interacts with the game engine so that we don't have to implement that stuff
 // inside any of the composables
@@ -28,7 +24,8 @@ import kotlinx.coroutines.runInterruptible
 data class TetrisGridState(
     val grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf(),
     val tetrominoCoordinates: List<Point> = listOf(),
-    val tetromino: TetrominoCode = TetrominoCode.I
+    val tetromino: TetrominoCode = TetrominoCode.I,
+    val recompositionCount: Int = 0
 )
 
 data class UpcomingTetrominoesState(
@@ -92,9 +89,11 @@ class TetrisScreenViewModel : ViewModel() {
         )
     }
     fun coordinatesChanged(args: TetrominoCoordinatesChangedEventArgs) {
+        val recompositionCount = tetrisGridState.recompositionCount + 1
         tetrisGridState = tetrisGridState.copy(
             tetromino = args.tetromino,
-            tetrominoCoordinates = args.new.toList()
+            tetrominoCoordinates = args.new.toList(),
+            recompositionCount = recompositionCount
         )
     }
     fun linesCompleted(args: LinesCompletedEventArgs) {
@@ -115,6 +114,7 @@ class TetrisScreenViewModel : ViewModel() {
         viewModelScope.launch {
             // Line clearing animation of removing two squares at a time starting at the center and moving outwards
             args.lines.forEach { y ->
+                var recompositionCount = 0
                 var delayMs = 0L
                 val subMap = grid[y]!!
                 val size = subMap.size
@@ -124,11 +124,16 @@ class TetrisScreenViewModel : ViewModel() {
                     grid[y]?.remove(increasingHorizontalPosition)
                     delay(delayMs)
                     decreasingHorizontalPosition--
-                    tetrisGridState = tetrisGridState.copy(grid = grid)
-                    delayMs += 50
+                    recompositionCount++
+                    tetrisGridState = tetrisGridState.copy(
+                        grid = grid,
+                        recompositionCount = recompositionCount
+                    )
+                    delayMs += 20
                 }
             }
             // All animations done, we can now put the new grid in place
+            delay(20)
             tetrisGridState = tetrisGridState.copy(
                 grid = args.grid
             )
@@ -136,7 +141,8 @@ class TetrisScreenViewModel : ViewModel() {
     }
     fun gridChanged(args: GridChangedEventArgs) {
         tetrisGridState = tetrisGridState.copy(
-            grid = args.grid
+            grid = args.grid,
+            recompositionCount = 0
         )
         upcomingTetrominoesState = upcomingTetrominoesState.copy(
             tetrominoes = api.getNextTetromino(3)

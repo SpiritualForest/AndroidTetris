@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.androidtetris.ui.screens.tetris.TetrisScreenViewModel
 import com.androidtetris.game.TetrominoCode
+import com.androidtetris.ui.screens.tetris.TetrisGridState
 
 // The sole purpose of this composable is to display tetrominoes
 
@@ -35,7 +37,8 @@ fun TetrisGrid(
     val borderColor: Color = if (isSystemInDarkTheme()) Color.White else Color.Black
 
     // State handling
-    val gridState by remember { derivedStateOf { viewModel.tetrisGridState } }
+    remember { mutableStateOf(viewModel.tetrisGridState.recompositionCount) }
+    val gridState = viewModel.tetrisGridState
     val grid = gridState.grid
     val tetrominoCoordinates = gridState.tetrominoCoordinates
     val tetromino = gridState.tetromino
