@@ -1,6 +1,5 @@
 package com.androidtetris.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
@@ -8,9 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -21,7 +18,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.androidtetris.ui.screens.tetris.TetrisScreenViewModel
 import com.androidtetris.game.TetrominoCode
-import com.androidtetris.ui.screens.tetris.TetrisGridState
 
 // The sole purpose of this composable is to display tetrominoes
 

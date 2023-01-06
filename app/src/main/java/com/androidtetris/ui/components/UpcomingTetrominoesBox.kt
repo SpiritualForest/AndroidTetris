@@ -41,7 +41,7 @@ fun UpcomingTetrominoesBox(
             .size(width = width, height = height)
             .border(BorderStroke(width = 1.dp, color = Color.Black))
     ) {
-        tetrominoes.reversed().forEach { tetromino ->
+        tetrominoes.forEach { tetromino ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()

@@ -24,7 +24,7 @@ data class TetrisGridState(
     val grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf(),
     val tetrominoCoordinates: List<Point> = listOf(),
     val tetromino: TetrominoCode = TetrominoCode.I,
-    val recompositionCount: Int = 0
+    val recompositionCount: Int = 0 // This value is only used to trigger recompositions
 )
 
 data class UpcomingTetrominoesState(
@@ -82,12 +82,14 @@ class TetrisScreenViewModel(
         gameState = gameState.copy(gamePaused = false)
     }
     fun tetrominoSpawned(args: TetrominoSpawnedEventArgs) {
+        val recompositionCount = tetrisGridState.recompositionCount + 1
         tetrisGridState = tetrisGridState.copy(
             tetromino = args.tetromino,
-            tetrominoCoordinates = args.coordinates.toList()
+            tetrominoCoordinates = args.coordinates.toList(),
+            recompositionCount = recompositionCount
         )
         upcomingTetrominoesState = upcomingTetrominoesState.copy(
-            tetrominoes = api.getNextTetromino(3)
+            tetrominoes = api.getNextTetromino(3).reversed()
         )
     }
     fun coordinatesChanged(args: TetrominoCoordinatesChangedEventArgs) {
@@ -103,16 +105,12 @@ class TetrisScreenViewModel(
             lines = api.lines(),
             level = api.level()
         )
-        upcomingTetrominoesState = upcomingTetrominoesState.copy(
-            tetrominoes = api.getNextTetromino(3)
-        )
         val grid = tetrisGridState.copy().grid
         // We have to add the tetromino's coordinates to the grid to complete the lines
         // If we don't do this, the animations will be incomplete.
         tetrisGridState.tetrominoCoordinates.forEach {
             grid[it.y]?.put(it.x, tetrisGridState.tetromino)
         }
-        // FIXME: last two squares on each side are not removed in animation
         viewModelScope.launch {
             // Line clearing animation of removing two squares at a time starting at the center and moving outwards
             var recompositionCount = 0
@@ -134,8 +132,10 @@ class TetrisScreenViewModel(
             }
             // All animations done, we can now put the new grid in place
             delay(20)
+            recompositionCount++
             tetrisGridState = tetrisGridState.copy(
-                grid = args.grid
+                grid = args.grid,
+                recompositionCount = recompositionCount
             )
         }
     }
@@ -143,9 +143,6 @@ class TetrisScreenViewModel(
         tetrisGridState = tetrisGridState.copy(
             grid = args.grid,
             recompositionCount = 0
-        )
-        upcomingTetrominoesState = upcomingTetrominoesState.copy(
-            tetrominoes = api.getNextTetromino(3)
         )
     }
     fun move(direction: Direction) {
