@@ -33,8 +33,7 @@ fun GameActionButton(
     onActionDown: () -> Unit = {}
 ) {
     var isDown by remember { mutableStateOf(false) }
-    val isDark = isSystemInDarkTheme()
-    val inactiveColor = if (isDark) Color.White else Color.Black
+    val inactiveColor = if (isSystemInDarkTheme()) Color.White else Color.Black
     val iconTint = if (isDown) Color.Magenta else inactiveColor
 
     LaunchedEffect(isDown) {
