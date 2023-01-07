@@ -47,7 +47,7 @@ fun GameActionButton(
     Box(modifier = modifier
         .border(
             BorderStroke(1.dp, inactiveColor),
-            shape = RoundedCornerShape(64.dp)
+            shape = RoundedCornerShape(16.dp)
         )
         .pointerInteropFilter { motionEvent ->
             when (motionEvent.actionMasked) {

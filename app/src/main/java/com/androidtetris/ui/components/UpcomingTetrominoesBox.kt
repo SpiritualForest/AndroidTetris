@@ -1,7 +1,6 @@
 package com.androidtetris.ui.components
 
 import android.graphics.PointF
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
@@ -85,7 +84,7 @@ private fun tetrominoShape(tetrominoCode: TetrominoCode) = when (tetrominoCode) 
     TetrominoCode.T -> listOf(listOf(1, 1, 1), listOf(0, 1, 0))
 }
 
-private var CanvasSize: Size = Size.Zero
+private var calculatedCoordinates = false
 private var TetrominoCoordinatesMap: Map<TetrominoCode, List<PointF>> = mapOf()
 
 private fun calculateTetrominoCoordinates(
@@ -95,10 +94,10 @@ private fun calculateTetrominoCoordinates(
 ) {
     // Calculate the coordinates for all the tetrominoes at once
     // Only do this when the Canvas's size changes.
-    if (size.width == CanvasSize.width && size.height == CanvasSize.height) {
+    if (calculatedCoordinates) {
         return
     }
-    CanvasSize = size
+    calculatedCoordinates = true
     val coordinatesMap: HashMap<TetrominoCode, List<PointF>> = hashMapOf()
     TetrominoCode.values().forEach {
         val shape = tetrominoShape(it)

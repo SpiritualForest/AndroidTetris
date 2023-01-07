@@ -88,7 +88,7 @@ fun TetrisScreen(
                 ) {
                     GameActionButton(
                         drawable = R.drawable.arrow_up,
-                        actionDelay = 80L,
+                        actionDelay = 100L,
                         onActionDown = { viewModel.rotate() }
                     )
                 }
