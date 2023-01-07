@@ -1,5 +1,7 @@
 package com.androidtetris.ui.screens.tetris
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +18,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.androidtetris.R
 import com.androidtetris.game.Direction
 import com.androidtetris.ui.components.GameActionButton
 import com.androidtetris.ui.components.TetrisGrid
+import com.androidtetris.ui.components.TetrisText
 import com.androidtetris.ui.components.UpcomingTetrominoesBox
 
 /* AndroidTetris TetrisScreen: the composable that actually displays the gameplay */
@@ -31,9 +35,12 @@ fun TetrisScreen(
     gridHeight: Int = 22
 ) {
     val viewModel by remember { mutableStateOf(TetrisScreenViewModel(gridWidth, gridHeight)) }
+    val isGhostEnabled by remember { mutableStateOf(viewModel.ghostEnabled) }
+    val backgroundColor = if (isSystemInDarkTheme()) Color.Black else Color.White
     Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)
+            .background(backgroundColor)
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -47,10 +54,16 @@ fun TetrisScreen(
                     modifier = Modifier.padding(bottom = 32.dp)
                 )
                 Stats(viewModel)
-                Row(modifier = Modifier.padding(top = 32.dp)) {
+                Row(
+                    modifier = Modifier.padding(top = 32.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
                     Switch(
-                        checked = true,
-                        onCheckedChange = {},
+                        checked = isGhostEnabled,
+                        onCheckedChange = { viewModel.setGhostEnabled(it) },
+                    )
+                    Text(
+                        text = "Ghost"
                     )
                 }
             }
@@ -61,8 +74,8 @@ fun TetrisScreen(
                 // Right side column, contains the tetris game grid
                 val fraction = 0.8f
                 TetrisGrid(
-                    width = 200.dp,
-                    height = 440.dp,
+                    width = 180.dp,
+                    height = 396.dp,
                     viewModel = viewModel,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight
@@ -80,7 +93,8 @@ fun TetrisScreen(
                     )
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth(fraction = fraction),
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = fraction),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     GameActionButton(
@@ -113,8 +127,8 @@ private fun Stats(
 ) {
     val gameStats by remember { derivedStateOf { viewModel.statsState } }
     Column(modifier = modifier) {
-        Text("Lines: ${gameStats.lines}")
-        Text("Score: ${gameStats.score}")
-        Text("Level: ${gameStats.level}")
+        TetrisText("Lines: ${gameStats.lines}")
+        TetrisText("Score: ${gameStats.score}")
+        TetrisText("Level: ${gameStats.level}")
     }
 }

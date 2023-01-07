@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,11 +36,11 @@ fun UpcomingTetrominoesBox(
 ) {
     val upcomingState by remember { derivedStateOf { viewModel.upcomingTetrominoesState} }
     val tetrominoes = upcomingState.tetrominoes
-    Log.d("Upcoming", "Recomposed")
+    val borderColor = if (isSystemInDarkTheme()) Color.White else Color.Black
     Column(
         modifier = modifier
             .size(width = width, height = height)
-            .border(BorderStroke(width = 1.dp, color = Color.Black))
+            .border(BorderStroke(width = 1.dp, color = borderColor))
     ) {
         tetrominoes.forEach { tetromino ->
             Box(

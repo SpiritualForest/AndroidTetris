@@ -53,8 +53,14 @@ class TetrisScreenViewModel(
     var gameState by mutableStateOf(GameState())
         private set
     var upcomingTetrominoesState by mutableStateOf(UpcomingTetrominoesState())
+        private set
 
     private val api = API()
+
+    // Now game related properties
+    // TODO: read from settings, do not hard code here
+    var ghostEnabled = false
+        private set
 
     init {
         api.createGame()
@@ -157,4 +163,8 @@ class TetrisScreenViewModel(
         }
         api.rotate()
     }
+    fun setGhostEnabled(enabled: Boolean) {
+        ghostEnabled = enabled
+    }
+    fun isGhostEnabled(): Boolean = ghostEnabled
 }

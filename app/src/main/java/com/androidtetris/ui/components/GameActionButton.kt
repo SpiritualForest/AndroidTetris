@@ -1,9 +1,11 @@
 package com.androidtetris.ui.components
 
+import android.util.Log
 import android.view.MotionEvent
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -31,7 +33,9 @@ fun GameActionButton(
     onActionDown: () -> Unit = {}
 ) {
     var isDown by remember { mutableStateOf(false) }
-    val iconTint = if (isDown) Color.Magenta else Color.Black
+    val isDark = isSystemInDarkTheme()
+    val inactiveColor = if (isDark) Color.White else Color.Black
+    val iconTint = if (isDown) Color.Magenta else inactiveColor
 
     LaunchedEffect(isDown) {
         while (isDown) {
@@ -42,20 +46,40 @@ fun GameActionButton(
     }
     Box(modifier = modifier
         .border(
-            BorderStroke(1.dp, Color.Black),
-            shape = RoundedCornerShape(48.dp)
+            BorderStroke(1.dp, inactiveColor),
+            shape = RoundedCornerShape(64.dp)
         )
-        .pointerInteropFilter {
-            when (it.action) {
+        .pointerInteropFilter { motionEvent ->
+            when (motionEvent.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     isDown = true
                     true
                 }
+
                 MotionEvent.ACTION_UP -> {
                     isDown = false
                     true
                 }
-                else -> false // Do not handle anything else
+
+                MotionEvent.ACTION_MOVE -> {
+                    isDown = true
+                    true
+                }
+
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    isDown = true
+                    true
+                }
+
+                MotionEvent.ACTION_POINTER_UP -> {
+                    isDown = false
+                    true
+                }
+
+                else -> {
+                    Log.d("MotionEventLog", "Event: $motionEvent")
+                    false
+                } // Do not handle anything else
             }
         }
     ) {
