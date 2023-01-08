@@ -1,6 +1,9 @@
 package com.androidtetris.ui.screens.tetris
 
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,16 +12,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.androidtetris.R
 import com.androidtetris.game.Direction
@@ -30,6 +38,7 @@ import com.androidtetris.ui.theme.DarkColors
 import com.androidtetris.ui.theme.LightColors
 import com.androidtetris.ui.theme.LocalColors
 import com.androidtetris.ui.theme.TetrisTheme
+import kotlinx.coroutines.delay
 
 /* AndroidTetris TetrisScreen: the composable that actually displays the gameplay */
 
@@ -39,12 +48,13 @@ fun TetrisScreen(
     gridHeight: Int = 22
 ) {
     val viewModel by remember { mutableStateOf(TetrisScreenViewModel(gridWidth, gridHeight)) }
-    val isGhostEnabled by remember { mutableStateOf(viewModel.ghostEnabled) }
+    var isGhostEnabled by remember { mutableStateOf(false) }
     val themeColors = if (isSystemInDarkTheme()) DarkColors else LightColors
     val theme = TetrisTheme(
         colors = themeColors,
         isDark = isSystemInDarkTheme()
     )
+    Log.d("TetrisScreen", "Recomposed")
     CompositionLocalProvider(LocalColors provides theme) {
         val colors = LocalColors.current.colors
         Column(
@@ -65,17 +75,33 @@ fun TetrisScreen(
                         modifier = Modifier.padding(bottom = 32.dp)
                     )
                     Stats(viewModel)
-                    Row(
-                        modifier = Modifier.padding(top = 32.dp),
-                        horizontalArrangement = Arrangement.Center
+                    TimeText(keepCounting = viewModel.gameState.gameRunning && !viewModel.gameState.gamePaused)
+                    IconButton(
+                        onClick = {
+                            isGhostEnabled = !isGhostEnabled
+                            viewModel.ghostEnabled = isGhostEnabled
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 32.dp)
+                            .border(
+                                BorderStroke(1.dp, colors.BorderColor),
+                                shape = RoundedCornerShape(8.dp)
+                            )
                     ) {
-                        Switch(
-                            checked = isGhostEnabled,
-                            onCheckedChange = { viewModel.setGhostEnabled(it) },
-                        )
-                        Text(
-                            text = "Ghost"
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            val icon = if (isGhostEnabled) R.drawable.check else R.drawable.close
+                            val iconTint = if (isGhostEnabled) Color.Green else Color.Red
+                            Icon(
+                                painter = painterResource(id = icon),
+                                contentDescription = "Enable or disable ghost",
+                                tint = iconTint
+                            )
+                            TetrisText(
+                                text = "Ghost",
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
                     }
                 }
                 Column(
@@ -143,4 +169,29 @@ private fun Stats(
         TetrisText("Score: ${gameStats.score}")
         TetrisText("Level: ${gameStats.level}")
     }
+}
+
+@Composable
+fun TimeText(
+    keepCounting: Boolean
+) {
+    var count by remember { mutableStateOf(0) }
+    LaunchedEffect(keepCounting) {
+        while(keepCounting) {
+            count += 1
+            delay(1000)
+        }
+    }
+    val convertedCount = when (count) {
+        in 0..9 -> "00:0$count"
+        in 10..60 -> "00:$count"
+        else -> {
+            val seconds = count % 60
+            val minutes = (count - seconds) / 60
+            val minutesString = if (minutes < 10) "0$minutes" else "$minutes"
+            val secondsString = if (seconds < 10) "0$seconds" else "$seconds"
+            "$minutesString:$secondsString"
+        }
+    }
+    TetrisText(text = "Time: $convertedCount")
 }

@@ -1,5 +1,6 @@
 package com.androidtetris.ui.screens.tetris
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -59,8 +60,7 @@ class TetrisScreenViewModel(
 
     // Now game related properties
     // TODO: read from settings, do not hard code here
-    var ghostEnabled = false
-        private set
+    var ghostEnabled by mutableStateOf(false)
 
     init {
         api.createGame()
@@ -163,8 +163,4 @@ class TetrisScreenViewModel(
         }
         api.rotate()
     }
-    fun setGhostEnabled(enabled: Boolean) {
-        ghostEnabled = enabled
-    }
-    fun isGhostEnabled(): Boolean = ghostEnabled
 }
