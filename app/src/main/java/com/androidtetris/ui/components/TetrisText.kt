@@ -1,10 +1,11 @@
 package com.androidtetris.ui.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import com.androidtetris.ui.theme.LocalColors
+
+// Just a wrapper so we don't have to add the colour to every Text() we use anywhere
 
 @Composable
 fun TetrisText(
@@ -13,7 +14,7 @@ fun TetrisText(
 ) {
     Text(
         text = text,
-        color = if (isSystemInDarkTheme()) Color.White else Color.Black,
+        color = LocalColors.current.colors.ForegroundColor,
         modifier = modifier
     )
 }

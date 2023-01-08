@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.androidtetris.ui.screens.tetris.TetrisScreenViewModel
 import com.androidtetris.game.TetrominoCode
+import com.androidtetris.ui.theme.LocalColors
 
 // The sole purpose of this composable is to display tetrominoes
 
@@ -30,8 +31,6 @@ fun TetrisGrid(
     gridWidth: Int = 10,
     gridHeight: Int = 22
 ) {
-    val borderColor: Color = if (isSystemInDarkTheme()) Color.White else Color.Black
-
     // State handling
     remember { mutableStateOf(viewModel.tetrisGridState.recompositionCount) } // Used to trigger recomposition
     val gridState = viewModel.tetrisGridState
@@ -43,7 +42,7 @@ fun TetrisGrid(
         modifier = modifier
             .height(height)
             .width(width)
-            .border(BorderStroke(1.dp, borderColor))
+            .border(BorderStroke(1.dp, LocalColors.current.colors.BorderColor))
     ) {
         val squareWidthPx = size.width / gridWidth
         val squareHeightPx = size.height / gridHeight

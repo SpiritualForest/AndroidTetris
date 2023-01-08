@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.ui.screens.tetris.TetrisScreenViewModel
+import com.androidtetris.ui.theme.LocalColors
 
 // FIXME: TetrominoCanvas height keeps changing by one pixel on each recomposition. Find out why.
 
@@ -35,11 +36,10 @@ fun UpcomingTetrominoesBox(
 ) {
     val upcomingState by remember { derivedStateOf { viewModel.upcomingTetrominoesState} }
     val tetrominoes = upcomingState.tetrominoes
-    val borderColor = if (isSystemInDarkTheme()) Color.White else Color.Black
     Column(
         modifier = modifier
             .size(width = width, height = height)
-            .border(BorderStroke(width = 1.dp, color = borderColor))
+            .border(BorderStroke(width = 1.dp, color = LocalColors.current.colors.BorderColor))
     ) {
         tetrominoes.forEach { tetromino ->
             Box(

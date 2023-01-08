@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.androidtetris.ui.theme.LocalColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
@@ -33,8 +34,6 @@ fun GameActionButton(
     onActionDown: () -> Unit = {}
 ) {
     var isDown by remember { mutableStateOf(false) }
-    val inactiveColor = if (isSystemInDarkTheme()) Color.White else Color.Black
-    val iconTint = if (isDown) Color.Magenta else inactiveColor
 
     LaunchedEffect(isDown) {
         while (isDown) {
@@ -43,9 +42,10 @@ fun GameActionButton(
             delay(actionDelay)
         }
     }
+    val colors = LocalColors.current.colors
     Box(modifier = modifier
         .border(
-            BorderStroke(1.dp, inactiveColor),
+            BorderStroke(1.dp, colors.BorderColor),
             shape = RoundedCornerShape(16.dp)
         )
         .pointerInteropFilter { motionEvent ->
@@ -85,7 +85,7 @@ fun GameActionButton(
         Icon(
             painter = painterResource(id = drawable),
             contentDescription = null,
-            tint = iconTint
+            tint = if (isDown) Color.Magenta else colors.ForegroundColor
         )
     }
 }
