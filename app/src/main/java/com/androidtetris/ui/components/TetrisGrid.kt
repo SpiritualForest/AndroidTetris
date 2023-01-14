@@ -3,7 +3,6 @@ package com.androidtetris.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -67,10 +66,21 @@ fun TetrisGrid(
                 color = getTetrominoColor(tetromino)
             )
         }
+        // And ghost
+        if (viewModel.ghostEnabled) {
+            gridState.ghostCoordinates.forEach { point ->
+                drawSquare(
+                    x = point.x.toFloat(),
+                    y = point.y.toFloat(),
+                    squareWidthPx = squareWidthPx,
+                    squareHeightPx = squareHeightPx,
+                    color = getTetrominoColor(tetromino).copy(alpha = 0.3f)
+                )
+            }
+        }
     }
 }
 
-// FIXME: named colours?
 private fun getTetrominoColor(tetrominoCode: TetrominoCode): Color {
     return when (tetrominoCode) {
         TetrominoCode.I -> Color(0xFFFF14A3)

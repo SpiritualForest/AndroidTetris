@@ -76,6 +76,7 @@ fun TetrisScreen(
                     )
                     Stats(viewModel)
                     TimeText(keepCounting = viewModel.gameState.gameRunning && !viewModel.gameState.gamePaused)
+                    val ghostIconTint = if (isGhostEnabled) Color.Green else Color.Red
                     IconButton(
                         onClick = {
                             isGhostEnabled = !isGhostEnabled
@@ -85,17 +86,16 @@ fun TetrisScreen(
                             .fillMaxWidth()
                             .padding(top = 32.dp)
                             .border(
-                                BorderStroke(1.dp, colors.BorderColor),
+                                BorderStroke(1.dp, ghostIconTint),
                                 shape = RoundedCornerShape(8.dp)
                             )
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             val icon = if (isGhostEnabled) R.drawable.check else R.drawable.close
-                            val iconTint = if (isGhostEnabled) Color.Green else Color.Red
                             Icon(
                                 painter = painterResource(id = icon),
                                 contentDescription = "Enable or disable ghost",
-                                tint = iconTint
+                                tint = ghostIconTint
                             )
                             TetrisText(
                                 text = "Ghost",
