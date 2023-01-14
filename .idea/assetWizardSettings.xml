@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:$PROJECT_DIR$/../Library/Android/sdk/icons/material/materialicons/arrow_upward/baseline_arrow_upward_24.xml" />
+                                      <entry key="url" value="file:$PROJECT_DIR$/../Library/Android/sdk/icons/material/materialicons/play_arrow/baseline_play_arrow_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -28,7 +28,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="arrow_up" />
+                            <entry key="outputName" value="play" />
                           </map>
                         </option>
                       </PersistentState>

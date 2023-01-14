@@ -35,7 +35,8 @@ data class UpcomingTetrominoesState(
 data class StatsState(
     val lines: Int = 0,
     val score: Int = 0,
-    val level: Int = 0
+    val level: Int = 1,
+    val previousLinesCompleted: Int = 1 // For score calculation
 )
 
 data class GameState(
@@ -61,6 +62,7 @@ class TetrisScreenViewModel(
     // Now game related properties
     // TODO: read from settings, do not hard code here
     var ghostEnabled by mutableStateOf(false)
+    var gameTimeSeconds: Int = 0
 
     init {
         api.createGame()
@@ -119,10 +121,17 @@ class TetrisScreenViewModel(
     }
 
     fun linesCompleted(args: LinesCompletedEventArgs) {
+        // Calculate score
+        val scoreMultiplication = listOf(40, 100, 300, 1200)
+        val score = statsState.score + (scoreMultiplication[args.lines.size-1] * (statsState.level + 1) * statsState.previousLinesCompleted)
         statsState = statsState.copy(
             lines = api.lines(),
-            level = api.level()
+            level = api.level(),
+            score = score,
+            previousLinesCompleted = args.lines.size
         )
+
+        // Now we do the line clearing animation shit
         val grid = tetrisGridState.copy().grid
         // We have to add the tetromino's coordinates to the grid to complete the lines
         // If we don't do this, the animations will be incomplete.
@@ -189,6 +198,10 @@ class TetrisScreenViewModel(
 
     fun restartGame() {
         api.endGame()
+        // Clear the grid state and stats state
+        // TODO: initial level needs to be taken into account
+        tetrisGridState = TetrisGridState()
+        statsState = StatsState()
         api.startGame()
     }
 

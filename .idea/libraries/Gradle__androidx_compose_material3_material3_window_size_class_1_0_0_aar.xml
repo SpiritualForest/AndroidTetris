@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: androidx.compose.material3:material3-window-size-class:1.0.0@aar">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../.gradle/caches/transforms-3/cd5b5d6b70a6b556f36f64340c0b0291/transformed/jetified-material3-window-size-class-1.0.0/jars/classes.jar!/" />
-      <root url="file://$PROJECT_DIR$/../.gradle/caches/transforms-3/cd5b5d6b70a6b556f36f64340c0b0291/transformed/jetified-material3-window-size-class-1.0.0/res" />
-      <root url="file://$PROJECT_DIR$/../.gradle/caches/transforms-3/cd5b5d6b70a6b556f36f64340c0b0291/transformed/jetified-material3-window-size-class-1.0.0/AndroidManifest.xml" />
+      <root url="file://$PROJECT_DIR$/../.gradle/caches/transforms-3/024338c526734a23977a6ab7aa960fd2/transformed/jetified-material3-window-size-class-1.0.0/res" />
+      <root url="jar://$PROJECT_DIR$/../.gradle/caches/transforms-3/024338c526734a23977a6ab7aa960fd2/transformed/jetified-material3-window-size-class-1.0.0/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/../.gradle/caches/transforms-3/024338c526734a23977a6ab7aa960fd2/transformed/jetified-material3-window-size-class-1.0.0/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

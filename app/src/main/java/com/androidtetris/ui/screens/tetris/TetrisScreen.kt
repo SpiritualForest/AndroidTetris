@@ -65,7 +65,7 @@ fun TetrisScreen(
         ) {
             Row(modifier = Modifier.fillMaxSize()) {
                 Column(
-                    modifier = Modifier.weight(0.3f)
+                    modifier = Modifier.weight(0.35f)
                 ) {
                     // Left side column, contains upcoming tetrominoes grid, stats, ghost chip
                     UpcomingTetrominoesBox(
@@ -75,7 +75,7 @@ fun TetrisScreen(
                         modifier = Modifier.padding(bottom = 32.dp)
                     )
                     Stats(viewModel)
-                    TimeText(keepCounting = viewModel.gameState.gameRunning && !viewModel.gameState.gamePaused)
+                    TimeText(viewModel)
                     val ghostIconTint = if (isGhostEnabled) Color.Green else Color.Red
                     IconButton(
                         onClick = {
@@ -157,7 +157,7 @@ fun TetrisScreen(
                     }
                 }
                 Column(
-                    modifier = Modifier.weight(0.7f),
+                    modifier = Modifier.weight(0.65f),
                     horizontalAlignment = Alignment.End
                 ) {
                     // Right side column, contains the tetris game grid
@@ -224,13 +224,12 @@ private fun Stats(
 }
 
 @Composable
-fun TimeText(
-    keepCounting: Boolean
-) {
-    var count by remember { mutableStateOf(0) }
+fun TimeText(viewModel: TetrisScreenViewModel) {
+    val keepCounting = viewModel.gameState.gameRunning && !viewModel.gameState.gamePaused
+    var count by remember { mutableStateOf(viewModel.gameTimeSeconds) }
     LaunchedEffect(keepCounting) {
         while(keepCounting) {
-            count += 1
+            count++
             delay(1000)
         }
     }

@@ -224,6 +224,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         // Stop the movement timer and clear out the grid.
         gameRunning = false
         gameLevel = options.gameLevel
+        lines = 0
         // Reset the drop speed according to the game level.
         // This is done in case the player restarts the game. Otherwise, it has no effect anyway.
         dropSpeed = 1000L - (gameLevel*50)
