@@ -179,6 +179,19 @@ class TetrisScreenViewModel(
         api.rotate()
     }
 
+    fun pauseGame() {
+        api.pauseGame()
+    }
+
+    fun unpauseGame() {
+        api.unpauseGame()
+    }
+
+    fun restartGame() {
+        api.endGame()
+        api.startGame()
+    }
+
     private fun moveGhostCoordinates() {
         val coordinates = tetrisGridState.copy().tetrominoCoordinates.toList()
         val grid = tetrisGridState.grid

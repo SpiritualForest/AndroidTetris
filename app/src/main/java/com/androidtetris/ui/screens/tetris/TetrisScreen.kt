@@ -103,6 +103,58 @@ fun TetrisScreen(
                             )
                         }
                     }
+                    IconButton(
+                        onClick = { viewModel.restartGame() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 32.dp)
+                            .border(
+                                BorderStroke(1.dp, colors.ForegroundColor),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.restart),
+                                contentDescription = "Restart the game",
+                                tint = colors.ForegroundColor
+                            )
+                            TetrisText(
+                                text = "Restart",
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
+                    }
+                    // Pause stuff
+                    IconButton(
+                        onClick = {
+                            if (viewModel.gameState.gamePaused) {
+                                viewModel.unpauseGame()
+                            } else {
+                                viewModel.pauseGame()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 32.dp)
+                            .border(
+                                BorderStroke(1.dp, colors.ForegroundColor),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            val icon = if (viewModel.gameState.gamePaused) R.drawable.play else R.drawable.pause
+                            Icon(
+                                painter = painterResource(id = icon),
+                                contentDescription = "Pause or unpause the game",
+                                tint = colors.ForegroundColor
+                            )
+                            TetrisText(
+                                text = if (viewModel.gameState.gamePaused) "Unpause" else "Pause",
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
+                    }
                 }
                 Column(
                     modifier = Modifier.weight(0.7f),

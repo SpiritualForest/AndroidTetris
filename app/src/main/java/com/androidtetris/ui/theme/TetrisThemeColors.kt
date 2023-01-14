@@ -26,6 +26,9 @@ data class TetrisTheme(
     val isDark: Boolean
 )
 
-val LocalColors = staticCompositionLocalOf<TetrisTheme> {
-    error("Test")
+val LocalColors = staticCompositionLocalOf {
+    TetrisTheme(
+        colors = LightColors,
+        isDark = false
+    )
 }
