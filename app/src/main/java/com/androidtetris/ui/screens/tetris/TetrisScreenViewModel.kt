@@ -62,7 +62,7 @@ class TetrisScreenViewModel(
     // Now game related properties
     // TODO: read from settings, do not hard code here
     var ghostEnabled by mutableStateOf(false)
-    var gameTimeSeconds: Int = 0
+    var gameTimeSeconds by mutableStateOf(0)
 
     init {
         api.createGame()
@@ -202,6 +202,7 @@ class TetrisScreenViewModel(
         // TODO: initial level needs to be taken into account
         tetrisGridState = TetrisGridState()
         statsState = StatsState()
+        gameTimeSeconds = 0
         api.startGame()
     }
 
@@ -279,6 +280,11 @@ class TetrisScreenViewModel(
                 high = m
             }
         }
+    }
+
+    fun increaseGameTimer(): Int {
+        gameTimeSeconds++
+        return gameTimeSeconds
     }
 }
 

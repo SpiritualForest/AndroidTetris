@@ -48,7 +48,7 @@ fun TetrisScreen(
     gridHeight: Int = 22
 ) {
     val viewModel by remember { mutableStateOf(TetrisScreenViewModel(gridWidth, gridHeight)) }
-    var isGhostEnabled by remember { mutableStateOf(false) }
+    var isGhostEnabled by remember { mutableStateOf(viewModel.ghostEnabled) }
     val themeColors = if (isSystemInDarkTheme()) DarkColors else LightColors
     val theme = TetrisTheme(
         colors = themeColors,
@@ -227,12 +227,6 @@ private fun Stats(
 fun TimeText(viewModel: TetrisScreenViewModel) {
     val keepCounting = viewModel.gameState.gameRunning && !viewModel.gameState.gamePaused
     var count by remember { mutableStateOf(viewModel.gameTimeSeconds) }
-    LaunchedEffect(keepCounting) {
-        while(keepCounting) {
-            count++
-            delay(1000)
-        }
-    }
     val convertedCount = when (count) {
         in 0..9 -> "00:0$count"
         in 10..60 -> "00:$count"
@@ -242,6 +236,12 @@ fun TimeText(viewModel: TetrisScreenViewModel) {
             val minutesString = if (minutes < 10) "0$minutes" else "$minutes"
             val secondsString = if (seconds < 10) "0$seconds" else "$seconds"
             "$minutesString:$secondsString"
+        }
+    }
+    LaunchedEffect(keepCounting) {
+        while(keepCounting) {
+            delay(1000)
+            count = viewModel.increaseGameTimer()
         }
     }
     TetrisText(text = "Time: $convertedCount")
