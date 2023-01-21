@@ -38,14 +38,12 @@ import kotlinx.coroutines.delay
 /* AndroidTetris TetrisScreen: the composable that actually displays the gameplay */
 
 @Composable
-fun TetrisScreen(
-    gridWidth: Int = 10,
-    gridHeight: Int = 22
-) {
-    val viewModel by remember { mutableStateOf(TetrisScreenViewModel(gridWidth, gridHeight)) }
-    var isGhostEnabled by remember { mutableStateOf(viewModel.ghostEnabled) }
+fun TetrisScreen() {
+    val viewModel by remember { mutableStateOf(TetrisScreenViewModel()) }
+    var isGhostEnabled by remember { mutableStateOf(viewModel.isGhostEnabled()) }
     Log.d("TetrisScreen", "Recomposed")
     val colors = LocalColors.current.colors
+    Log.d("TetrisScreen", "${LocalColors.current.isDark}")
     Column(
         modifier = Modifier
             .background(colors.BackgroundColor)
@@ -69,7 +67,7 @@ fun TetrisScreen(
                 IconButton(
                     onClick = {
                         isGhostEnabled = !isGhostEnabled
-                        viewModel.ghostEnabled = isGhostEnabled
+                        viewModel.setTheGhostEnabled(isGhostEnabled)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -156,8 +154,8 @@ fun TetrisScreen(
                     width = 180.dp,
                     height = 396.dp,
                     viewModel = viewModel,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight
+                    gridWidth = viewModel.gridWidth,
+                    gridHeight = viewModel.gridHeight
                 )
                 Box(
                     modifier = Modifier

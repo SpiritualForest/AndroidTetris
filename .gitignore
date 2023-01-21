@@ -2,3 +2,5 @@ build/
 local.properties
 log.txt
 .gradle/
+.config/
+.idea/

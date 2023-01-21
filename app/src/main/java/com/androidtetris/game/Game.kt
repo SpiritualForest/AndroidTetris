@@ -100,7 +100,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         bundle.putInt(K_GAME_LEVEL, gameLevel)
         bundle.putInt(K_LINES, lines)
         bundle.putLong(K_DROP_SPEED, dropSpeed)
-        bundle.putSerializable(K_TETROMINO, currentTetromino.tetrominoCode)
+        bundle.putString(K_TETROMINO, currentTetromino.tetrominoCode.toString())
         bundle.putInt(K_TETROMINO_ROTATION, currentTetromino.currentRotation)
         
         /* Pack the grid */
@@ -139,7 +139,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         // Load a game
         
         // For tetromino, we must create a new object and then set its coordinates and current rotation
-        val t = savedState.getSerializable(K_TETROMINO)
+        val t = savedState.getString(K_TETROMINO)
         // Populate the coordinates array of points
         val coordinatesList = savedState.getIntegerArrayList(K_TETROMINO_COORDINATES)
         val coordinates = Array(coordinatesList!!.size) { Point(0, 0) }
@@ -150,12 +150,16 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         }
         val rotation = savedState.getInt(K_TETROMINO_ROTATION)
         // Create the tetromino object, set its coordinates and rotation, and then set it as our current tetromino in the game
-        val tetrominoObj = tetrominoReferences[t]!!
-        currentTetromino = tetrominoObj.invoke(grid)
-        currentTetromino.currentRotation = rotation
-        currentTetromino.coordinates = coordinates
-        if (options.invertRotation) {
-            currentTetromino.rotations.reverse()
+        t?.let {
+            val tetrominoObj = tetrominoReferences[TetrominoCode.valueOf(t)]
+            if (tetrominoObj != null) {
+                currentTetromino = tetrominoObj.invoke(grid)
+            }
+            currentTetromino.currentRotation = rotation
+            currentTetromino.coordinates = coordinates
+            if (options.invertRotation) {
+                currentTetromino.rotations.reverse()
+            }
         }
 
         // Now we unpack the grid

@@ -14,6 +14,7 @@ import com.androidtetris.game.event.GridChangedEventArgs
 import com.androidtetris.game.event.LinesCompletedEventArgs
 import com.androidtetris.game.event.TetrominoCoordinatesChangedEventArgs
 import com.androidtetris.game.event.TetrominoSpawnedEventArgs
+import com.androidtetris.settings.SettingsHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -44,10 +45,7 @@ data class GameState(
     val gamePaused: Boolean = false
 )
 
-class TetrisScreenViewModel(
-    private val gridWidth: Int,
-    private val gridHeight: Int
-    ) : ViewModel() {
+class TetrisScreenViewModel : ViewModel() {
     var tetrisGridState by mutableStateOf(TetrisGridState())
         private set
     var statsState by mutableStateOf(StatsState())
@@ -58,10 +56,12 @@ class TetrisScreenViewModel(
         private set
 
     private val api = API()
+    val gridWidth = SettingsHandler.getGridWidth()
+    val gridHeight = SettingsHandler.getGridHeight()
 
     // Now game related properties
     // TODO: read from settings, do not hard code here
-    var ghostEnabled by mutableStateOf(false)
+    var ghostEnabled = SettingsHandler.getGhostEnabled()
     var gameTimeSeconds by mutableStateOf(0)
 
     init {
@@ -199,11 +199,20 @@ class TetrisScreenViewModel(
     fun restartGame() {
         api.endGame()
         // Clear the grid state and stats state
-        // TODO: initial level needs to be taken into account
         tetrisGridState = TetrisGridState()
-        statsState = StatsState()
+        statsState = StatsState(level = SettingsHandler.getGameLevel())
         gameTimeSeconds = 0
         api.startGame()
+    }
+
+    fun setTheGhostEnabled(enabled: Boolean) {
+        // "TheGhost" because we get this stupid signature clash otherwise
+        SettingsHandler.setGhostEnabled(enabled)
+        ghostEnabled = enabled
+    }
+
+    fun isGhostEnabled(): Boolean {
+        return ghostEnabled
     }
 
     private fun moveGhostCoordinates() {
@@ -287,5 +296,3 @@ class TetrisScreenViewModel(
         return gameTimeSeconds
     }
 }
-
-private const val TAG = "TetrisScreenViewModel"
