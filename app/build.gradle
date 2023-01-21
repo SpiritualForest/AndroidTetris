@@ -59,6 +59,9 @@ dependencies {
     def composeBom = platform('androidx.compose:compose-bom:2022.10.00')
     implementation composeBom
     androidTestImplementation composeBom
+    def nav_version = "2.5.3"
+
+    implementation("androidx.navigation:navigation-compose:$nav_version")
 
     // Choose one of the following:
     // Material Design 3

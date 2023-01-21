@@ -11,6 +11,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.androidtetris.NavDestination
 import com.androidtetris.ui.theme.DarkColors
 import com.androidtetris.ui.theme.LightColors
 import com.androidtetris.ui.theme.LocalColors
@@ -19,7 +21,7 @@ import com.androidtetris.ui.theme.TetrisTheme
 /* AndroidTetris application entry point screen */
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     Column(
         modifier = Modifier.padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -34,7 +36,7 @@ fun HomeScreen() {
         }
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { /* Go to TetrisScreen */ }
+            onClick = { navController.navigate(NavDestination.Tetris.route) }
         ) {
             Text("Start Game")
         }
