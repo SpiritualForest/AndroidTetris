@@ -34,7 +34,7 @@ fun TetrisGrid(
     viewModel: TetrisScreenViewModel,
     modifier: Modifier = Modifier,
     gridWidth: Int = 10,
-    gridHeight: Int = 22
+    gridHeight: Int = 22,
 ) {
     // State handling
     remember { mutableStateOf(viewModel.tetrisGridState.recompositionCount) } // Used to trigger recomposition

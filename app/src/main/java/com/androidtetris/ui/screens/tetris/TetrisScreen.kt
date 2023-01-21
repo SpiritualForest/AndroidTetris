@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.androidtetris.R
 import com.androidtetris.game.Direction
+import com.androidtetris.settings.SettingsHandler
 import com.androidtetris.ui.components.GameActionButton
 import com.androidtetris.ui.components.TetrisGrid
 import com.androidtetris.ui.components.TetrisText
@@ -154,8 +155,8 @@ fun TetrisScreen() {
                     width = 180.dp,
                     height = 396.dp,
                     viewModel = viewModel,
-                    gridWidth = viewModel.gridWidth,
-                    gridHeight = viewModel.gridHeight
+                    gridWidth = SettingsHandler.getGridWidth(),
+                    gridHeight = SettingsHandler.getGridHeight()
                 )
                 Box(
                     modifier = Modifier

@@ -9,6 +9,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,6 +68,54 @@ fun HomeScreen(navController: NavController) {
                     }
                 )
                 TetrisText(text = stringResource(id = R.string.invert_rotation))
+            }
+        }
+        Surface(
+            shape = RoundedCornerShape(10.dp),
+            tonalElevation = 8.dp,
+            shadowElevation = 8.dp,
+        ) {
+            // Grid size menu
+            Row(modifier = Modifier.fillMaxWidth()) {
+                var menuExpanded by remember { mutableStateOf(true) }
+                TetrisText(stringResource(id = R.string.txt_gridSize))
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    // 10 x 22
+                    DropdownMenuItem(
+                        text = { TetrisText("10x22") },
+                        onClick = {
+                            SettingsHandler.setGridWidth(10)
+                            SettingsHandler.setGridHeight(22)
+                        }
+                    )
+                    // 15 x 33
+                    DropdownMenuItem(
+                        text = { TetrisText("15x33") },
+                        onClick = {
+                            SettingsHandler.setGridWidth(15)
+                            SettingsHandler.setGridHeight(33)
+                        }
+                    )
+                    // 20 x 44
+                    DropdownMenuItem(
+                        text = { TetrisText("20x44") },
+                        onClick = {
+                            SettingsHandler.setGridWidth(20)
+                            SettingsHandler.setGridHeight(44)
+                        }
+                    )
+                    // 30 x 66
+                    DropdownMenuItem(
+                        text = { TetrisText("30x66") },
+                        onClick = {
+                            SettingsHandler.setGridWidth(30)
+                            SettingsHandler.setGridHeight(66)
+                        }
+                    )
+                }
             }
         }
     }

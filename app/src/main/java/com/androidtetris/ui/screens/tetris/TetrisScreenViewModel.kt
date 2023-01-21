@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.androidtetris.game.API
 import com.androidtetris.game.Direction
 import com.androidtetris.game.Point
+import com.androidtetris.game.TetrisOptions
 import com.androidtetris.game.TetrominoCode
 import com.androidtetris.game.event.Event
 import com.androidtetris.game.event.GridChangedEventArgs
@@ -56,16 +57,22 @@ class TetrisScreenViewModel : ViewModel() {
         private set
 
     private val api = API()
-    val gridWidth = SettingsHandler.getGridWidth()
-    val gridHeight = SettingsHandler.getGridHeight()
+    private val gridWidth = SettingsHandler.getGridWidth()
+    private val gridHeight = SettingsHandler.getGridHeight()
 
     // Now game related properties
-    // TODO: read from settings, do not hard code here
     var ghostEnabled = SettingsHandler.getGhostEnabled()
     var gameTimeSeconds by mutableStateOf(0)
 
     init {
-        api.createGame()
+        api.createGame(
+            TetrisOptions(
+                gameLevel = SettingsHandler.getGameLevel(),
+                gridSize = Point(x = gridWidth, y = gridHeight),
+                invertRotation = SettingsHandler.getInvertRotation(),
+                startingHeight = SettingsHandler.getStartingHeight()
+            )
+        )
         api.addCallback(Event.GameStart, ::gameStart)
         api.addCallback(Event.GameEnd, ::gameEnd)
         api.addCallback(Event.TetrominoSpawned, ::tetrominoSpawned)

@@ -99,6 +99,9 @@ object SettingsHandler {
         return level
     }
 
+    fun setGridWidth(width: Int) = setInt(S_GRID_WIDTH, width)
+    fun setGridHeight(height: Int) = setInt(S_GRID_HEIGHT, height)
+
     fun getGridWidth(): Int {
         val width = getInt(S_GRID_WIDTH)
         return if (width == -1) 10 else width
