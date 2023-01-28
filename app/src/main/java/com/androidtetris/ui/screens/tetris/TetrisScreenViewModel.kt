@@ -49,7 +49,7 @@ data class GameState(
 class TetrisScreenViewModel : ViewModel() {
     var tetrisGridState by mutableStateOf(TetrisGridState())
         private set
-    var statsState by mutableStateOf(StatsState())
+    var statsState by mutableStateOf(StatsState(level = SettingsHandler.getGameLevel()))
         private set
     var gameState by mutableStateOf(GameState())
         private set
