@@ -42,9 +42,7 @@ import kotlinx.coroutines.delay
 fun TetrisScreen() {
     val viewModel by remember { mutableStateOf(TetrisScreenViewModel()) }
     var isGhostEnabled by remember { mutableStateOf(viewModel.isGhostEnabled()) }
-    Log.d("TetrisScreen", "Recomposed")
     val colors = LocalColors.current.colors
-    Log.d("TetrisScreen", "${LocalColors.current.isDark}")
     Column(
         modifier = Modifier
             .background(colors.BackgroundColor)
