@@ -69,7 +69,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
     private fun randomizeGrid(height: Int) {
         // Populate the grid with random squares, spanning across <height> percentage of lines
         val lines = floor((height / 10f) * gridHeight).toInt()
-        for(y in gridHeight downTo gridHeight - lines) {
+        for(y in gridHeight - 1 downTo gridHeight - lines) {
             /* We create a list of indices from 0 to gridWidth.
             * Those are our x values for the grid. Each x represents one square on that y line.
             * We remove a random amount of x values from the xPositions list
@@ -78,7 +78,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
             * The tetromino code determines the colour of the square. */
             val xPositions: MutableList<Int> = mutableListOf()
             for(x in 0 until gridWidth) { xPositions.add(x) }
-            val xValuesToRemove = (1 until gridWidth).random() // So that at least one square remains, but never a full line.
+            val xValuesToRemove = (3 until gridWidth).random() // So that at least 3 squares remain, but never a full line.
             // Now remove <squaresToRemove> x values from xPositions
             for(i in 0 until xValuesToRemove) {
                 xPositions.removeAt(xPositions.indices.random())
