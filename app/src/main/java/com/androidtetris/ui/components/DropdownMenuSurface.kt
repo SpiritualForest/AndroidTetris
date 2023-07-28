@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -23,10 +24,11 @@ import com.androidtetris.ui.theme.LocalColors
 fun DropdownMenuSurface(
     title: String,
     selectionText: String,
+    items: List<TetrisDropdownMenuItemData>,
     modifier: Modifier = Modifier,
     menuExpanded: Boolean = false,
     onMenuClick: () -> Unit = {},
-    dropdownMenu: @Composable () -> Unit,
+    onDismissRequest: () -> Unit = {}
 ) {
     val colors = LocalColors.current.colors
     Surface(
@@ -70,7 +72,14 @@ fun DropdownMenuSurface(
                         tint = colors.ForegroundColor
                     )
                 }
-                dropdownMenu()
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { onDismissRequest() }
+                ) {
+                    items.forEach {
+                        TetrisDropdownMenuItem(item = it)
+                    }
+                }
             }
         }
     }

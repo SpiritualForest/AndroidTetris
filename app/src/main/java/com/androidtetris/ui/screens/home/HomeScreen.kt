@@ -1,4 +1,4 @@
-package com.androidtetris.ui.screens
+package com.androidtetris.ui.screens.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +9,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,10 +25,8 @@ import com.androidtetris.R
 import com.androidtetris.game.Point
 import com.androidtetris.settings.SettingsHandler
 import com.androidtetris.ui.components.DropdownMenuSurface
-import com.androidtetris.ui.components.TetrisDropdownMenuItem
 import com.androidtetris.ui.components.TetrisDropdownMenuItemData
 import com.androidtetris.ui.components.TetrisText
-import com.androidtetris.ui.theme.LocalColors
 
 /* AndroidTetris application entry point screen */
 
@@ -79,96 +76,83 @@ fun HomeScreen(navController: NavController) {
         val gridWidth = SettingsHandler.getGridWidth()
         val gridHeight = SettingsHandler.getGridHeight()
         var gridSizeMenuExpanded by remember { mutableStateOf(false) }
+        val gridSizeItems: MutableList<TetrisDropdownMenuItemData> = mutableListOf()
+        listOf(
+            Point(10, 22), // Default
+            Point(15, 33),
+            Point(20, 44),
+            Point(30, 66)
+        ).forEach {
+            val width = it.x
+            val height = it.y
+            val selected = width == gridWidth && height == gridHeight
+            val item = TetrisDropdownMenuItemData(
+                title = "${width}x${height}",
+                selected = selected,
+                onClick = {
+                    SettingsHandler.setGridWidth(width)
+                    SettingsHandler.setGridHeight(height)
+                    gridSizeMenuExpanded = false
+                }
+            )
+            gridSizeItems.add(item)
+        }
         DropdownMenuSurface(
             title = stringResource(id = R.string.txt_gridSize),
             selectionText = "${gridWidth}x${gridHeight}",
+            items = gridSizeItems,
             modifier = Modifier.padding(vertical = 8.dp),
             menuExpanded = gridSizeMenuExpanded,
-            onMenuClick = { gridSizeMenuExpanded = !gridSizeMenuExpanded }
-        ) {
-            DropdownMenu(
-                expanded = gridSizeMenuExpanded,
-                onDismissRequest = { gridSizeMenuExpanded = false }
-            ) {
-                val gridSizes = listOf(
-                    Point(10, 22), // Default
-                    Point(15, 33),
-                    Point(20, 44),
-                    Point(30, 66)
-                )
-                gridSizes.forEach {
-                    val width = it.x
-                    val height = it.y
-                    val selected = width == gridWidth && height == gridHeight
-                    TetrisDropdownMenuItem(
-                        item = TetrisDropdownMenuItemData(
-                            title = "${width}x${height}",
-                            selected = selected,
-                            onClick = {
-                                SettingsHandler.setGridWidth(width)
-                                SettingsHandler.setGridHeight(height)
-                                gridSizeMenuExpanded = false
-                            }
-                        )
-                    )
-                }
-            }
-        }
+            onMenuClick = { gridSizeMenuExpanded = !gridSizeMenuExpanded },
+            onDismissRequest = { gridSizeMenuExpanded = false }
+        )
         // Starting height setting menu
         var startingHeightMenuExpanded by remember { mutableStateOf(false) }
         val startingHeight = SettingsHandler.getStartingHeight()
+        val startingHeightItems: MutableList<TetrisDropdownMenuItemData> = buildList {
+            for (i in 0 until 9) {
+                val item = TetrisDropdownMenuItemData(
+                    title = i.toString(),
+                    selected = i == startingHeight,
+                    onClick = {
+                        SettingsHandler.setStartingHeight(i)
+                        startingHeightMenuExpanded = false
+                    }
+                )
+                this.add(item)
+            }
+        } as MutableList<TetrisDropdownMenuItemData>
         DropdownMenuSurface(
             title = stringResource(id = R.string.txt_startingHeight),
             selectionText = startingHeight.toString(),
-            modifier = Modifier.padding(vertical = 8.dp),
+            items = startingHeightItems,
             menuExpanded = startingHeightMenuExpanded,
-            onMenuClick = { startingHeightMenuExpanded = !startingHeightMenuExpanded }
-        ) {
-            DropdownMenu(
-                expanded = startingHeightMenuExpanded,
-                onDismissRequest = { startingHeightMenuExpanded = false }
-            ) {
-                for (i in 0 until 9) {
-                    TetrisDropdownMenuItem(
-                        item = TetrisDropdownMenuItemData(
-                            title = i.toString(),
-                            selected = i == startingHeight,
-                            onClick = {
-                                SettingsHandler.setStartingHeight(i)
-                                startingHeightMenuExpanded = false
-                            }
-                        )
-                    )
-                }
-            }
-        }
+            onDismissRequest = { startingHeightMenuExpanded = false },
+            modifier = Modifier.padding(vertical = 8.dp),
+        )
+
         // Game level setting menu
         var gameLevelMenuExpanded by remember { mutableStateOf(false) }
         val gameLevel = SettingsHandler.getGameLevel()
+        val levelItems: MutableList<TetrisDropdownMenuItemData> = mutableListOf()
+        for (i in 1 until 20) {
+            val item = TetrisDropdownMenuItemData(
+                title = i.toString(),
+                selected = i == gameLevel,
+                onClick = {
+                    SettingsHandler.setGameLevel(i)
+                    gameLevelMenuExpanded = false
+                }
+            )
+            levelItems.add(item)
+        }
         DropdownMenuSurface(
             title = stringResource(id = R.string.txt_gameLevel),
             selectionText = gameLevel.toString(),
-            modifier = Modifier.padding(vertical = 8.dp),
+            items = levelItems,
             menuExpanded = gameLevelMenuExpanded,
-            onMenuClick = { gameLevelMenuExpanded = !gameLevelMenuExpanded }
-        ) {
-            DropdownMenu(
-                expanded = gameLevelMenuExpanded,
-                onDismissRequest = { gameLevelMenuExpanded = false }
-            ) {
-                for (i in 1 until 19) {
-                    TetrisDropdownMenuItem(
-                        item = TetrisDropdownMenuItemData(
-                            title = i.toString(),
-                            selected = i == gameLevel,
-                            onClick = {
-                                SettingsHandler.setGameLevel(i)
-                                gameLevelMenuExpanded = false
-                            }
-                        )
-                    )
-                }
-            }
-        }
+            onDismissRequest = { gameLevelMenuExpanded = false },
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
     }
 }

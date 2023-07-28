@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.androidtetris.settings.SettingsHandler
-import com.androidtetris.ui.screens.HomeScreen
+import com.androidtetris.ui.screens.home.HomeScreen
 import com.androidtetris.ui.screens.tetris.TetrisScreen
 import com.androidtetris.ui.theme.AndroidTetrisTheme
 import com.androidtetris.ui.theme.DarkColors
