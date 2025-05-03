@@ -224,32 +224,16 @@ class TetrisScreenViewModel : ViewModel() {
     }
 
     private fun moveGhostCoordinates() {
-        val coordinates = tetrisGridState.copy().tetrominoCoordinates.toList()
-        val grid = tetrisGridState.grid
-        val coordinatesCopy: MutableList<Point> = mutableListOf()
-        var lowestRow = 0 // Lowest y axis
-        coordinates.forEach {
-            coordinatesCopy.add(Point(it.x, it.y))
-            if (it.y > lowestRow) { lowestRow = it.y }
-        }
-        // Find the starting row for checking collisions
-        val closestRow = findClosestLarger(lowestRow, grid.keys.sorted())
-        val diff = (closestRow - lowestRow)
-        // Now increase the coordinates y value by diff-1
-        // diff-1 because otherwise the bottom-most part of the tetromino will end up on the closestRow.
-        var diffedCoordinates = coordinatesCopy.map {
-            Point(it.x, it.y + diff-1)
-        }
+        val coordinates = tetrisGridState.copy().tetrominoCoordinates.toMutableList()
         // No collision was detected after the initial hard-drop, so now we continue downwards.
-        while (!isGhostCollision(diffedCoordinates)) {
+        while (!isGhostCollision(coordinates)) {
             // Move the copied coordinates downwards until a collision occurs
-            coordinatesCopy.forEachIndexed { index, point ->
-                coordinatesCopy[index] = Point(point.x, point.y + 1)
+            coordinates.forEachIndexed { index, point ->
+                coordinates[index] = Point(point.x, point.y + 1)
             }
-            diffedCoordinates = coordinatesCopy
         }
         tetrisGridState = tetrisGridState.copy(
-            ghostCoordinates = coordinatesCopy.toList(),
+            ghostCoordinates = coordinates.toList(),
         )
     }
 
