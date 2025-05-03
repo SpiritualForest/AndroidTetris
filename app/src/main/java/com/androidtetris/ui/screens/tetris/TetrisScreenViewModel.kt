@@ -237,7 +237,7 @@ class TetrisScreenViewModel : ViewModel() {
         val diff = (closestRow - lowestRow)
         // Now increase the coordinates y value by diff-1
         // diff-1 because otherwise the bottom-most part of the tetromino will end up on the closestRow.
-        val diffedCoordinates = coordinatesCopy.map {
+        var diffedCoordinates = coordinatesCopy.map {
             Point(it.x, it.y + diff-1)
         }
         // No collision was detected after the initial hard-drop, so now we continue downwards.
@@ -246,6 +246,7 @@ class TetrisScreenViewModel : ViewModel() {
             coordinatesCopy.forEachIndexed { index, point ->
                 coordinatesCopy[index] = Point(point.x, point.y + 1)
             }
+            diffedCoordinates = coordinatesCopy
         }
         tetrisGridState = tetrisGridState.copy(
             ghostCoordinates = coordinatesCopy.toList(),
