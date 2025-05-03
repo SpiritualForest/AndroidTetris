@@ -64,43 +64,37 @@ class Grid(val width: Int, val height: Int) {
              For example if x resulted in 2 and gridCenter is 3, then x is 2+3 == 5.
              */
             val point = findArrayPosition(n, 4)
-            point.x += gridCenter
-            coordinates[i] = point
+            coordinates[i] = Point(x = point.x + gridCenter, y = point.y)
         }
         return coordinates
     }
 
     internal fun isCollision(coordinates: Array<Point>): Boolean {
         for(point in coordinates) {
-            val x = point.x
-            val y = point.y
-            if ((x >= width) || (x < 0)) {
-                // x goes out of bounds
-                return true
-            }
-            else if (y >= height) {
-                // y out of bounds
-                return true
-            }
-            else if ((y in grid) && (x in grid[y]!!)) {
-                // Position occupied in grid
-                return true
+            val (x, y) = point
+            when {
+                x >= width || x < 0 -> return true // x goes out of bounds
+                y >= height -> return true // y goes out of bounds
+                grid.contains(y) && grid[y]?.contains(x) == true -> {
+                    // Position occupied in grid
+                    return true
+                }
             }
         }
         // No collisions
         return false
     }
 
-    fun clear() {
+    internal fun clear() {
         // Clear the whole grid
         grid.clear()
     }
 
-    fun clearLine(y: Int) {
+    internal fun clearLine(y: Int) {
         grid.remove(y)
     }
 
-    fun fillPosition(x: Int, y: Int, tetrominoCode: TetrominoCode) {
+    internal fun fillPosition(x: Int, y: Int, tetrominoCode: TetrominoCode) {
         // Add a coordinate point to the grid
         if (y !in grid) {
             // new y
@@ -113,7 +107,7 @@ class Grid(val width: Int, val height: Int) {
         }
     }
 
-    fun pushLines(lowestLine: Int) {
+    internal fun pushLines(lowestLine: Int) {
         // Push all the lines downwards after a line (or more) were completed.
         // "Lowest" and "highest" refer to their visual position on the grid,
         // not their actual numerical values. The higher a line is visually in the grid,
@@ -130,16 +124,14 @@ class Grid(val width: Int, val height: Int) {
             // If the line's filled positions count is 0, we skip it
             // Otherwise we copy the array and place it <step> steps down,
             // and then clear the line.
-            if (y !in grid) { step++ }
-            else {
-                grid[y+step] = grid[y]!!
+            grid[y]?.let {
+                grid[y+step] = it
                 grid.remove(y)
-            }
+            } ?: step++
         }
     }
 
-    fun isLineFull(y: Int): Boolean {
-        if (y !in grid) { return false }
-        return grid[y]!!.count() == width
+    internal fun isLineFull(y: Int): Boolean {
+        return grid[y]?.size == width
     }
 }

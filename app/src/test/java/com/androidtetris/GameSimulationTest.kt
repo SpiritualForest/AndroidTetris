@@ -21,7 +21,7 @@ class GameSimulationTest {
     private fun hardMove(direction: Direction, times: Int) {
         // Helper function to repeatedly move the tetromino in the given direction
         // Like a hard drop in the given direction
-        for(i in 0 until times) {
+        repeat(times) {
             gameObj.move(direction)
         }
     }

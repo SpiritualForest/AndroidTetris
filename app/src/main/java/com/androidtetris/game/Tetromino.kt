@@ -16,16 +16,7 @@ this grid. So value 9 is at (x, y) (1, 2), second index of the third sub-array.
 15 is at (3, 3). 10 is at (2, 2).
 */
 
-data class Point(var x: Int, var y: Int) {
-    fun copyOf(): Point {
-        // Return a copy of this point
-        return Point(x, y)
-    }
-
-    override fun toString(): String {
-        return String.format("%dx%d", x, y)
-    }
-}
+data class Point(val x: Int, val y: Int)
 
 abstract class Tetromino(private val grid: Grid) {
     open val coordinatesMap = arrayOf<Int>()

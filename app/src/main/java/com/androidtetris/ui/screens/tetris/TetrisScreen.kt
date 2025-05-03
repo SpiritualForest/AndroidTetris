@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,7 +48,8 @@ fun TetrisScreen() {
         modifier = Modifier
             .background(colors.BackgroundColor)
             .fillMaxSize()
-            .padding(16.dp)
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             Column(

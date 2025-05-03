@@ -2,13 +2,16 @@ package com.androidtetris.ui.screens.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,22 +38,12 @@ import com.androidtetris.ui.components.TetrisText
 @Composable
 fun HomeScreen(navController: NavController) {
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                navController.navigate(
-                    route = NavDestination.Tetris.route,
-                ) {
-                    launchSingleTop = true
-                }
-            }
-        ) {
-            Text("Start Game")
-        }
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
         Surface(
             shape = RoundedCornerShape(10.dp),
             tonalElevation = 8.dp,
@@ -154,5 +147,18 @@ fun HomeScreen(navController: NavController) {
             onDismissRequest = { gameLevelMenuExpanded = false },
             modifier = Modifier.padding(vertical = 8.dp)
         )
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                navController.navigate(
+                    route = NavDestination.Tetris.route,
+                ) {
+                    launchSingleTop = true
+                }
+            }
+        ) {
+            Text("Start Game")
+        }
     }
 }

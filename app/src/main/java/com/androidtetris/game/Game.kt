@@ -60,7 +60,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
             // No previous game state was saved, so this is a new game.
             // Create 4 new random tetrominoes.
             // Rest of the stuff is done in startGame(), which the API calls manually.
-            for (i in 0 until 4) {
+            repeat(4) {
                 this.tetrominoes.add(getRandomTetromino())
             }
         }
@@ -105,7 +105,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         
         /* Pack the grid */
         val gridValuesList: ArrayList<Int> = arrayListOf()
-        val tetrominoCodes = TetrominoCode.values()
+        val tetrominoCodes = TetrominoCode.entries.toTypedArray()
         for(y in grid.grid.keys) {
             for(x in grid.grid[y]!!.keys) {
                 // We use the index of the tetromino in the TetrominoCode enum to determine which one it is
@@ -164,7 +164,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
 
         // Now we unpack the grid
         val grid: HashMap<Int, HashMap<Int, TetrominoCode>> = hashMapOf()
-        val tetrominoCodes = TetrominoCode.values()
+        val tetrominoCodes = TetrominoCode.entries.toTypedArray()
         val gridValuesList = savedState.getIntegerArrayList(K_GRID)
         for(xyc in gridValuesList!!) {
             val x = (xyc shr 16) and 255
@@ -251,7 +251,7 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
     }
 
     private fun getRandomTetromino(): TetrominoCode {
-        val codes = TetrominoCode.values()
+        val codes = TetrominoCode.entries.toTypedArray()
         val codeIndex = (codes.indices).random()
         return codes[codeIndex]
     }
@@ -296,8 +296,9 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
             println("Can't set tetromino manually when not in test mode")
             return
         }
-        val t = tetrominoReferences[tetrominoCode]
-        currentTetromino = t?.invoke(grid)!!
+        tetrominoReferences[tetrominoCode]?.let { tetromino ->
+            tetromino(grid)
+        }
     }
 
     /* Tetromino handling functions */
@@ -305,16 +306,16 @@ class Game(private val options: TetrisOptions = TetrisOptions(), val savedState:
         // Move our coordinates according to the given direction
         // First, manually copy our array
         val temp = Array(coordinates.size) { Point(0, 0) }
-        for((i, point) in coordinates.withIndex()) {
-            val pointCopy = point.copyOf()
+        for ((i, point) in coordinates.withIndex()) {
+            var (x, y) = point
 
             when(direction) {
                 // Now move the required coordinates in the copied nested list
-                Direction.Down -> pointCopy.y++
-                Direction.Left -> pointCopy.x--
-                Direction.Right -> pointCopy.x++
+                Direction.Down -> y++
+                Direction.Left -> x--
+                Direction.Right -> x++
             }
-            temp[i] = pointCopy
+            temp[i] = point.copy(x = x, y = y)
         }
         return temp
     }

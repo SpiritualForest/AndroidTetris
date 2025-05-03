@@ -2,6 +2,7 @@ package com.androidtetris
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // TODO: handle the savedInstanceState here
         SettingsHandler.openSharedPreferences(this)
+        enableEdgeToEdge()
         setContent {
             AndroidTetrisTheme {
                 val themeColors = if (isSystemInDarkTheme()) DarkColors else LightColors

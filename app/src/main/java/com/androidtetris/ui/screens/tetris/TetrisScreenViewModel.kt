@@ -1,6 +1,7 @@
 package com.androidtetris.ui.screens.tetris
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -62,7 +63,7 @@ class TetrisScreenViewModel : ViewModel() {
 
     // Now game related properties
     var ghostEnabled = SettingsHandler.getGhostEnabled()
-    var gameTimeSeconds by mutableStateOf(0)
+    var gameTimeSeconds by mutableIntStateOf(0)
 
     init {
         api.createGame(
@@ -236,12 +237,14 @@ class TetrisScreenViewModel : ViewModel() {
         val diff = (closestRow - lowestRow)
         // Now increase the coordinates y value by diff-1
         // diff-1 because otherwise the bottom-most part of the tetromino will end up on the closestRow.
-        coordinatesCopy.forEach { it.y += diff-1 }
+        val diffedCoordinates = coordinatesCopy.map {
+            Point(it.x, it.y + diff-1)
+        }
         // No collision was detected after the initial hard-drop, so now we continue downwards.
-        while (!isGhostCollision(coordinatesCopy)) {
+        while (!isGhostCollision(diffedCoordinates)) {
             // Move the copied coordinates downwards until a collision occurs
-            coordinatesCopy.forEach {
-                it.y++
+            coordinatesCopy.forEachIndexed { index, point ->
+                coordinatesCopy[index] = Point(point.x, point.y + 1)
             }
         }
         tetrisGridState = tetrisGridState.copy(
@@ -249,12 +252,12 @@ class TetrisScreenViewModel : ViewModel() {
         )
     }
 
-    private fun isGhostCollision(coordinates: MutableList<Point>): Boolean {
+    private fun isGhostCollision(coordinates: List<Point>): Boolean {
         val grid = tetrisGridState.grid
         coordinates.forEach { point ->
             val y = point.y + 1
             if (y > gridHeight-1) { return true }
-            if (grid.containsKey(y) && grid[y]!!.containsKey(point.x)) {
+            if (grid.containsKey(y) && grid[y]?.containsKey(point.x) == true) {
                 return true
             }
         }
